@@ -1,0 +1,20 @@
+{% extends 'base/base.html' %}
+{% block title %}A Propos - Infinity Home{% endblock %}
+{% block nav_apropos %}active{% endblock %}
+{% block content %}
+<div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <h1 style="font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;">A Propos de nous</h1>
+    <p style="color:var(--muted);max-width:600px;margin:.7rem auto 0;line-height:1.7;">Infinity Home Rewire and Construction est votre partenaire de confiance pour tous vos projets de construction et renovation au Burundi.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:2rem;">
+    <div style="background:white;border-radius:20px;padding:2rem;border:1px solid var(--border);"><div style="font-size:2.5rem;margin-bottom:1rem;">🎯</div><h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:.7rem;">Notre mission</h3><p style="color:var(--muted);font-size:.9rem;line-height:1.7;">Mettre en relation rapidement les clients avec des techniciens qualifies pour repondre a tous leurs besoins en travaux.</p></div>
+    <div style="background:white;border-radius:20px;padding:2rem;border:1px solid var(--border);"><div style="font-size:2.5rem;margin-bottom:1rem;">👁️</div><h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:.7rem;">Notre vision</h3><p style="color:var(--muted);font-size:.9rem;line-height:1.7;">Devenir la plateforme de reference pour les travaux a domicile au Burundi, reconnue pour la qualite et la rapidite.</p></div>
+  </div>
+  <div style="background:linear-gradient(135deg,var(--primary),#1e40af);color:white;border-radius:20px;padding:2.5rem;text-align:center;">
+    <h3 style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;margin-bottom:.7rem;">Pret a travailler avec nous ?</h3>
+    <p style="opacity:.85;margin-bottom:1.5rem;">Faites votre premiere demande et un technicien qualifie vous contactera rapidement.</p>
+    <a href="{% url 'accounts:inscription' %}" class="btn" style="background:#f59e0b;color:#0f172a;padding:.9rem 2rem;font-size:1rem;font-weight:700;"><i class="fas fa-user-plus"></i> Creer mon compte</a>
+  </div>
+</div>
+{% endblock %}

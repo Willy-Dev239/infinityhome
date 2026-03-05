@@ -1,0 +1,32 @@
+{% extends 'base/base.html' %}
+{% block title %}Inscription - Infinity Home{% endblock %}
+{% block content %}
+<div style="max-width:600px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="background:white;border-radius:20px;padding:2.5rem;border:1px solid var(--border);box-shadow:var(--shadow);">
+    <div style="text-align:center;margin-bottom:2rem;">
+      <div style="width:60px;height:60px;border-radius:16px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--primary);margin:0 auto .8rem;"><i class="fas fa-user-plus"></i></div>
+      <h1 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;">Creer mon compte</h1>
+      <p style="color:var(--muted);font-size:.9rem;">Deja inscrit ? <a href="{% url 'accounts:connexion' %}" style="color:var(--primary);font-weight:600;">Se connecter</a></p>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next|default:'/' }}">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        {% for field in form %}
+        <div style="{% if field.name in 'username,email,password1,password2,adresse' %}grid-column:1/-1;{% endif %}">
+          <label style="display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div style="color:#dc2626;font-size:.75rem;margin-top:.2rem;">{{ field.errors.0 }}</div>{% endif %}
+          {% if field.help_text %}<div style="color:var(--muted);font-size:.73rem;margin-top:.2rem;">{{ field.help_text }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.9rem;font-size:1rem;margin-top:.5rem;"><i class="fas fa-user-plus"></i> Creer mon compte</button>
+    </form>
+  </div>
+</div>
+<style>
+input[type=text],input[type=email],input[type=password],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.88rem;outline:none;transition:all .2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+</style>
+{% endblock %}

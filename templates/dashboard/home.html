@@ -1,0 +1,62 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Tableau de bord - Admin{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block topbar_title %}Tableau de bord{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Tableau de bord</h1>
+    <p style="color:var(--muted);font-size:.88rem;">Bienvenue {{ request.user.username }} — voici l etat de la plateforme</p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:var(--accent);"><i class="fas fa-clipboard-list"></i></div><div class="stat-val">{{ stats.total_demandes }}</div><div class="stat-lbl">Demandes totales</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--red);"><i class="fas fa-clock"></i></div><div class="stat-val">{{ stats.en_attente }}</div><div class="stat-lbl">En attente</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(26,86,219,.1);color:#60a5fa;"><i class="fas fa-hard-hat"></i></div><div class="stat-val">{{ stats.total_techniciens }}</div><div class="stat-lbl">Techniciens ({{ stats.disponibles }} dispo)</div></div>
+  <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1);color:var(--green);"><i class="fas fa-check-circle"></i></div><div class="stat-val">{{ stats.terminees }}</div><div class="stat-lbl">Interventions terminees</div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:1.5rem;">
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
+      <div class="card-title" style="margin:0;">Demandes recentes</div>
+      <a href="{% url 'dashboard:demandes' %}" class="btn btn-ghost btn-sm">Voir tout</a>
+    </div>
+    <table>
+      <thead><tr><th>#</th><th>Client</th><th>Type</th><th>Localite</th><th>Statut</th><th></th></tr></thead>
+      <tbody>
+      {% for d in demandes_recentes %}
+      <tr>
+        <td style="color:var(--accent);font-weight:700;">#{{ d.id }}</td>
+        <td><div style="font-weight:600;">{{ d.client.get_full_name|default:d.client.username }}</div><div style="color:var(--muted);font-size:.75rem;">{{ d.client.email }}</div></td>
+        <td><span class="badge badge-blue">{{ d.get_type_travaux_display }}</span></td>
+        <td style="color:var(--muted2);">{{ d.localite }}</td>
+        <td><span class="badge {% if d.statut == 'en_attente' %}badge-yellow{% elif d.statut == 'terminee' %}badge-green{% elif d.statut == 'annulee' %}badge-red{% else %}badge-blue{% endif %}">{{ d.get_statut_display }}</span></td>
+        <td><a href="{% url 'dashboard:demande_detail' d.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Aucune demande</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Techniciens disponibles</div>
+    {% for t in techniciens_dispo %}
+    <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border);">
+      <div style="width:36px;height:36px;border-radius:9px;background:rgba(26,86,219,.1);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">{{ t.prenom|slice:":1" }}</div>
+      <div style="flex:1;">
+        <div style="font-weight:600;font-size:.86rem;">{{ t.nom_complet }}</div>
+        <div style="color:var(--muted);font-size:.75rem;">{{ t.get_specialite_display }}</div>
+      </div>
+      <span class="badge badge-green" style="font-size:.65rem;">Dispo</span>
+    </div>
+    {% empty %}
+    <div style="text-align:center;color:var(--muted);padding:1.5rem;font-size:.85rem;">Aucun technicien disponible</div>
+    {% endfor %}
+    <a href="{% url 'dashboard:technicien_add' %}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;"><i class="fas fa-plus"></i> Ajouter un technicien</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Demande #{{ demande.id }} - Admin{% endblock %}
+{% block nav_demandes %}active{% endblock %}
+{% block topbar_title %}Demande #{{ demande.id }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="breadcrumb"><a href="{% url 'dashboard:home' %}">Dashboard</a> / <a href="{% url 'dashboard:demandes' %}">Demandes</a> / #{{ demande.id }}</div>
+    <h1>Demande #{{ demande.id }}</h1>
+  </div>
+  <div style="display:flex;gap:.7rem;align-items:center;">
+    <form method="post" action="{% url 'dashboard:update_statut' demande.pk %}" style="display:flex;gap:.6rem;align-items:center;">
+      {% csrf_token %}
+      <select name="statut" class="form-ctrl" style="width:200px;height:38px;padding:.4rem .8rem;font-size:.85rem;">
+        {% for val,label in statuts %}
+        <option value="{{ val }}" {% if demande.statut == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary btn-sm" style="height:38px;white-space:nowrap;"><i class="fas fa-save"></i> Mettre a jour</button>
+    </form>
+  </div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;">
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <div class="card">
+      <div class="card-title">Details de la demande</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;font-size:.88rem;">
+        <div><span style="color:var(--muted);">Type:</span> <strong>{{ demande.get_type_travaux_display }}</strong></div>
+        <div><span style="color:var(--muted);">Urgence:</span> <span class="badge {% if demande.urgence == 'critique' %}badge-red{% elif demande.urgence == 'urgente' %}badge-yellow{% else %}badge-gray{% endif %}">{{ demande.get_urgence_display }}</span></div>
+        <div><span style="color:var(--muted);">Localite:</span> <strong>{{ demande.localite }}</strong></div>
+        <div><span style="color:var(--muted);">Date:</span> <strong>{{ demande.date_creation|date:"d/m/Y H:i" }}</strong></div>
+        <div style="grid-column:1/-1;"><span style="color:var(--muted);">Adresse:</span> <strong>{{ demande.adresse }}</strong></div>
+      </div>
+      <div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border);">
+        <div style="color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;">Description</div>
+        <p style="font-size:.9rem;line-height:1.7;color:var(--muted2);">{{ demande.description }}</p>
+      </div>
+    </div>
+
+    {% if demande.statut == 'en_attente' or not demande.technicien %}
+    <div class="card" style="border:1px solid rgba(245,158,11,.3);">
+      <div class="card-title" style="color:var(--accent);"><i class="fas fa-user-plus"></i> Assigner un technicien</div>
+      <form method="post" action="{% url 'dashboard:assigner' demande.pk %}">
+        {% csrf_token %}
+        <div style="margin-bottom:1rem;">
+          <label class="form-label">Technicien disponible ({{ demande.get_type_travaux_display }})</label>
+          <select name="technicien_id" class="form-ctrl" required>
+            <option value="">-- Choisir un technicien --</option>
+            {% for t in techniciens_dispo %}
+            <option value="{{ t.id }}">✅ {{ t.nom_complet }} - {{ t.localite }} ({{ t.experience }} ans exp.)</option>
+            {% endfor %}
+            {% if tous_techniciens %}
+            <optgroup label="Autres techniciens (occupes)">
+              {% for t in tous_techniciens %}
+              {% if t.disponibilite != 'disponible' %}
+              <option value="{{ t.id }}">⚠️ {{ t.nom_complet }} - {{ t.get_disponibilite_display }}</option>
+              {% endif %}
+              {% endfor %}
+            </optgroup>
+            {% endif %}
+          </select>
+        </div>
+        <div style="margin-bottom:1.2rem;">
+          <label class="form-label">Date d intervention prevue</label>
+          <input type="date" name="date_intervention" class="form-ctrl">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;"><i class="fas fa-user-check"></i> Assigner et notifier le client</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:1.5rem;">
+    <div class="card">
+      <div class="card-title">Client</div>
+      <div style="display:flex;align-items:center;gap:.9rem;margin-bottom:1.2rem;">
+        <div style="width:46px;height:46px;border-radius:12px;background:rgba(26,86,219,.1);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-weight:700;">{{ demande.client.first_name|slice:":1"|upper }}</div>
+        <div><div style="font-weight:700;">{{ demande.client.get_full_name|default:demande.client.username }}</div><div style="color:var(--muted);font-size:.8rem;">{{ demande.client.email }}</div></div>
+      </div>
+      {% if demande.client.profil %}
+      <div style="font-size:.85rem;display:flex;flex-direction:column;gap:.5rem;color:var(--muted2);">
+        <div><i class="fas fa-phone" style="color:var(--primary);width:14px;"></i> {{ demande.client.profil.telephone|default:"—" }}</div>
+        <div><i class="fas fa-map-marker-alt" style="color:var(--primary);width:14px;"></i> {{ demande.client.profil.localite|default:"—" }}</div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Technicien assigne</div>
+      {% if demande.technicien %}
+      <div style="display:flex;align-items:center;gap:.9rem;margin-bottom:1rem;">
+        <div style="width:46px;height:46px;border-radius:12px;background:rgba(16,185,129,.1);color:var(--green);display:flex;align-items:center;justify-content:center;font-weight:700;">{{ demande.technicien.prenom|slice:":1" }}</div>
+        <div>
+          <div style="font-weight:700;">{{ demande.technicien.prenom }} {{ demande.technicien.nom }}</div>
+          <div style="color:var(--muted);font-size:.8rem;">{{ demande.technicien.get_specialite_display }}</div>
+        </div>
+      </div>
+      <div style="font-size:.85rem;display:flex;flex-direction:column;gap:.5rem;color:var(--muted2);">
+        <div><i class="fas fa-phone" style="color:var(--green);width:14px;"></i> {{ demande.technicien.telephone }}</div>
+        <div><i class="fas fa-map-marker-alt" style="color:var(--green);width:14px;"></i> {{ demande.technicien.localite }}</div>
+        <div><i class="fas fa-star" style="color:var(--accent);width:14px;"></i> {{ demande.technicien.experience }} ans d experience</div>
+      </div>
+      {% if demande.date_intervention %}
+      <div style="margin-top:1rem;background:rgba(16,185,129,.1);border-radius:8px;padding:.7rem;font-size:.85rem;color:var(--green);">
+        <i class="fas fa-calendar-check"></i> Intervention prevue le {{ demande.date_intervention|date:"d/m/Y" }}
+      </div>
+      {% endif %}
+      {% else %}
+      <div style="text-align:center;color:var(--muted);padding:1.5rem;font-size:.85rem;">
+        <i class="fas fa-user-clock" style="font-size:1.5rem;display:block;margin-bottom:.5rem;"></i>Aucun technicien assigne
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

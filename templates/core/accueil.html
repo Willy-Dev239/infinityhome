@@ -1,0 +1,183 @@
+{% extends 'base/base.html' %}
+{% block title %}Accueil - InfinityHome Rewire and Construction{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block extra_css %}
+<style>
+.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#1a56db 100%);color:white;padding:6rem 1.5rem;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(26,86,219,.3),transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:-80px;left:-80px;width:400px;height:400px;background:radial-gradient(circle,rgba(245,158,11,.15),transparent 70%);pointer-events:none;}
+.hero-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;position:relative;z-index:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:#fbbf24;font-size:.8rem;font-weight:700;padding:.4rem 1rem;border-radius:20px;margin-bottom:1.5rem;text-transform:uppercase;letter-spacing:.5px;}
+.hero h1{font-family:'Clash Display',sans-serif;font-size:3rem;font-weight:700;line-height:1.15;margin-bottom:1.2rem;}
+.hero h1 span{color:#fbbf24;}
+.hero p{font-size:1.05rem;opacity:.8;line-height:1.7;margin-bottom:2rem;}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;}
+.hero-stats{display:flex;gap:2rem;margin-top:2.5rem;}
+.hero-stat-val{font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:#fbbf24;}
+.hero-stat-label{font-size:.78rem;opacity:.7;margin-top:.2rem;}
+.hero-cards{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.hero-card{background:rgba(255,255,255,.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:1.2rem;text-align:center;transition:transform .2s;}
+.hero-card:hover{transform:translateY(-4px);}
+.hero-card-icon{font-size:1.8rem;margin-bottom:.6rem;}
+.hero-card-label{font-size:.82rem;font-weight:600;opacity:.9;}
+.section{padding:5rem 1.5rem;}
+.section-inner{max-width:1200px;margin:0 auto;}
+.section-head{text-align:center;margin-bottom:3rem;}
+.section-badge{display:inline-block;background:var(--primary-light);color:var(--primary);font-size:.75rem;font-weight:700;padding:.35rem 1rem;border-radius:20px;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.8rem;}
+.section-head h2{font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;color:var(--dark);margin-bottom:.8rem;}
+.section-head p{color:var(--muted);font-size:1rem;max-width:560px;margin:0 auto;}
+.spec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;}
+.spec-card{background:white;border-radius:20px;padding:2rem;border:1px solid var(--border);transition:all .3s;cursor:pointer;position:relative;overflow:hidden;}
+.spec-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:20px 20px 0 0;}
+.spec-card:nth-child(1)::before{background:linear-gradient(90deg,#f59e0b,#ef4444);}
+.spec-card:nth-child(2)::before{background:linear-gradient(90deg,#3b82f6,#8b5cf6);}
+.spec-card:nth-child(3)::before{background:linear-gradient(90deg,#10b981,#14b8a6);}
+.spec-card:nth-child(4)::before{background:linear-gradient(90deg,#f97316,#ef4444);}
+.spec-card:nth-child(5)::before{background:linear-gradient(90deg,#ec4899,#8b5cf6);}
+.spec-card:nth-child(6)::before{background:linear-gradient(90deg,#6366f1,#3b82f6);}
+.spec-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px rgba(0,0,0,.1);border-color:transparent;}
+.spec-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.2rem;}
+.spec-card h3{font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.5rem;}
+.spec-card p{color:var(--muted);font-size:.85rem;line-height:1.6;}
+.spec-count{margin-top:1rem;font-size:.8rem;font-weight:700;color:var(--primary);}
+.how-bg{background:var(--dark);color:white;}
+.how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2rem;position:relative;}
+.how-grid::before{content:'';position:absolute;top:28px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--primary),#8b5cf6);z-index:0;}
+.how-step{text-align:center;position:relative;z-index:1;}
+.how-num{width:56px;height:56px;border-radius:50%;background:var(--primary);color:white;font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 1.2rem;border:3px solid rgba(255,255,255,.2);}
+.how-step h4{font-size:.95rem;font-weight:700;margin-bottom:.5rem;color:white;}
+.how-step p{font-size:.82rem;color:#94a3b8;line-height:1.6;}
+.cta-section{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;padding:5rem 1.5rem;text-align:center;}
+.cta-section h2{font-family:'Clash Display',sans-serif;font-size:2.5rem;font-weight:700;margin-bottom:1rem;}
+.cta-section p{font-size:1.05rem;opacity:.85;margin-bottom:2rem;}
+@media(max-width:768px){
+  .hero-inner{grid-template-columns:1fr;}
+  .hero h1{font-size:2rem;}
+  .spec-grid{grid-template-columns:1fr 1fr;}
+  .how-grid{grid-template-columns:1fr 1fr;}
+  .how-grid::before{display:none;}
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><i class="fas fa-award"></i> N°1 au Burundi</div>
+      <h1>Vos travaux<br>entre les mains<br>d'<span>experts</span></h1>
+      <p>Electriciens, plombiers, ingenieurs, soudeurs... Trouvez le bon technicien pour vos travaux en quelques clics. Rapidement. Efficacement.</p>
+      <div class="hero-actions">
+        {% if user.is_authenticated %}
+          <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary" style="padding:.9rem 2rem;font-size:1rem;"><i class="fas fa-plus"></i> Faire une demande</a>
+          <a href="{% url 'demandes:mes_demandes' %}" class="btn btn-outline" style="padding:.9rem 2rem;font-size:1rem;color:white;border-color:rgba(255,255,255,.4);"><i class="fas fa-list"></i> Mes demandes</a>
+        {% else %}
+          <a href="{% url 'accounts:inscription' %}" class="btn btn-primary" style="padding:.9rem 2rem;font-size:1rem;background:#fbbf24;color:#0f172a;"><i class="fas fa-user-plus"></i> Creer mon compte</a>
+          <a href="{% url 'accounts:connexion' %}" class="btn btn-outline" style="padding:.9rem 2rem;font-size:1rem;color:white;border-color:rgba(255,255,255,.4);"><i class="fas fa-sign-in-alt"></i> Se connecter</a>
+        {% endif %}
+      </div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-val">{{ total_techniciens|default:"10" }}+</div><div class="hero-stat-label">Techniciens</div></div>
+        <div><div class="hero-stat-val">6</div><div class="hero-stat-label">Specialites</div></div>
+        <div><div class="hero-stat-val">24h</div><div class="hero-stat-label">Intervention</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-cards">
+        <div class="hero-card"><div class="hero-card-icon">⚡</div><div class="hero-card-label">Electricite</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🔧</div><div class="hero-card-label">Plomberie</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🏗️</div><div class="hero-card-label">Construction</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🔩</div><div class="hero-card-label">Soudure</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🎨</div><div class="hero-card-label">Peinture</div></div>
+        <div class="hero-card"><div class="hero-card-icon">🪚</div><div class="hero-card-label">Menuiserie</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NOS SPECIALITES -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-badge">Nos domaines</div>
+      <h2>Des experts pour chaque besoin</h2>
+      <p>Trouvez le bon professionnel pour vos travaux selon votre besoin</p>
+    </div>
+    <div class="spec-grid">
+
+      <div class="spec-card" onclick="window.location='{% url 'core:services' %}'">
+        <div class="spec-icon" style="background:rgba(245,158,11,.1);color:#f59e0b;">⚡</div>
+        <h3>Electricien</h3>
+        <p>Installation, reparation et mise aux normes de tous vos circuits electriques.</p>
+        <div class="spec-count"><i class="fas fa-users"></i> techniciens disponibles</div>
+      </div>
+
+      <div class="spec-card" onclick="window.location='{% url 'core:services' %}'">
+        <div class="spec-icon" style="background:rgba(59,130,246,.1);color:#3b82f6;">🔧</div>
+        <h3>Plombier</h3>
+        <p>Installations sanitaires, fuites, debouchage et canalisations.</p>
+        <div class="spec-count"><i class="fas fa-users"></i> techniciens disponibles</div>
+      </div>
+
+      <div class="spec-card" onclick="window.location='{% url 'core:services' %}'">
+        <div class="spec-icon" style="background:rgba(16,185,129,.1);color:#10b981;">🏗️</div>
+        <h3>Ingenieur en construction</h3>
+        <p>Conception, supervision et realisation de projets de construction.</p>
+        <div class="spec-count"><i class="fas fa-users"></i> techniciens disponibles</div>
+      </div>
+
+      <div class="spec-card" onclick="window.location='{% url 'core:services' %}'">
+        <div class="spec-icon" style="background:rgba(249,115,22,.1);color:#f97316;">🔩</div>
+        <h3>Soudeur</h3>
+        <p>Soudure metallique, fabrication et reparation de structures.</p>
+        <div class="spec-count"><i class="fas fa-users"></i> techniciens disponibles</div>
+      </div>
+
+      <div class="spec-card" onclick="window.location='{% url 'core:services' %}'">
+        <div class="spec-icon" style="background:rgba(236,72,153,.1);color:#ec4899;">🎨</div>
+        <h3>Peintre</h3>
+        <p>Peinture interieure et exterieure, finitions et ravalement.</p>
+        <div class="spec-count"><i class="fas fa-users"></i> techniciens disponibles</div>
+      </div>
+
+      <div class="spec-card" onclick="window.location='{% url 'core:services' %}'">
+        <div class="spec-icon" style="background:rgba(99,102,241,.1);color:#6366f1;">🪚</div>
+        <h3>Menuisier</h3>
+        <p>Fabrication et pose de portes, fenetres, meubles et charpentes.</p>
+        <div class="spec-count"><i class="fas fa-users"></i> techniciens disponibles</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- COMMENT CA MARCHE -->
+<section class="section how-bg">
+  <div class="section-inner">
+    <div class="section-head" style="color:white;">
+      <div class="section-badge" style="background:rgba(26,86,219,.3);color:#93c5fd;">Comment ca marche</div>
+      <h2 style="color:white;">Simple, rapide, efficace</h2>
+      <p style="color:#94a3b8;">4 etapes pour obtenir l intervention d un technicien</p>
+    </div>
+    <div class="how-grid">
+      <div class="how-step"><div class="how-num">1</div><h4>Creer un compte</h4><p>Inscrivez-vous gratuitement avec votre email</p></div>
+      <div class="how-step"><div class="how-num">2</div><h4>Decrire le probleme</h4><p>Decrivez vos travaux et votre localite</p></div>
+      <div class="how-step"><div class="how-num">3</div><h4>Technicien assigne</h4><p>L admin vous assigne le meilleur technicien</p></div>
+      <div class="how-step"><div class="how-num">4</div><h4>Travaux realises</h4><p>Le technicien intervient a votre domicile</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+{% if not user.is_authenticated %}
+<section class="cta-section">
+  <h2>Pret a nous contacter ?</h2>
+  <p>Rejoignez des centaines de clients satisfaits. Inscription gratuite en 2 minutes.</p>
+  <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+    <a href="{% url 'accounts:inscription' %}" class="btn" style="background:#fbbf24;color:#0f172a;padding:1rem 2.5rem;font-size:1rem;font-weight:700;"><i class="fas fa-user-plus"></i> S inscrire gratuitement</a>
+    <a href="{% url 'core:contact' %}" class="btn btn-outline" style="color:white;border-color:rgba(255,255,255,.4);padding:1rem 2.5rem;font-size:1rem;"><i class="fas fa-phone"></i> Nous appeler</a>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base/base.html' %}
+{% block title %}Mes demandes - Infinity Home{% endblock %}
+{% block content %}
+<div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;">
+    <div>
+      <h1 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;">Mes demandes</h1>
+      <p style="color:var(--muted);">{{ demandes.count }} demande{{ demandes.count|pluralize }} au total</p>
+    </div>
+    <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Nouvelle demande</a>
+  </div>
+
+  {% if not demandes %}
+  <div style="text-align:center;padding:4rem;background:white;border-radius:20px;border:1px solid var(--border);">
+    <div style="font-size:3rem;margin-bottom:1rem;">📋</div>
+    <h3 style="font-family:'Clash Display',sans-serif;margin-bottom:.5rem;">Aucune demande</h3>
+    <p style="color:var(--muted);margin-bottom:1.5rem;">Vous n avez pas encore fait de demande d intervention.</p>
+    <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Faire ma premiere demande</a>
+  </div>
+  {% else %}
+  <div style="display:flex;flex-direction:column;gap:1rem;">
+    {% for d in demandes %}
+    <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);box-shadow:var(--shadow);display:flex;align-items:center;gap:1.5rem;transition:transform .2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
+      <div style="width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;
+        {% if d.type_travaux == 'electricite' %}background:#fffbeb;
+        {% elif d.type_travaux == 'plomberie' %}background:#eff6ff;
+        {% elif d.type_travaux == 'construction' %}background:#f0fdf4;
+        {% else %}background:#fdf4ff;{% endif %}">
+        {% if d.type_travaux == 'electricite' %}⚡
+        {% elif d.type_travaux == 'plomberie' %}🔧
+        {% elif d.type_travaux == 'construction' %}🏗️
+        {% elif d.type_travaux == 'soudure' %}🔩
+        {% elif d.type_travaux == 'peinture' %}🎨
+        {% else %}🪚{% endif %}
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:.95rem;margin-bottom:.2rem;">{{ d.titre }}</div>
+        <div style="color:var(--muted);font-size:.82rem;display:flex;align-items:center;gap:1rem;">
+          <span><i class="fas fa-map-marker-alt"></i> {{ d.localite }}</span>
+          <span><i class="fas fa-calendar"></i> {{ d.date_creation|date:"d/m/Y" }}</span>
+          {% if d.technicien %}<span style="color:#16a34a;"><i class="fas fa-user-check"></i> {{ d.technicien.nom_complet }}</span>{% endif %}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.8rem;">
+        <span style="padding:.35rem .9rem;border-radius:8px;font-size:.78rem;font-weight:700;
+          {% if d.statut == 'en_attente' %}background:#fffbeb;color:#d97706;
+          {% elif d.statut == 'assignee' %}background:#eff6ff;color:#2563eb;
+          {% elif d.statut == 'en_cours' %}background:#f0fdf4;color:#16a34a;
+          {% elif d.statut == 'terminee' %}background:#dcfce7;color:#15803d;
+          {% else %}background:#fef2f2;color:#dc2626;{% endif %}">
+          {{ d.get_statut_display }}
+        </span>
+        {% if d.urgence == 'critique' %}<span style="background:#fef2f2;color:#dc2626;padding:.3rem .7rem;border-radius:8px;font-size:.72rem;font-weight:700;">🔴 Critique</span>
+        {% elif d.urgence == 'urgente' %}<span style="background:#fffbeb;color:#d97706;padding:.3rem .7rem;border-radius:8px;font-size:.72rem;font-weight:700;">🟡 Urgent</span>{% endif %}
+        <a href="{% url 'demandes:detail_demande' d.pk %}" class="btn btn-outline btn-sm"><i class="fas fa-eye"></i> Detail</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

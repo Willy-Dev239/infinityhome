@@ -1,0 +1,46 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}{% if tech %}Modifier{% else %}Ajouter{% endif %} technicien - Admin{% endblock %}
+{% block nav_techniciens %}{% if tech %}active{% endif %}{% endblock %}
+{% block nav_tech_add %}{% if not tech %}active{% endif %}{% endblock %}
+{% block topbar_title %}{% if tech %}Modifier{% else %}Ajouter{% endif %} un technicien{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>{% if tech %}Modifier "{{ tech.nom_complet }}"{% else %}Nouveau technicien{% endif %}</h1></div>
+</div>
+<div style="max-width:700px;">
+<div class="card">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
+      <div><label class="form-label">Prenom *</label><input type="text" name="prenom" class="form-ctrl" value="{{ tech.prenom|default:'' }}" required></div>
+      <div><label class="form-label">Nom *</label><input type="text" name="nom" class="form-ctrl" value="{{ tech.nom|default:'' }}" required></div>
+      <div><label class="form-label">Specialite *</label>
+        <select name="specialite" class="form-ctrl" required>
+          {% for val,label in specialites %}<option value="{{ val }}" {% if tech.specialite == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div><label class="form-label">Disponibilite</label>
+        <select name="disponibilite" class="form-ctrl">
+          {% for val,label in disponibilites %}<option value="{{ val }}" {% if tech.disponibilite == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div><label class="form-label">Telephone *</label><input type="text" name="telephone" class="form-ctrl" value="{{ tech.telephone|default:'' }}" required></div>
+      <div><label class="form-label">Email</label><input type="email" name="email" class="form-ctrl" value="{{ tech.email|default:'' }}"></div>
+      <div><label class="form-label">Localite *</label><input type="text" name="localite" class="form-ctrl" value="{{ tech.localite|default:'' }}" required></div>
+      <div><label class="form-label">Annees d experience</label><input type="number" name="experience" class="form-ctrl" value="{{ tech.experience|default:'0' }}" min="0"></div>
+      <div style="grid-column:1/-1;"><label class="form-label">Photo</label><input type="file" name="photo" class="form-ctrl" accept="image/*"></div>
+      {% if tech %}
+      <div style="grid-column:1/-1;display:flex;align-items:center;gap:.7rem;">
+        <input type="checkbox" name="actif" id="actif" {% if tech.actif %}checked{% endif %} style="width:16px;height:16px;accent-color:var(--primary);">
+        <label for="actif" style="font-size:.88rem;cursor:pointer;">Technicien actif (visible sur le site)</label>
+      </div>
+      {% endif %}
+    </div>
+    <div style="display:flex;gap:.8rem;margin-top:1.5rem;">
+      <button type="submit" class="btn btn-primary" style="justify-content:center;padding:.85rem 2rem;"><i class="fas fa-save"></i> {% if tech %}Enregistrer{% else %}Ajouter{% endif %}</button>
+      <a href="{% url 'dashboard:techniciens' %}" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base/base.html' %}
+{% block title %}Nos Services - Infinity Home{% endblock %}
+{% block nav_services %}active{% endblock %}
+{% block content %}
+<div style="max-width:1100px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="text-align:center;margin-bottom:3rem;">
+    <h1 style="font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;">Nos Services</h1>
+    <p style="color:var(--muted);font-size:1rem;margin-top:.7rem;">Des professionnels qualifies pour tous vos besoins</p>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+    {% for code,label in specialites %}
+    <div style="background:white;border-radius:20px;padding:2rem;border:1px solid var(--border);box-shadow:var(--shadow);text-align:center;">
+      <div style="font-size:3rem;margin-bottom:1rem;">{% if code == 'electricien' %}⚡{% elif code == 'plombier' %}🔧{% elif code == 'ingenieur' %}🏗️{% elif code == 'soudeur' %}🔩{% elif code == 'peintre' %}🎨{% else %}🪚{% endif %}</div>
+      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.7rem;">{{ label }}</h3>
+      <p style="color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:1.2rem;">{% if code == 'electricien' %}Installation, reparation et mise aux normes electriques.{% elif code == 'plombier' %}Plomberie, sanitaire et canalisations.{% elif code == 'ingenieur' %}Conception et supervision de construction.{% elif code == 'soudeur' %}Soudure et fabrication metallique.{% elif code == 'peintre' %}Peinture interieure et exterieure.{% else %}Menuiserie et charpente bois.{% endif %}</p>
+      <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Faire une demande</a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

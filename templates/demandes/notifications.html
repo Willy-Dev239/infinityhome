@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+{% block title %}Notifications - Infinity Home{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:3rem auto;padding:0 1.5rem;">
+  <h1 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:2rem;"><i class="fas fa-bell" style="color:var(--primary);"></i> Notifications</h1>
+  {% if not notifications %}
+  <div style="text-align:center;padding:3rem;background:white;border-radius:20px;border:1px solid var(--border);">
+    <div style="font-size:2.5rem;margin-bottom:.8rem;">🔔</div>
+    <p style="color:var(--muted);">Aucune notification pour l instant.</p>
+  </div>
+  {% else %}
+  <div style="display:flex;flex-direction:column;gap:.8rem;">
+    {% for notif in notifications %}
+    <div style="background:white;border-radius:14px;padding:1.3rem 1.5rem;border:1px solid {% if not notif.lue %}var(--primary){% else %}var(--border){% endif %};box-shadow:var(--shadow);display:flex;gap:1rem;align-items:flex-start;{% if not notif.lue %}background:#eff6ff;{% endif %}">
+      <div style="width:40px;height:40px;border-radius:10px;background:{% if not notif.lue %}var(--primary){% else %}var(--primary-light){% endif %};color:{% if not notif.lue %}white{% else %}var(--primary){% endif %};display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fas fa-bell"></i></div>
+      <div style="flex:1;">
+        <div style="font-weight:700;font-size:.92rem;margin-bottom:.3rem;">{{ notif.titre }}</div>
+        <div style="color:var(--muted);font-size:.85rem;line-height:1.6;">{{ notif.message }}</div>
+        <div style="color:var(--muted);font-size:.75rem;margin-top:.4rem;"><i class="fas fa-clock"></i> {{ notif.date|date:"d/m/Y H:i" }}</div>
+      </div>
+      {% if notif.demande %}
+      <a href="{% url 'demandes:detail_demande' notif.demande.pk %}" class="btn btn-outline btn-sm" style="flex-shrink:0;"><i class="fas fa-eye"></i></a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

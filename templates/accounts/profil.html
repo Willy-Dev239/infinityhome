@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+{% block title %}Mon profil - Infinity Home{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:3rem auto;padding:0 1.5rem;">
+  <h1 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;margin-bottom:2rem;">Mon profil</h1>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    <div style="background:white;border-radius:16px;padding:2rem;border:1px solid var(--border);box-shadow:var(--shadow);">
+      <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;">
+        <div style="width:60px;height:60px;border-radius:16px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;">{{ user.first_name|slice:":1"|upper|default:user.username|slice:":1"|upper }}</div>
+        <div><div style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;">{{ user.get_full_name|default:user.username }}</div><div style="color:var(--muted);font-size:.85rem;">@{{ user.username }}</div></div>
+      </div>
+      <div style="font-size:.88rem;display:flex;flex-direction:column;gap:.7rem;color:var(--muted2);">
+        <div><i class="fas fa-envelope" style="color:var(--primary);width:16px;"></i> {{ user.email }}</div>
+        {% if user.profil.telephone %}<div><i class="fas fa-phone" style="color:var(--primary);width:16px;"></i> {{ user.profil.telephone }}</div>{% endif %}
+        {% if user.profil.localite %}<div><i class="fas fa-map-marker-alt" style="color:var(--primary);width:16px;"></i> {{ user.profil.localite }}</div>{% endif %}
+        <div><i class="fas fa-calendar" style="color:var(--primary);width:16px;"></i> Inscrit le {{ user.date_joined|date:"d/m/Y" }}</div>
+      </div>
+    </div>
+    <div style="background:white;border-radius:16px;padding:2rem;border:1px solid var(--border);box-shadow:var(--shadow);">
+      <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:1.2rem;">Mes demandes recentes</h3>
+      {% for d in user.demandes.all|slice:":5" %}
+      <a href="{% url 'demandes:detail_demande' d.pk %}" style="display:flex;align-items:center;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.85rem;">
+        <span style="font-weight:600;">#{{ d.id }} {{ d.titre|truncatechars:30 }}</span>
+        <span style="padding:.2rem .6rem;border-radius:6px;font-size:.72rem;font-weight:700;{% if d.statut == 'en_attente' %}background:#fffbeb;color:#d97706;{% elif d.statut == 'terminee' %}background:#dcfce7;color:#16a34a;{% else %}background:#eff6ff;color:#2563eb;{% endif %}">{{ d.get_statut_display }}</span>
+      </a>
+      {% empty %}
+      <p style="color:var(--muted);font-size:.88rem;">Aucune demande pour l instant.</p>
+      {% endfor %}
+      <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;"><i class="fas fa-plus"></i> Nouvelle demande</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

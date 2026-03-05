@@ -1,0 +1,55 @@
+{% extends 'base/base.html' %}
+{% block title %}Connexion - Infinity Home{% endblock %}
+{% block content %}
+<div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <h1 style="font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:var(--dark);">Acces a votre espace</h1>
+    <p style="color:var(--muted);">Connectez-vous ou creez votre compte pour faire une demande</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+
+    <!-- CONNEXION -->
+    <div style="background:white;border-radius:20px;padding:2.5rem;border:1px solid var(--border);box-shadow:var(--shadow);">
+      <h2 style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:1.8rem;display:flex;align-items:center;gap:.6rem;"><i class="fas fa-sign-in-alt" style="color:var(--primary);"></i> Se connecter</h2>
+      {% if error %}<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div style="margin-bottom:1rem;">
+          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;">Nom d'utilisateur</label>
+          <input type="text" name="username" value="{{ username }}" class="form-ctrl" placeholder="votre_username" required autofocus>
+        </div>
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;">Mot de passe</label>
+          <input type="password" name="password" class="form-ctrl" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+      </form>
+    </div>
+
+    {% comment %} <!-- INSCRIPTION -->
+    <div style="background:white;border-radius:20px;padding:2.5rem;border:2px solid var(--primary);box-shadow:0 4px 20px rgba(26,86,219,.1);">
+      <h2 style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.6rem;"><i class="fas fa-user-plus" style="color:var(--primary);"></i> Creer un compte</h2>
+      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem;">Inscription rapide et gratuite</p>
+      <form method="post" action="{% url 'accounts:inscription' %}">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        {% for field in register_form %}
+        <div style="margin-bottom:.9rem;">
+          <label style="display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}<div style="color:#dc2626;font-size:.75rem;margin-top:.2rem;">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:.5rem;"><i class="fas fa-user-plus"></i> Creer mon compte</button>
+      </form>
+    </div>
+  </div>
+</div>{% endcomment %}
+<style>
+.form-ctrl{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.92rem;outline:none;transition:border-color .2s;background:white;}
+.form-ctrl:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+input[type=text],input[type=email],input[type=password],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.88rem;outline:none;transition:all .2s;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+</style> 
+{% endblock %}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin - Infinity Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:linear-gradient(135deg,#070b14 0%,#0f1a2e 50%,#0a1628 100%);min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+.bg-glow{position:fixed;inset:0;pointer-events:none;}
+.g1{position:absolute;top:-10%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(26,86,219,.15),transparent 70%);animation:p1 8s ease-in-out infinite;}
+.g2{position:absolute;bottom:-10%;right:-10%;width:400px;height:400px;background:radial-gradient(circle,rgba(245,158,11,.08),transparent 70%);animation:p2 10s ease-in-out infinite;}
+@keyframes p1{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes p2{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.card{position:relative;z-index:1;background:#0f1624;border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:2.8rem;width:100%;max-width:420px;box-shadow:0 30px 70px rgba(0,0,0,.5);animation:up .4s cubic-bezier(.16,1,.3,1);}
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.logo{text-align:center;margin-bottom:2.2rem;}
+.logo-icon{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,#1a56db,#3b82f6);display:inline-flex;align-items:center;justify-content:center;font-size:1.6rem;color:white;margin-bottom:1rem;box-shadow:0 8px 25px rgba(26,86,219,.35);}
+.logo-name{font-family:'Clash Display',sans-serif;font-size:1.2rem;font-weight:700;color:white;line-height:1.3;}
+.logo-name span{color:#f59e0b;}
+.logo-sub{font-size:.75rem;color:#5e7a99;margin-top:.4rem;text-transform:uppercase;letter-spacing:1px;}
+.err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:9px;padding:.8rem 1rem;margin-bottom:1.2rem;display:flex;gap:.6rem;align-items:center;font-size:.86rem;color:#f87171;animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-6px)}70%{transform:translateX(6px)}}
+.lbl{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#5e7a99;margin-bottom:.4rem;}
+.inp{width:100%;background:#151f30;border:1.5px solid rgba(255,255,255,.07);border-radius:11px;padding:.8rem 1rem .8rem 2.7rem;color:#f0f4f8;font-family:inherit;font-size:.92rem;outline:none;transition:all .2s;}
+.inp:focus{border-color:rgba(26,86,219,.5);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+.inp::placeholder{color:#3d5470;}
+.inp-wrap{position:relative;margin-bottom:1.2rem;}
+.inp-ico{position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#3d5470;font-size:.88rem;}
+.btn{width:100%;padding:.9rem;background:linear-gradient(135deg,#1a56db,#2563eb);color:white;border:none;border-radius:11px;font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:all .25s;box-shadow:0 4px 18px rgba(26,86,219,.3);margin-top:.5rem;}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(26,86,219,.45);}
+.back{text-align:center;margin-top:1.5rem;font-size:.8rem;color:#5e7a99;}
+.back a{color:#60a5fa;transition:color .2s;}
+.back a:hover{color:#93c5fd;}
+</style>
+</head>
+<body>
+<div class="bg-glow"><div class="g1"></div><div class="g2"></div></div>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon"><i class="fas fa-hard-hat"></i></div>
+    <div class="logo-name">INFINITY HOME<br><span>REWIRE & CONSTRUCTION</span></div>
+    <div class="logo-sub">Espace Administrateur</div>
+  </div>
+  {% if error %}<div class="err"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>{% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <label class="lbl">Nom d utilisateur</label>
+    <div class="inp-wrap"><i class="fas fa-user inp-ico"></i><input type="text" name="username" class="inp" placeholder="admin" required autofocus></div>
+    <label class="lbl">Mot de passe</label>
+    <div class="inp-wrap"><i class="fas fa-lock inp-ico"></i><input type="password" name="password" class="inp" placeholder="••••••••" required></div>
+    <button type="submit" class="btn"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+  </form>
+  <div class="back"><a href="{% url 'core:accueil' %}"><i class="fas fa-arrow-left"></i> Retour au site</a></div>
+</div>
+</body>
+</html>

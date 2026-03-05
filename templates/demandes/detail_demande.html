@@ -1,0 +1,124 @@
+{% extends 'base/base.html' %}
+{% block title %}Demande #{{ demande.id }} - Infinity Home{% endblock %}
+
+{% block extra_css %}
+<style>
+.statut-badge{display:inline-block;padding:.4rem 1rem;border-radius:8px;font-size:.82rem;font-weight:700;}
+.statut-en_attente{background:#fffbeb;color:#d97706;}
+.statut-assignee{background:#eff6ff;color:#2563eb;}
+.statut-en_cours{background:#f0fdf4;color:#16a34a;}
+.statut-terminee{background:#dcfce7;color:#15803d;}
+.statut-annulee{background:#fef2f2;color:#dc2626;}
+.step-circle{width:34px;height:34px;border-radius:50%;margin:0 auto .6rem;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;}
+.step-active{background:var(--primary);color:white;box-shadow:0 4px 12px rgba(26,86,219,.3);}
+.step-done{background:#dcfce7;color:#16a34a;border:2px solid #16a34a;}
+.step-todo{background:#f1f5f9;color:#94a3b8;border:2px solid #e2e8f0;}
+.step-label{font-size:.72rem;font-weight:600;}
+.step-label-active{color:var(--primary);}
+.step-label-other{color:var(--muted);}
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;margin:3rem auto;padding:0 1.5rem;">
+
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
+    <a href="{% url 'demandes:mes_demandes' %}" style="color:var(--muted);"><i class="fas fa-arrow-left"></i></a>
+    <h1 style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;">Demande #{{ demande.id }}</h1>
+    <span class="statut-badge statut-{{ demande.statut }}">{{ demande.get_statut_display }}</span>
+  </div>
+
+  <div style="background:white;border-radius:16px;padding:1.8rem;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.5rem;">
+    <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:1.5rem;">Suivi de l intervention</h3>
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative;">
+      <div style="position:absolute;top:16px;left:10%;right:10%;height:2px;background:#e2e8f0;z-index:0;"></div>
+
+      <div style="text-align:center;position:relative;z-index:1;flex:1;">
+        {% if demande.statut == 'en_attente' %}
+          <div class="step-circle step-active">1</div><div class="step-label step-label-active">En attente</div>
+        {% elif demande.statut == 'assignee' or demande.statut == 'en_cours' or demande.statut == 'terminee' %}
+          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">En attente</div>
+        {% else %}
+          <div class="step-circle step-todo">1</div><div class="step-label step-label-other">En attente</div>
+        {% endif %}
+      </div>
+
+      <div style="text-align:center;position:relative;z-index:1;flex:1;">
+        {% if demande.statut == 'assignee' %}
+          <div class="step-circle step-active">2</div><div class="step-label step-label-active">Assignee</div>
+        {% elif demande.statut == 'en_cours' or demande.statut == 'terminee' %}
+          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">Assignee</div>
+        {% else %}
+          <div class="step-circle step-todo">2</div><div class="step-label step-label-other">Assignee</div>
+        {% endif %}
+      </div>
+
+      <div style="text-align:center;position:relative;z-index:1;flex:1;">
+        {% if demande.statut == 'en_cours' %}
+          <div class="step-circle step-active">3</div><div class="step-label step-label-active">En cours</div>
+        {% elif demande.statut == 'terminee' %}
+          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">En cours</div>
+        {% else %}
+          <div class="step-circle step-todo">3</div><div class="step-label step-label-other">En cours</div>
+        {% endif %}
+      </div>
+
+      <div style="text-align:center;position:relative;z-index:1;flex:1;">
+        {% if demande.statut == 'terminee' %}
+          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-active">Terminee</div>
+        {% else %}
+          <div class="step-circle step-todo">4</div><div class="step-label step-label-other">Terminee</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+    <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);">
+      <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Details</h3>
+      <div style="font-size:.88rem;display:flex;flex-direction:column;gap:.8rem;">
+        <div><span style="color:var(--muted);">Type :</span> <strong>{{ demande.get_type_travaux_display }}</strong></div>
+        <div><span style="color:var(--muted);">Titre :</span> <strong>{{ demande.titre }}</strong></div>
+        <div><span style="color:var(--muted);">Localite :</span> <strong>{{ demande.localite }}</strong></div>
+        <div><span style="color:var(--muted);">Urgence :</span> <strong>{{ demande.get_urgence_display }}</strong></div>
+        <div><span style="color:var(--muted);">Date :</span> <strong>{{ demande.date_creation|date:"d/m/Y H:i" }}</strong></div>
+        {% if demande.date_intervention %}
+        <div><span style="color:var(--muted);">Intervention :</span> <strong style="color:#16a34a;">{{ demande.date_intervention|date:"d/m/Y" }}</strong></div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);">
+      <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Technicien assigne</h3>
+      {% if demande.technicien %}
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+          <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;font-size:1.1rem;">
+            {{ demande.technicien.prenom|slice:":1"|upper }}
+          </div>
+          <div>
+            <div style="font-weight:700;">{{ demande.technicien.prenom }} {{ demande.technicien.nom }}</div>
+            <div style="color:var(--muted);font-size:.82rem;">{{ demande.technicien.get_specialite_display }}</div>
+          </div>
+        </div>
+        <div style="font-size:.85rem;display:flex;flex-direction:column;gap:.5rem;">
+          <div><i class="fas fa-phone" style="color:var(--primary);width:16px;"></i> {{ demande.technicien.telephone }}</div>
+          <div><i class="fas fa-map-marker-alt" style="color:var(--primary);width:16px;"></i> {{ demande.technicien.localite }}</div>
+        </div>
+      {% else %}
+        <div style="text-align:center;padding:1.5rem;color:var(--muted);">
+          <i class="fas fa-user-clock" style="font-size:2rem;display:block;margin-bottom:.5rem;"></i>
+          En attente d assignation
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if demande.description %}
+  <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);margin-top:1.5rem;">
+    <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Description</h3>
+    <p style="color:var(--text);line-height:1.7;font-size:.9rem;">{{ demande.description }}</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

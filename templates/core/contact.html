@@ -1,0 +1,32 @@
+{% extends 'base/base.html' %}
+{% block title %}Contact - Infinity Home{% endblock %}
+{% block nav_contact %}active{% endblock %}
+{% block content %}
+<div style="max-width:800px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <h1 style="font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;">Nous Contacter</h1>
+    <p style="color:var(--muted);">Une question ? Nous sommes la pour vous aider.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);display:flex;gap:1rem;align-items:center;"><div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.2rem;flex-shrink:0;"><i class="fas fa-phone"></i></div><div><div style="font-weight:700;">Telephone</div><div style="color:var(--muted);font-size:.88rem;">+257 XX XXX XXX</div></div></div>
+      <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);display:flex;gap:1rem;align-items:center;"><div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.2rem;flex-shrink:0;"><i class="fas fa-envelope"></i></div><div><div style="font-weight:700;">Email</div><div style="color:var(--muted);font-size:.88rem;">info@infinityhome.bi</div></div></div>
+      <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);display:flex;gap:1rem;align-items:center;"><div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.2rem;flex-shrink:0;"><i class="fas fa-map-marker-alt"></i></div><div><div style="font-weight:700;">Adresse</div><div style="color:var(--muted);font-size:.88rem;">Bujumbura, Burundi</div></div></div>
+    </div>
+    <div style="background:white;border-radius:16px;padding:1.8rem;border:1px solid var(--border);box-shadow:var(--shadow);">
+      <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:1.2rem;">Envoyer un message</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom:1rem;"><label style="display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.3rem;">Nom complet</label><input type="text" class="form-ctrl2" placeholder="Votre nom" required></div>
+        <div style="margin-bottom:1rem;"><label style="display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.3rem;">Email</label><input type="email" class="form-ctrl2" placeholder="votre@email.com" required></div>
+        <div style="margin-bottom:1.2rem;"><label style="display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:.3rem;">Message</label><textarea class="form-ctrl2" rows="4" placeholder="Votre message..." required></textarea></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;"><i class="fas fa-paper-plane"></i> Envoyer</button>
+      </form>
+    </div>
+  </div>
+</div>
+<style>
+.form-ctrl2{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.9rem;outline:none;transition:all .2s;}
+.form-ctrl2:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+</style>
+{% endblock %}

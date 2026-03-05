@@ -1,0 +1,42 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Demandes - Admin{% endblock %}
+{% block nav_demandes %}active{% endblock %}
+{% block topbar_title %}Demandes{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Gestion des demandes</h1><p style="color:var(--muted);font-size:.88rem;">{{ demandes.count }} demande{{ demandes.count|pluralize }}</p></div>
+</div>
+<div class="card">
+  <div style="display:flex;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+    <a href="{% url 'dashboard:demandes' %}" class="btn {% if not statut_actif %}btn-primary{% else %}btn-ghost{% endif %} btn-sm">Toutes</a>
+    <a href="?statut=en_attente" class="btn {% if statut_actif == 'en_attente' %}btn-warning{% else %}btn-ghost{% endif %} btn-sm">En attente</a>
+    <a href="?statut=assignee" class="btn {% if statut_actif == 'assignee' %}btn-primary{% else %}btn-ghost{% endif %} btn-sm">Assignees</a>
+    <a href="?statut=en_cours" class="btn {% if statut_actif == 'en_cours' %}btn-success{% else %}btn-ghost{% endif %} btn-sm">En cours</a>
+    <a href="?statut=terminee" class="btn {% if statut_actif == 'terminee' %}btn-success{% else %}btn-ghost{% endif %} btn-sm">Terminees</a>
+    <a href="?statut=annulee" class="btn {% if statut_actif == 'annulee' %}btn-danger{% else %}btn-ghost{% endif %} btn-sm">Annulees</a>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Client</th><th>Type</th><th>Titre</th><th>Localite</th><th>Urgence</th><th>Technicien</th><th>Statut</th><th>Date</th><th>Action</th></tr></thead>
+      <tbody>
+      {% for d in demandes %}
+      <tr>
+       
+        <td><div style="font-weight:600;font-size:.86rem;">{{ d.client.get_full_name|default:d.client.username }}</div></td>
+        <td><span class="badge badge-blue">{{ d.get_type_travaux_display }}</span></td>
+        <td style="max-width:180px;"><div style="font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ d.titre }}</div></td>
+        <td style="color:var(--muted2);font-size:.83rem;">{{ d.localite }}</td>
+        <td><span class="badge {% if d.urgence == 'critique' %}badge-red{% elif d.urgence == 'urgente' %}badge-yellow{% else %}badge-gray{% endif %}">{{ d.get_urgence_display }}</span></td>
+        <td style="font-size:.83rem;">{% if d.technicien %}<span style="color:var(--green);">{{ d.technicien.nom_complet }}</span>{% else %}<span style="color:var(--muted);">—</span>{% endif %}</td>
+        <td><span class="badge {% if d.statut == 'en_attente' %}badge-yellow{% elif d.statut == 'terminee' %}badge-green{% elif d.statut == 'annulee' %}badge-red{% else %}badge-blue{% endif %}">{{ d.get_statut_display }}</span></td>
+        <td style="color:var(--muted);font-size:.78rem;">{{ d.date_creation|date:"d/m/Y" }}</td>
+        <td><a href="{% url 'dashboard:demande_detail' d.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i> Voir</a></td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:2.5rem;">Aucune demande.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

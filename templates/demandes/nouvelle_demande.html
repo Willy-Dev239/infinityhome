@@ -1,0 +1,58 @@
+{% extends 'base/base.html' %}
+{% block title %}Nouvelle demande - Infinity Home{% endblock %}
+{% block content %}
+<div style="max-width:700px;margin:3rem auto;padding:0 1.5rem;">
+  <div style="background:white;border-radius:20px;padding:2.5rem;border:1px solid var(--border);box-shadow:var(--shadow);">
+    <div style="margin-bottom:2rem;">
+      <h1 style="font-family:'Clash Display',sans-serif;font-size:1.6rem;font-weight:700;"><i class="fas fa-plus-circle" style="color:var(--primary);"></i> Nouvelle demande</h1>
+      <p style="color:var(--muted);margin-top:.3rem;">Decrivez votre probleme et votre localite. Un technicien vous sera assigne rapidement.</p>
+    </div>
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;">
+        <div>
+          <label class="flabel">Type de travaux *</label>
+          {{ form.type_travaux }}
+          {% if form.type_travaux.errors %}<div class="ferr">{{ form.type_travaux.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+          <label class="flabel">Niveau d urgence *</label>
+          {{ form.urgence }}
+        </div>
+        <div style="grid-column:1/-1;">
+          <label class="flabel">Titre du probleme *</label>
+          {{ form.titre }}
+        </div>
+        <div style="grid-column:1/-1;">
+          <label class="flabel">Description detaillee *</label>
+          {{ form.description }}
+          <div style="color:var(--muted);font-size:.75rem;margin-top:.3rem;">Decrivez le probleme en detail pour aider le technicien</div>
+        </div>
+        <div>
+          <label class="flabel">Localite / Quartier *</label>
+          {{ form.localite }}
+        </div>
+        <div>
+          <label class="flabel">Adresse complete *</label>
+          {{ form.adresse }}
+        </div>
+        <div style="grid-column:1/-1;">
+          <label class="flabel">Photo du probleme (optionnel)</label>
+          {{ form.photo }}
+          <div style="color:var(--muted);font-size:.75rem;margin-top:.3rem;">Une photo aide le technicien a preparer son intervention</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;margin-top:2rem;">
+        <button type="submit" class="btn btn-primary" style="flex:1;justify-content:center;padding:.9rem;font-size:.95rem;"><i class="fas fa-paper-plane"></i> Envoyer la demande</button>
+        <a href="{% url 'demandes:mes_demandes' %}" class="btn btn-outline" style="padding:.9rem 1.5rem;">Annuler</a>
+      </div>
+    </form>
+  </div>
+</div>
+<style>
+.flabel{display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;}
+.ferr{color:#dc2626;font-size:.75rem;margin-top:.2rem;}
+input[type=text],input[type=file],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.9rem;outline:none;transition:all .2s;background:white;}
+input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+</style>
+{% endblock %}
