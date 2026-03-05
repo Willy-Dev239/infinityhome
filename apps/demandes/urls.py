@@ -10,3 +10,4 @@ urlpatterns = [
     path('notifications/',    views.notifications,    name='notifications'),
     path('api/notif-count/',  views.notif_count,      name='notif_count'),
 ]
+    
