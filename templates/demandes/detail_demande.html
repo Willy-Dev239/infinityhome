@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-{% block title %}Demande #{{ demande.id }} - Infinity Home{% endblock %}
+{% block title %}Demande | Infinity Home{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -76,7 +76,7 @@
   <!-- En-tête -->
   <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
     <a href="{% url 'demandes:mes_demandes' %}" style="color:var(--muted);"><i class="fas fa-arrow-left"></i></a>
-    <h1 style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;">Demande #{{ demande.id }}</h1>
+    <h1 style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;">Demande </h1>
     <span class="statut-badge statut-{{ demande.statut }}">{{ demande.get_statut_display }}</span>
   </div>
 

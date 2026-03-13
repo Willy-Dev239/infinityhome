@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-{% block title %}Surveillance - Infinity Home{% endblock %}
+{% block title %}Surveillance | Infinity Home{% endblock %}
 {% block nav_surveillance %}active{% endblock %}
 
 {% block extra_css %}
@@ -399,7 +399,7 @@
 </section>
 
 <!-- NOS PACKS -->
-<section class="section" style="background:white;">
+{% comment %} <section class="section" style="background:white;">
   <div class="section-inner">
     <div class="section-head center">
       <div class="section-badge">Tarifs & Packs</div>
@@ -420,9 +420,9 @@
           <li><i class="fas fa-check-circle"></i> Application mobile</li>
         </ul>
         <a href="{% url 'core:contact' %}" class="pack-btn">Demander un devis</a>
-      </div>
+      </div> {% endcomment %}
 
-      <div class="pack-card featured">
+      {% comment %} <div class="pack-card featured">
         <div class="pack-badge">⭐ Populaire</div>
         <div class="pack-name">Pack Maison</div>
         <div class="pack-price">Sur devis <span></span></div>
@@ -435,9 +435,9 @@
           <li><i class="fas fa-check-circle"></i> Garantie 1 an</li>
         </ul>
         <a href="{% url 'core:contact' %}" class="pack-btn">Demander un devis</a>
-      </div>
+      </div> {% endcomment %}
 
-      <div class="pack-card">
+      {% comment %} <div class="pack-card">
         <div class="pack-badge">Pro</div>
         <div class="pack-name">Pack Commerce</div>
         <div class="pack-price">Sur devis <span></span></div>
@@ -453,7 +453,7 @@
       </div>
 
     </div>
-  </div>
+  </div> {% endcomment %}
 </section>
 
 <!-- CTA -->
