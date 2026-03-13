@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{% block title %}Admin — Infinity Home{% endblock %}</title>
+<title>{% block title %}Admin | Infinity Home{% endblock %}</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
@@ -221,6 +221,18 @@ tr:hover td{background:#f0f9ff;}
   <a href="{% url 'dashboard:clients' %}" class="nav-item {% block nav_clients %}{% endblock %}">
     <i class="fas fa-users"></i> Clients
   </a>
+
+
+   
+
+
+ <a href="{% url 'dashboard:contact_messages' %}" class="nav-item {% if request.resolver_match.url_name == 'contact_messages' %}active{% endif %}">
+  <i class="fas fa-envelope"></i>
+   <span>Messages contact</span>
+   {% if nb_contact_non_lus > 0 %}
+   <span style="margin-left:auto;background:#ef4444;color:white;font-size:.6rem;font-weight:800;padding:.1rem .45rem;border-radius:8px;">{{ nb_contact_non_lus }}</span>
+  {% endif %}
+ </a>
 
   <div class="sidebar-section">Site</div>
   <a href="{% url 'core:accueil' %}" class="nav-item" target="_blank">

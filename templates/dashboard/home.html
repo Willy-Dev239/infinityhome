@@ -1,5 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}Tableau de bord - Infinity Home{% endblock %}
+{% block title %}Dashboard | Infinity Home{% endblock %}
 {% block nav_home %}active{% endblock %}
 {% block topbar_title %}Tableau de bord{% endblock %}
 
@@ -118,8 +118,8 @@
   <!-- BANNER -->
   <div class="wb">
     <div style="z-index:1;">
-      <div class="wb-title">Bonjour, <em>{{ request.user.first_name|default:request.user.username }}</em> 👋</div>
-      <div class="wb-sub"><span id="live-date"></span> · Plateforme Infinity Home</div>
+      <div class="wb-title"><em>INFINITY HOME</em> <span style="color:white;font-size:1rem;font-weight:500;">Rewire & Construction</span></div>
+      <div class="wb-sub"><span id="live-date"></span> · Connecté en tant que <strong style="color:rgba(255,255,255,.7);">{{ request.user.get_full_name|default:request.user.username }}</strong></div>
       <div class="wb-pills">
         <a href="{% url 'dashboard:demandes' %}?statut=en_attente" class="wb-pill" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.3);">
           <i class="fas fa-clock"></i> {{ stats.en_attente }} en attente
@@ -189,11 +189,11 @@
           <a href="{% url 'dashboard:demandes' %}" class="btn btn-ghost btn-sm">Tout voir <i class="fas fa-arrow-right" style="font-size:.68rem;"></i></a>
         </div>
         <table class="dt">
-          <thead><tr><th>#</th><th>Client</th><th>Type</th><th>Statut</th><th></th></tr></thead>
+          <thead><tr><th>Client</th><th>Type</th><th>Statut</th><th></th></tr></thead>
           <tbody>
           {% for d in demandes_recentes %}
           <tr>
-            <td><span style="font-family:'Syne',sans-serif;font-weight:700;color:#1a56db;font-size:.8rem;">#{{ d.id }}</span></td>
+            
             <td>
               <div style="display:flex;align-items:center;gap:.6rem;">
                 <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:#4338ca;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;flex-shrink:0;">

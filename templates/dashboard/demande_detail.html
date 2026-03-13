@@ -1,12 +1,12 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}Demande #{{ demande.id }} - Admin{% endblock %}
+{% block title %}Demande {{ demande.id }} - Admin{% endblock %}
 {% block nav_demandes %}active{% endblock %}
-{% block topbar_title %}Demande #{{ demande.id }}{% endblock %}
+{% block topbar_title %}Demande {{ demande.id }}{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
     <div class="breadcrumb"><a href="{% url 'dashboard:home' %}">Dashboard</a> / <a href="{% url 'dashboard:demandes' %}">Demandes</a> / #{{ demande.id }}</div>
-    <h1>Demande #{{ demande.id }}</h1>
+    <h1>Demande {{ demande.id }}</h1>
   </div>
   <div style="display:flex;gap:.7rem;align-items:center;">
     <form method="post" action="{% url 'dashboard:update_statut' demande.pk %}" style="display:flex;gap:.6rem;align-items:center;">

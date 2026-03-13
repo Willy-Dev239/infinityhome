@@ -35,7 +35,7 @@ def nouvelle_demande(request):
 # ─────────────────────────────────────────────
 @login_required
 def mes_demandes(request):
-    demandes = Demande.objects.filter(client=request.user).order_by('id')
+    demandes = Demande.objects.filter(client=request.user).order_by('-date_creation')
     return render(request, 'demandes/mes_demandes.html', {'demandes': demandes})
 
 

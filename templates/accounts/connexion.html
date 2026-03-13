@@ -1,55 +1,193 @@
 {% extends 'base/base.html' %}
 {% block title %}Connexion - Infinity Home{% endblock %}
-{% block content %}
-<div style="max-width:900px;margin:3rem auto;padding:0 1.5rem;">
-  <div style="text-align:center;margin-bottom:2.5rem;">
-    <h1 style="font-family:'Clash Display',sans-serif;font-size:1.8rem;font-weight:700;color:var(--dark);">Acces a votre espace</h1>
-    <p style="color:var(--muted);">Connectez-vous ou creez votre compte pour faire une demande</p>
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
 
-    <!-- CONNEXION -->
-    <div style="background:white;border-radius:20px;padding:2.5rem;border:1px solid var(--border);box-shadow:var(--shadow);">
-      <h2 style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:1.8rem;display:flex;align-items:center;gap:.6rem;"><i class="fas fa-sign-in-alt" style="color:var(--primary);"></i> Se connecter</h2>
-      {% if error %}<div class="alert alert-error"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>{% endif %}
+{% block extra_css %}
+<style>
+/* Masquer le footer, image strip et worker chips sur cette page */
+footer, .img-strip, .worker-chips { display: none !important; }
+
+.login-page {
+  min-height: calc(100vh - 112px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+}
+
+.login-card {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 8px 48px rgba(37,99,235,.13);
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  border: 1px solid rgba(37,99,235,.1);
+}
+
+.login-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  padding: 2rem 2rem 1.8rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.login-header::before {
+  content: '';
+  position: absolute;
+  top: -40px; right: -40px;
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(255,255,255,.08), transparent 70%);
+}
+.login-logo {
+  width: 52px; height: 52px;
+  border-radius: 14px;
+  background: rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; color: white;
+  margin: 0 auto .9rem;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
+.login-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.2rem; font-weight: 800;
+  color: white; margin-bottom: .3rem;
+}
+.login-header p {
+  font-size: .78rem;
+  color: rgba(255,255,255,.6);
+}
+
+.login-body {
+  padding: 2rem;
+}
+
+.field-group {
+  margin-bottom: 1.2rem;
+}
+.field-group label {
+  display: block;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: .4rem;
+}
+.field-group input {
+  width: 100%;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: .75rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem;
+  color: #0f172a;
+  outline: none;
+  transition: all .2s;
+}
+.field-group input:focus {
+  border-color: #2563eb;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1);
+}
+
+.login-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .9rem;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 4px 14px rgba(37,99,235,.3);
+  margin-top: .4rem;
+}
+.login-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37,99,235,.4);
+}
+
+.login-footer {
+  text-align: center;
+  padding: 1.2rem 2rem 1.8rem;
+  border-top: 1px solid #f1f5f9;
+  font-size: .82rem;
+  color: #64748b;
+}
+.login-footer a {
+  color: #2563eb;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color .18s;
+}
+.login-footer a:hover { color: #1d4ed8; text-decoration: underline; }
+
+.alert-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-left: 3px solid #dc2626;
+  color: #b91c1c;
+  border-radius: 8px;
+  padding: .7rem .9rem;
+  font-size: .82rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1.2rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-page">
+  <div class="login-card">
+
+    <div class="login-header">
+      <div class="login-logo"><i class="fas fa-hard-hat"></i></div>
+      <h1>INFINITY HOME</h1>
+      <p>Connectez-vous à votre espace client</p>
+    </div>
+
+    <div class="login-body">
+      {% if error %}
+      <div class="alert-error">
+        <i class="fas fa-exclamation-circle"></i> {{ error }}
+      </div>
+      {% endif %}
+
       <form method="post">
         {% csrf_token %}
         <input type="hidden" name="next" value="{{ next }}">
-        <div style="margin-bottom:1rem;">
-          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;">Nom d'utilisateur</label>
-          <input type="text" name="username" value="{{ username }}" class="form-ctrl" placeholder="votre_username" required autofocus>
+
+        <div class="field-group">
+          <label>Nom d'utilisateur</label>
+          <input type="text" name="username" value="{{ username }}" placeholder="votre_username" required autofocus>
         </div>
-        <div style="margin-bottom:1.5rem;">
-          <label style="display:block;font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem;">Mot de passe</label>
-          <input type="password" name="password" class="form-ctrl" placeholder="••••••••" required>
+
+        <div class="field-group">
+          <label>Mot de passe</label>
+          <input type="password" name="password" placeholder="••••••••" required>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+
+        <button type="submit" class="login-btn">
+          <i class="fas fa-sign-in-alt"></i> Se connecter
+        </button>
       </form>
     </div>
 
-    {% comment %} <!-- INSCRIPTION -->
-    <div style="background:white;border-radius:20px;padding:2.5rem;border:2px solid var(--primary);box-shadow:0 4px 20px rgba(26,86,219,.1);">
-      <h2 style="font-family:'Clash Display',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:.5rem;display:flex;align-items:center;gap:.6rem;"><i class="fas fa-user-plus" style="color:var(--primary);"></i> Creer un compte</h2>
-      <p style="color:var(--muted);font-size:.85rem;margin-bottom:1.5rem;">Inscription rapide et gratuite</p>
-      <form method="post" action="{% url 'accounts:inscription' %}">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{{ next }}">
-        {% for field in register_form %}
-        <div style="margin-bottom:.9rem;">
-          <label style="display:block;font-size:.78rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.3rem;">{{ field.label }}</label>
-          {{ field }}
-          {% if field.errors %}<div style="color:#dc2626;font-size:.75rem;margin-top:.2rem;">{{ field.errors.0 }}</div>{% endif %}
-        </div>
-        {% endfor %}
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;font-size:.95rem;margin-top:.5rem;"><i class="fas fa-user-plus"></i> Creer mon compte</button>
-      </form>
+    <div class="login-footer">
+      Pas encore de compte ?
+      <a href="{% url 'accounts:inscription' %}">Créer un compte gratuitement</a>
     </div>
+
   </div>
-</div>{% endcomment %}
-<style>
-.form-ctrl{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.92rem;outline:none;transition:border-color .2s;background:white;}
-.form-ctrl:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
-input[type=text],input[type=email],input[type=password],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-family:inherit;font-size:.88rem;outline:none;transition:all .2s;}
-input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
-</style> 
+</div>
 {% endblock %}

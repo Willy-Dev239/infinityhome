@@ -77,7 +77,7 @@
     <table>
       <thead>
         <tr>
-          <th>#</th>
+          
           <th>Client</th>
           <th>Demande</th>
           <th>Mode</th>
@@ -91,7 +91,7 @@
       <tbody>
         {% for p in paiements %}
         <tr>
-          <td style="color:var(--accent);font-weight:700;">#{{ p.id }}</td>
+        
           <td>
             <div style="font-weight:600;font-size:.86rem;">{{ p.client.get_full_name|default:p.client.username }}</div>
             <div style="color:var(--muted);font-size:.74rem;">{{ p.client.email }}</div>
@@ -99,7 +99,7 @@
           <td>
             {% if p.commande %}
               <a href="{% url 'dashboard:demande_detail' p.commande.pk %}" class="btn btn-ghost btn-sm">
-                #{{ p.commande.id }}
+                {{ p.commande.id }}
               </a>
             {% else %}
               <span style="color:var(--muted2);">—</span>

@@ -28,4 +28,9 @@ path('paiements/instructions/<str:mode>/',  views.instructions_sauvegarder, name
 path('clients/<int:client_pk>/voir/', views.client_view_readonly, name='client_view_readonly'),
 
 path('statistiques/', views.statistiques, name='statistiques'),
+
+
+path('contact/',                     views.contact_messages,    name='contact_messages'),
+path('contact/<int:pk>/lu/',         views.contact_marquer_lu,  name='contact_marquer_lu'),
+path('contact/<int:pk>/supprimer/',  views.contact_supprimer,   name='contact_supprimer'),
 ]

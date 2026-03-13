@@ -72,7 +72,7 @@ def home(request):
 @admin_required
 def demandes(request):
     statut = request.GET.get('statut', '')
-    qs = Demande.objects.select_related('client','technicien').order_by('id')
+    qs = Demande.objects.select_related('client','technicien').order_by('-date_creation')
     if statut:
         qs = qs.filter(statut=statut)
     return render(request, 'dashboard/demandes.html', {'demandes': qs, 'statut_actif': statut})
@@ -710,3 +710,35 @@ def client_view_readonly(request, client_pk):
 #
 #  Puis : python manage.py makemigrations && python manage.py migrate
 # ─────────────────────────────────────────────────────────────────────────────
+
+
+
+from apps.core.models import ContactMessage
+ 
+@login_required
+@user_passes_test(is_admin)
+def contact_messages(request):
+    msgs = ContactMessage.objects.all()
+    return render(request, 'dashboard/contact_messages.html', {
+        'contact_messages':  msgs,
+        'total':             msgs.count(),
+        'messages_non_lus':  msgs.filter(lu=False).count(),
+    })
+ 
+@login_required
+@user_passes_test(is_admin)
+def contact_marquer_lu(request, pk):
+    from django.shortcuts import get_object_or_404
+    msg = get_object_or_404(ContactMessage, pk=pk)
+    msg.lu = True
+    msg.save()
+    return redirect('dashboard:contact_messages')
+ 
+@login_required
+@user_passes_test(is_admin)
+def contact_supprimer(request, pk):
+    from django.shortcuts import get_object_or_404
+    msg = get_object_or_404(ContactMessage, pk=pk)
+    if request.method == 'POST':
+        msg.delete()
+    return redirect('dashboard:contact_messages')

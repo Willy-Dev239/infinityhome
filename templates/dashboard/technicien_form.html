@@ -1,5 +1,5 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}{% if tech %}Modifier{% else %}Ajouter{% endif %} technicien - Admin{% endblock %}
+{% block title %}{% if tech %}Modifier{% else %}Ajouter{% endif %} technicien | Admin{% endblock %}
 {% block nav_techniciens %}{% if tech %}active{% endif %}{% endblock %}
 {% block nav_tech_add %}{% if not tech %}active{% endif %}{% endblock %}
 {% block topbar_title %}{% if tech %}Modifier{% else %}Ajouter{% endif %} un technicien{% endblock %}
