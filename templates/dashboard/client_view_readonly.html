@@ -1,0 +1,322 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Vue client — {{ client.get_full_name|default:client.username }}{% endblock %}
+{% block nav_clients %}active{% endblock %}
+{% block topbar_title %}Vue client · {{ client.get_full_name|default:client.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+@keyframes fadeUp  { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn { from{opacity:0;transform:scale(.97)}       to{opacity:1;transform:scale(1)}     }
+
+.readonly-bar {
+  background: linear-gradient(135deg, #7c3aed, #4f46e5);
+  border-radius: 14px; padding: 1rem 1.4rem;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem; animation: fadeUp .4s ease both;
+  box-shadow: 0 4px 20px rgba(124,58,237,.25);
+}
+.rb-left  { display:flex; align-items:center; gap:.85rem; }
+.rb-icon  { width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.15);color:white;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0; }
+.rb-title { font-family:'Syne',sans-serif;font-weight:800;font-size:.92rem;color:white; }
+.rb-sub   { font-size:.74rem;color:rgba(255,255,255,.6);margin-top:.1rem; }
+.rb-right { display:flex;align-items:center;gap:.6rem; }
+.rb-badge { background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:.28rem .85rem;font-size:.72rem;font-weight:700;color:white; }
+.rb-back  { display:flex;align-items:center;gap:.4rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:8px;padding:.42rem .9rem;color:white;text-decoration:none;font-size:.76rem;font-weight:600;transition:background .18s; }
+.rb-back:hover { background:rgba(255,255,255,.22); }
+
+.client-hcard {
+  background: white; border: 1px solid #f1f5f9; border-radius: 14px;
+  padding: 1.4rem; display: flex; align-items: center; gap: 1.2rem;
+  margin-bottom: 1.5rem; animation: fadeUp .4s .05s ease both;
+  box-shadow: 0 2px 12px rgba(0,0,0,.05);
+}
+.client-av {
+  width: 58px; height: 58px; border-radius: 14px; flex-shrink: 0;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  color: #4338ca; font-family:'Syne',sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  display: flex; align-items: center; justify-content: center;
+}
+.client-name { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; color:#0f172a; }
+.client-sub  { font-size:.79rem; color:#94a3b8; margin-top:.2rem; display:flex;gap:.8rem;flex-wrap:wrap; }
+.client-sub span { display:flex;align-items:center;gap:.3rem; }
+.client-stats { display:flex; gap:1.4rem; margin-left:auto; flex-shrink:0; }
+.cstat { text-align:center; }
+.cstat-n { font-family:'Syne',sans-serif; font-weight:800; font-size:1.5rem; color:#0f172a; }
+.cstat-l { font-size:.68rem; color:#94a3b8; margin-top:.1rem; font-weight:500; }
+.cstat + .cstat { border-left:1px solid #f1f5f9; padding-left:1.4rem; }
+
+.cv-grid { display:grid; grid-template-columns:1.4fr 1fr; gap:1.3rem; }
+.col-right { display:flex; flex-direction:column; gap:1.3rem; }
+
+.sc {
+  background: white; border: 1px solid #f1f5f9; border-radius: 14px;
+  padding: 1.4rem; animation: scaleIn .4s ease both;
+  box-shadow: 0 2px 10px rgba(0,0,0,.04);
+}
+.sc-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.1rem; }
+.sc-title { font-family:'Syne',sans-serif; font-size:.88rem; font-weight:700; color:#0f172a; display:flex;align-items:center;gap:.4rem; }
+.sc-title i { color:var(--primary); }
+.sc-count { font-size:.7rem; font-weight:700; background:#f1f5f9; color:#64748b; padding:.18rem .6rem; border-radius:20px; }
+
+.dem-row {
+  display:flex; align-items:center; gap:.8rem;
+  padding:.8rem .6rem; border-radius:10px;
+  border:1px solid #f1f5f9; margin-bottom:.55rem;
+  transition:all .15s;
+}
+.dem-row:last-child { margin-bottom:0; }
+.dem-row:hover { background:#fafbff; border-color:#e0e7ff; }
+.dem-ico { width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0; }
+.dem-id { font-family:'Syne',sans-serif;font-weight:700;color:#1a56db;font-size:.76rem; }
+.dem-titre { font-weight:600;font-size:.83rem;color:#0f172a; }
+.dem-meta { font-size:.71rem;color:#94a3b8;margin-top:.1rem; }
+.dem-link { width:28px;height:28px;border-radius:7px;background:#f1f5f9;color:#64748b;display:flex;align-items:center;justify-content:center;font-size:.68rem;transition:all .15s;flex-shrink:0; }
+.dem-link:hover { background:#eff6ff;color:#1a56db; }
+
+.pill { display:inline-flex;align-items:center;gap:.28rem;padding:.22rem .7rem;border-radius:20px;font-size:.68rem;font-weight:700;flex-shrink:0; }
+.pill-dot { width:5px;height:5px;border-radius:50%; }
+.pill-attente  { background:#fffbeb;color:#d97706; } .pill-attente .pill-dot  { background:#f59e0b; }
+.pill-assignee { background:#eff6ff;color:#2563eb; } .pill-assignee .pill-dot { background:#3b82f6; }
+.pill-cours    { background:#ecfdf5;color:#059669; } .pill-cours .pill-dot    { background:#10b981; }
+.pill-terminee { background:#f0fdf4;color:#16a34a; } .pill-terminee .pill-dot { background:#22c55e; }
+.pill-annulee  { background:#fef2f2;color:#dc2626; } .pill-annulee .pill-dot  { background:#ef4444; }
+
+.pm-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem .6rem;border-radius:10px;border:1px solid #f1f5f9;
+  margin-bottom:.5rem;transition:background .15s;
+}
+.pm-row:last-child { margin-bottom:0; }
+.pm-row:hover { background:#faf5ff;border-color:#e9d5ff; }
+.pm-ico { width:34px;height:34px;border-radius:9px;background:#f5f3ff;color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0; }
+.pm-montant { font-family:'Syne',sans-serif;font-weight:700;color:#7c3aed;font-size:.88rem; }
+
+.notif-row {
+  display:flex;gap:.7rem;align-items:flex-start;
+  padding:.75rem .6rem;border-radius:10px;border:1px solid #f1f5f9;
+  margin-bottom:.5rem;transition:background .15s;
+}
+.notif-row:last-child { margin-bottom:0; }
+.notif-row:hover { background:#fafbff; }
+.notif-ico { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0; }
+
+.ir { display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid #f8fafc;font-size:.83rem; }
+.ir:last-child { border-bottom:none; }
+.ir-lbl { color:#94a3b8;font-weight:500; }
+.ir-val { font-weight:600;color:#0f172a; }
+
+.empty { text-align:center;padding:2rem 1rem;color:#94a3b8;font-size:.8rem; }
+.empty i { font-size:1.5rem;opacity:.18;display:block;margin-bottom:.5rem; }
+
+.action-btn {
+  display:flex;align-items:center;gap:.55rem;
+  padding:.72rem 1rem;border-radius:10px;
+  text-decoration:none;font-size:.81rem;font-weight:600;
+  transition:all .18s;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="readonly-bar">
+  <div class="rb-left">
+    <div class="rb-icon"><i class="fas fa-user-shield"></i></div>
+    <div>
+      <div class="rb-title">Vue lecture seule — {{ client.get_full_name|default:client.username }}</div>
+      <div class="rb-sub">Vous consultez le compte client en tant qu'administrateur · Aucune action n'est possible</div>
+    </div>
+  </div>
+  <div class="rb-right">
+    <span class="rb-badge"><i class="fas fa-eye"></i> Lecture seule</span>
+    <a href="{% url 'dashboard:clients' %}" class="rb-back">
+      <i class="fas fa-arrow-left"></i> Retour clients
+    </a>
+  </div>
+</div>
+
+<div class="client-hcard">
+  <div class="client-av">{{ client.username|slice:":1"|upper }}</div>
+  <div>
+    <div class="client-name">{{ client.get_full_name|default:client.username }}</div>
+    <div class="client-sub">
+      <span><i class="fas fa-envelope" style="font-size:.68rem;color:#94a3b8;"></i> {{ client.email|default:"—" }}</span>
+      <span><i class="fas fa-calendar" style="font-size:.68rem;color:#94a3b8;"></i> Inscrit le {{ client.date_joined|date:"d/m/Y" }}</span>
+      {% if client.last_login %}<span><i class="fas fa-clock" style="font-size:.68rem;color:#94a3b8;"></i> Dernière co. {{ client.last_login|date:"d/m/Y" }}</span>{% endif %}
+    </div>
+  </div>
+  <div class="client-stats">
+    <div class="cstat"><div class="cstat-n">{{ nb_demandes }}</div><div class="cstat-l">Demandes</div></div>
+    <div class="cstat"><div class="cstat-n">{{ nb_paiements }}</div><div class="cstat-l">Paiements</div></div>
+    <div class="cstat">
+      <div class="cstat-n" style="color:{% if nb_notifs_non_lues > 0 %}#f59e0b{% else %}#94a3b8{% endif %};">{{ nb_notifs_non_lues }}</div>
+      <div class="cstat-l">Non lues</div>
+    </div>
+    <div class="cstat">
+      <div class="cstat-n" style="color:{% if client.is_active %}#16a34a{% else %}#dc2626{% endif %};">
+        {% if client.is_active %}<i class="fas fa-check-circle" style="font-size:1.2rem;"></i>{% else %}<i class="fas fa-times-circle" style="font-size:1.2rem;"></i>{% endif %}
+      </div>
+      <div class="cstat-l">{% if client.is_active %}Actif{% else %}Désactivé{% endif %}</div>
+    </div>
+  </div>
+</div>
+
+<div class="cv-grid">
+
+  <!-- COLONNE GAUCHE -->
+  <div style="display:flex;flex-direction:column;gap:1.3rem;">
+
+    <!-- Demandes -->
+    <div class="sc">
+      <div class="sc-head">
+        <div class="sc-title"><i class="fas fa-clipboard-list"></i> Demandes</div>
+        <span class="sc-count">{{ nb_demandes }}</span>
+      </div>
+      {% for d in demandes %}
+      <div class="dem-row">
+        <div class="dem-ico" style="background:{% if d.statut == 'en_attente' %}#fffbeb{% elif d.statut == 'en_cours' %}#ecfdf5{% elif d.statut == 'terminee' %}#f0fdf4{% else %}#f1f5f9{% endif %};">
+          {% if d.statut == 'en_attente' %}<i class="fas fa-hourglass-half" style="color:#f59e0b;"></i>
+          {% elif d.statut == 'en_cours' %}<i class="fas fa-tools" style="color:#10b981;"></i>
+          {% elif d.statut == 'terminee' %}<i class="fas fa-check-circle" style="color:#16a34a;"></i>
+          {% elif d.statut == 'assignee' %}<i class="fas fa-user-check" style="color:#3b82f6;"></i>
+          {% else %}<i class="fas fa-ban" style="color:#94a3b8;"></i>{% endif %}
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <span class="dem-id">#{{ d.id }}</span>
+            <span class="dem-titre">{{ d.titre|truncatechars:32 }}</span>
+          </div>
+          <div class="dem-meta">{{ d.get_type_travaux_display }} · {{ d.localite }} · {{ d.date_creation|date:"d/m/Y" }}</div>
+        </div>
+        {% if d.statut == 'en_attente' %}<span class="pill pill-attente"><span class="pill-dot"></span>En attente</span>
+        {% elif d.statut == 'assignee' %}<span class="pill pill-assignee"><span class="pill-dot"></span>Assignée</span>
+        {% elif d.statut == 'en_cours' %}<span class="pill pill-cours"><span class="pill-dot"></span>En cours</span>
+        {% elif d.statut == 'terminee' %}<span class="pill pill-terminee"><span class="pill-dot"></span>Terminée</span>
+        {% elif d.statut == 'annulee' %}<span class="pill pill-annulee"><span class="pill-dot"></span>Annulée</span>{% endif %}
+        <a href="{% url 'dashboard:demande_detail' d.pk %}" class="dem-link" title="Voir dans le dashboard">
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+      {% empty %}
+      <div class="empty"><i class="fas fa-inbox"></i>Aucune demande</div>
+      {% endfor %}
+    </div>
+
+    <!-- Paiements -->
+    <div class="sc">
+      <div class="sc-head">
+        <div class="sc-title"><i class="fas fa-wallet"></i> Paiements</div>
+        <span class="sc-count">{{ nb_paiements }}</span>
+      </div>
+      {% for p in paiements %}
+      <div class="pm-row">
+        <div style="display:flex;align-items:center;gap:.7rem;">
+          <div class="pm-ico">
+            {% if p.mode_paiement == 'carte' %}<i class="fas fa-credit-card"></i>
+            {% elif p.mode_paiement == 'livraison' %}<i class="fas fa-home"></i>
+            {% else %}<i class="fas fa-mobile-alt"></i>{% endif %}
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:.82rem;color:#0f172a;">#{{ p.id }} · {{ p.get_mode_paiement_display }}</div>
+            <div style="font-size:.7rem;color:#94a3b8;">
+              {{ p.created_at|date:"d/m/Y" }}
+              {% if p.bordereau_soumis %} · <span style="color:#10b981;"><i class="fas fa-file-invoice"></i> Bordereau</span>{% endif %}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          <span class="pm-montant">{{ p.montant|floatformat:0 }} BIF</span>
+          {% if p.statut == 'valide' %}<span class="pill pill-terminee"><span class="pill-dot"></span>Validé</span>
+          {% elif p.statut == 'en_attente' %}<span class="pill pill-attente"><span class="pill-dot"></span>En attente</span>
+          {% elif p.statut == 'rejete' %}<span class="pill pill-annulee"><span class="pill-dot"></span>Rejeté</span>{% endif %}
+          <a href="{% url 'dashboard:paiement_detail' p.pk %}" class="dem-link"><i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty"><i class="fas fa-wallet"></i>Aucun paiement</div>
+      {% endfor %}
+    </div>
+
+    <!-- Actions admin rapides — déplacées ici sous Paiements -->
+    <div class="sc">
+      <div class="sc-title" style="margin-bottom:1rem;"><i class="fas fa-bolt"></i> Actions admin rapides</div>
+      <div style="display:flex;flex-direction:column;gap:.5rem;">
+        <a href="{% url 'dashboard:paiements' %}?q={{ client.username }}"
+           class="action-btn"
+           style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff;"
+           onmouseover="this.style.background='#ede9fe'" onmouseout="this.style.background='#f5f3ff'">
+          <i class="fas fa-wallet"></i> Paiements de ce client
+        </a>
+        <a href="{% url 'dashboard:demandes' %}?q={{ client.username }}"
+           class="action-btn"
+           style="background:#eff6ff;color:#1a56db;border:1px solid #bfdbfe;"
+           onmouseover="this.style.background='#dbeafe'" onmouseout="this.style.background='#eff6ff'">
+          <i class="fas fa-clipboard-list"></i> Demandes de ce client
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COLONNE DROITE -->
+  <div class="col-right">
+
+    <!-- Infos compte -->
+    <div class="sc">
+      <div class="sc-title" style="margin-bottom:1rem;"><i class="fas fa-user"></i> Informations compte</div>
+      <div class="ir"><span class="ir-lbl">Username</span><span class="ir-val">@{{ client.username }}</span></div>
+      <div class="ir"><span class="ir-lbl">Email</span><span class="ir-val" style="font-size:.8rem;">{{ client.email|default:"—" }}</span></div>
+      <div class="ir"><span class="ir-lbl">Prénom</span><span class="ir-val">{{ client.first_name|default:"—" }}</span></div>
+      <div class="ir"><span class="ir-lbl">Nom</span><span class="ir-val">{{ client.last_name|default:"—" }}</span></div>
+      <div class="ir"><span class="ir-lbl">Inscription</span><span class="ir-val">{{ client.date_joined|date:"d/m/Y" }}</span></div>
+      <div class="ir"><span class="ir-lbl">Dernière co.</span><span class="ir-val">{{ client.last_login|date:"d/m/Y à H:i"|default:"—" }}</span></div>
+      <div class="ir">
+        <span class="ir-lbl">Statut</span>
+        <span class="ir-val">
+          {% if client.is_active %}
+            <span style="color:#16a34a;"><i class="fas fa-check-circle"></i> Actif</span>
+          {% else %}
+            <span style="color:#dc2626;"><i class="fas fa-times-circle"></i> Désactivé</span>
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="sc">
+      <div class="sc-head">
+        <div class="sc-title"><i class="fas fa-bell"></i> Notifications</div>
+        {% if nb_notifs_non_lues > 0 %}
+        <span style="background:#fffbeb;color:#d97706;font-size:.68rem;font-weight:700;padding:.18rem .6rem;border-radius:20px;border:1px solid #fcd34d;">
+          {{ nb_notifs_non_lues }} non lue{{ nb_notifs_non_lues|pluralize }}
+        </span>
+        {% endif %}
+      </div>
+      {% for n in notifications %}
+      <div class="notif-row">
+        <div class="notif-ico" style="background:{% if n.lue %}#f1f5f9{% else %}#fffbeb{% endif %};color:{% if n.lue %}#94a3b8{% else %}#d97706{% endif %};">
+          <i class="fas fa-bell"></i>
+        </div>
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:.4rem;">
+            <span style="font-weight:600;font-size:.8rem;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ n.titre }}</span>
+            {% if n.lue %}
+            <span style="font-size:.62rem;color:#94a3b8;background:#f1f5f9;padding:.1rem .45rem;border-radius:10px;flex-shrink:0;">Lue</span>
+            {% else %}
+            <span style="font-size:.62rem;color:#d97706;font-weight:700;background:#fffbeb;border:1px solid #fde68a;padding:.1rem .45rem;border-radius:10px;flex-shrink:0;">Non lue</span>
+            {% endif %}
+          </div>
+          <div style="font-size:.76rem;color:#64748b;margin-top:.18rem;line-height:1.5;">{{ n.message|truncatechars:85 }}</div>
+          <div style="font-size:.67rem;color:#94a3b8;margin-top:.18rem;"><i class="fas fa-clock" style="font-size:.6rem;"></i> {{ n.date|date:"d/m/Y à H:i" }}</div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty"><i class="fas fa-bell-slash"></i>Aucune notification</div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

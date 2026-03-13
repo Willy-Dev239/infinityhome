@@ -1,0 +1,197 @@
+<!--
+  ══════════════════════════════════════════════════════════════
+  INSÉRER ce bloc JUSTE AVANT la section "MODULE DE PAIEMENT"
+  dans detail_demande.html (avant la div avec id="pm-step-select")
+
+  Dans la VUE detail_demande (apps/demandes/views.py), ajouter au contexte :
+    notif_paiement = Notification.objects.filter(
+        utilisateur=request.user,
+        type='paiement_requis',
+        paiement__commande=demande,
+        lu=False
+    ).order_by('-created_at').first()
+
+  Passer 'notif_paiement' au contexte.
+  ══════════════════════════════════════════════════════════════
+-->
+
+{% if notif_paiement and not paiement %}
+<!-- ══ NOTIFICATION PAIEMENT REQUISE ══ -->
+<div id="notif-paiement-banner" style="
+  background: linear-gradient(135deg, #fffbeb, #fef3c7);
+  border: 2px solid #fcd34d;
+  border-radius: 16px;
+  padding: 1.3rem 1.5rem;
+  margin-top: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 4px 20px rgba(245,158,11,.12);
+  animation: slideNotif .5s cubic-bezier(.34,1.56,.64,1) both;
+">
+  <style>
+    @keyframes slideNotif {
+      from { opacity:0; transform:translateY(-12px) scale(.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    @keyframes bellRing {
+      0%,100%{transform:rotate(0)}
+      10%{transform:rotate(18deg)}
+      20%{transform:rotate(-15deg)}
+      30%{transform:rotate(12deg)}
+      40%{transform:rotate(-9deg)}
+      50%{transform:rotate(6deg)}
+    }
+    .notif-bell { animation: bellRing 1s ease 0.3s both; display:inline-block; }
+    .notif-cta-btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .65rem 1.3rem; border-radius: 11px;
+      background: linear-gradient(135deg,#f59e0b,#fb923c);
+      color: white; font-weight: 700; font-size: .85rem;
+      border: none; cursor: pointer;
+      transition: all .2s; text-decoration: none;
+      box-shadow: 0 4px 14px rgba(245,158,11,.3);
+    }
+    .notif-cta-btn:hover {
+      filter: brightness(1.08);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(245,158,11,.4);
+    }
+    .notif-dismiss {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: rgba(0,0,0,.06); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: #92400e; font-size: .8rem; flex-shrink: 0;
+      transition: background .15s;
+    }
+    .notif-dismiss:hover { background: rgba(0,0,0,.12); }
+  </style>
+
+  <!-- Icône animée -->
+  <div style="
+    width: 46px; height: 46px; border-radius: 13px;
+    background: #fef9c3; border: 2px solid #fcd34d;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0; color: #d97706;
+  ">
+    <span class="notif-bell">🔔</span>
+  </div>
+
+  <!-- Contenu -->
+  <div style="flex: 1;">
+    <div style="
+      font-family: 'Clash Display', 'Syne', sans-serif;
+      font-weight: 700; font-size: .95rem; color: #92400e;
+      display: flex; align-items: center; gap: .5rem;
+      margin-bottom: .3rem;
+    ">
+      Action requise — Procédez à votre paiement
+      <span style="
+        font-size: .65rem; font-weight: 700;
+        background: #f59e0b; color: white;
+        padding: .15rem .55rem; border-radius: 20px;
+      ">NOUVEAU</span>
+    </div>
+
+    <p style="font-size: .85rem; color: #78350f; line-height: 1.6; margin-bottom: .9rem;">
+      {{ notif_paiement.message }}
+    </p>
+
+    <div style="display: flex; align-items: center; gap: .7rem; flex-wrap: wrap;">
+      <!-- CTA principal : ouvre directement le module de paiement -->
+      <button class="notif-cta-btn" onclick="ouvrirPaiementDepuisNotif()">
+        <i class="fas fa-credit-card"></i>
+        Procéder au paiement
+      </button>
+
+      <!-- Date envoi -->
+      <span style="font-size: .74rem; color: #b45309;">
+        <i class="fas fa-clock"></i>
+        Reçu le {{ notif_paiement.created_at|date:"d/m/Y à H:i" }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Dismiss -->
+  <button class="notif-dismiss" onclick="dismissNotif({{ notif_paiement.id }})" title="Marquer comme lue">
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+
+<script>
+// ── Marquer la notification comme lue et scroller vers le paiement ──
+function ouvrirPaiementDepuisNotif() {
+  // 1. Marquer comme lue en API
+  marquerNotifLue({{ notif_paiement.id }});
+
+  // 2. Cacher la bannière avec animation
+  const banner = document.getElementById('notif-paiement-banner');
+  if (banner) {
+    banner.style.transition = 'all .35s ease';
+    banner.style.opacity = '0';
+    banner.style.transform = 'translateY(-8px)';
+    setTimeout(() => { banner.style.display = 'none'; }, 350);
+  }
+
+  // 3. Scroller vers le module de paiement
+  setTimeout(() => {
+    const pmSection = document.querySelector('[data-section="paiement"]');
+    if (pmSection) {
+      pmSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Légère mise en évidence
+      pmSection.style.transition = 'box-shadow .3s';
+      pmSection.style.boxShadow = '0 0 0 3px rgba(245,158,11,.4)';
+      setTimeout(() => { pmSection.style.boxShadow = ''; }, 1500);
+    }
+  }, 400);
+}
+
+function dismissNotif(notifId) {
+  marquerNotifLue(notifId);
+  const banner = document.getElementById('notif-paiement-banner');
+  if (banner) {
+    banner.style.transition = 'all .3s ease';
+    banner.style.opacity = '0';
+    banner.style.height = banner.offsetHeight + 'px';
+    banner.style.overflow = 'hidden';
+    setTimeout(() => {
+      banner.style.height = '0';
+      banner.style.padding = '0';
+      banner.style.margin = '0';
+      banner.style.border = 'none';
+    }, 150);
+    setTimeout(() => banner.remove(), 450);
+  }
+}
+
+function marquerNotifLue(notifId) {
+  fetch(`/demandes/api/notifications/${notifId}/lue/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+  }).catch(() => {}); // silencieux si erreur
+}
+
+function getCookie(name) {
+  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+  return v ? v[2] : '';
+}
+</script>
+{% endif %}
+
+<!--
+  ══════════════════════════════════════════════════════════════
+  MODIFICATION dans detail_demande.html :
+  Ajouter data-section="paiement" sur la div du module paiement :
+
+  Chercher :
+    <div style="background:white;border-radius:16px;padding:1.8rem;...margin-top:1.5rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <h3 ...> <i class="fas fa-credit-card"...></i> Paiement </h3>
+
+  Remplacer la div par :
+    <div data-section="paiement" style="background:white;...">
+  ══════════════════════════════════════════════════════════════
+-->

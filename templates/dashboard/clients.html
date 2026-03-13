@@ -3,21 +3,65 @@
 {% block nav_clients %}active{% endblock %}
 {% block topbar_title %}Clients{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>Clients inscrits</h1><p style="color:var(--muted);font-size:.88rem;">{{ clients.count }} client{{ clients.count|pluralize }}</p></div></div>
+<div class="page-head">
+  <div>
+    <h1>Clients inscrits</h1>
+    <p style="color:var(--muted);font-size:.88rem;">{{ clients.count }} client{{ clients.count|pluralize }}</p>
+  </div>
+</div>
+
 <div class="card">
   <table>
-    <thead><tr><th>Client</th><th>Email</th><th>Localite</th><th>Demandes</th><th>Inscrit le</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Email</th>
+        <th>Localité</th>
+        <th>Demandes</th>
+        <th>Inscrit le</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
     <tbody>
     {% for c in clients %}
     <tr>
-      <td><div style="display:flex;align-items:center;gap:.7rem;"><div style="width:36px;height:36px;border-radius:9px;background:rgba(26,86,219,.1);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-weight:700;">{{ c.first_name|slice:":1"|upper|default:c.username|slice:":1"|upper }}</div><div><div style="font-weight:600;font-size:.86rem;">{{ c.get_full_name|default:c.username }}</div></div></div></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.7rem;">
+          <div style="width:36px;height:36px;border-radius:9px;background:rgba(26,86,219,.1);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-weight:700;">
+            {{ c.first_name|slice:":1"|upper|default:c.username|slice:":1"|upper }}
+          </div>
+          <div>
+            <div style="font-weight:600;font-size:.86rem;">{{ c.get_full_name|default:c.username }}</div>
+            <div style="font-size:.73rem;color:var(--muted);">@{{ c.username }}</div>
+          </div>
+        </div>
+      </td>
       <td style="color:var(--muted2);font-size:.84rem;">{{ c.email }}</td>
       <td style="color:var(--muted2);">{% if c.profil %}{{ c.profil.localite|default:"—" }}{% else %}—{% endif %}</td>
       <td><span class="badge badge-blue">{{ c.demandes.count }}</span></td>
       <td style="color:var(--muted);font-size:.8rem;">{{ c.date_joined|date:"d/m/Y" }}</td>
+      <td>
+        <a href="{% url 'dashboard:client_view_readonly' c.pk %}"
+           title="Voir le dashboard de ce client"
+           style="
+             display:inline-flex; align-items:center; gap:.4rem;
+             padding:.38rem .85rem; border-radius:8px;
+             background:#f5f3ff; color:#7c3aed;
+             border:1px solid #e9d5ff;
+             font-size:.75rem; font-weight:600;
+             text-decoration:none; transition:all .18s;
+             white-space:nowrap;
+           "
+           onmouseover="this.style.background='#ede9fe';this.style.borderColor='#c4b5fd';"
+           onmouseout="this.style.background='#f5f3ff';this.style.borderColor='#e9d5ff';">
+          <i class="fas fa-user-shield"></i> Voir dashboard
+        </a>
+      </td>
     </tr>
     {% empty %}
-    <tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2.5rem;">Aucun client.</td></tr>
+    <tr>
+      <td colspan="6" style="text-align:center;color:var(--muted);padding:2.5rem;">Aucun client.</td>
+    </tr>
     {% endfor %}
     </tbody>
   </table>

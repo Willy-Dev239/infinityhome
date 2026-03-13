@@ -4,395 +4,317 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>{% block title %}Infinity Home Rewire and Construction{% endblock %}</title>
-<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --primary:#1a56db;--primary-dark:#1e40af;--primary-light:#eff6ff;
-  --gold:#f59e0b;--dark:#0f172a;--dark2:#1e293b;
-  --text:#1e293b;--muted:#64748b;--light:#f8fafc;
-  --border:#e2e8f0;--radius:14px;
-  --shadow:0 4px 20px rgba(0,0,0,.08);
+  --primary:#1a56db; --primary-dark:#1340b0; --primary-light:#eff6ff;
+  --gold:#f59e0b; --dark:#0c1e3c;
+  --text:#1e293b; --muted:#64748b; --border:#e2e8f0;
+  --surface:#ffffff; --light:#f8fafc;
+  --topbar-h:44px; --navbar-h:68px;
 }
-body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:var(--light);overflow-x:hidden;}
+html{
+  min-height:100%;
+  background: linear-gradient(160deg, #0f2d6b 0%, #1a56db 45%, #38bdf8 100%);
+  background-attachment: fixed;
+}
+body{
+  font-family:'DM Sans',sans-serif;
+  color:var(--text); overflow-x:hidden; min-height:100vh;
+  background: transparent;
+}
 a{text-decoration:none;color:inherit;}
 
-/* ══ PAGE LOADER ═══════════════════════════════════════ */
-#page-loader{
-  position:fixed;inset:0;z-index:9999;
-  background:linear-gradient(135deg,#0f172a,#1a3a6b);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  transition:opacity .7s ease,visibility .7s ease;
-}
+/* ══ PAGE LOADER ══ */
+#page-loader{position:fixed;inset:0;z-index:9999;background:var(--dark);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease;}
 #page-loader.hidden{opacity:0;visibility:hidden;pointer-events:none;}
-.loader-icon{
-  font-size:3rem;margin-bottom:1rem;
-  animation:loader-spin 1.5s ease-in-out infinite;
-}
-@keyframes loader-spin{0%,100%{transform:rotate(-10deg) scale(1)}50%{transform:rotate(10deg) scale(1.1)}}
-.loader-name{
-  font-family:'Clash Display',sans-serif;font-size:1.3rem;
-  font-weight:700;color:white;margin-bottom:1.5rem;
-}
+.loader-icon{font-size:2.8rem;margin-bottom:.9rem;animation:rock 1.4s ease-in-out infinite;}
+@keyframes rock{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.loader-name{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:white;margin-bottom:1.3rem;letter-spacing:1px;}
 .loader-name span{color:#fbbf24;}
-.loader-bar{width:180px;height:3px;background:rgba(255,255,255,.15);border-radius:10px;overflow:hidden;}
-.loader-fill{height:100%;width:0;background:linear-gradient(90deg,#1a56db,#fbbf24);animation:fill 1.6s ease forwards;}
+.loader-bar{width:160px;height:2px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;}
+.loader-fill{height:100%;width:0;background:linear-gradient(90deg,var(--primary),#fbbf24);animation:fill 1.5s ease forwards;}
 @keyframes fill{to{width:100%}}
 
-/* ══ BARRE INFO TOP ════════════════════════════════════ */
-.topbar-info{
-  background:#0f172a;color:#94a3b8;
-  font-size:.76rem;padding:.48rem 2rem;
-  display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:.5rem;position:relative;z-index:101;
+/* ══ TOP INFO BAR ══ */
+.top-info-bar{
+  height:var(--topbar-h);
+  background:rgba(5,10,28,.75);
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  border-bottom:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;padding:0 2.5rem;gap:2rem;
+  position:fixed;top:0;left:0;right:0;z-index:200;
 }
-.topbar-left,.topbar-right{display:flex;align-items:center;gap:1.4rem;}
-.topbar-info span{display:flex;align-items:center;gap:.4rem;}
-.topbar-info a{color:#94a3b8;transition:color .2s;}
-.topbar-info a:hover{color:#fbbf24;}
-.topbar-tag{background:rgba(245,158,11,.15);color:#fbbf24;font-size:.68rem;font-weight:700;padding:.18rem .65rem;border-radius:20px;}
-@media(max-width:768px){.topbar-right{display:none;}}
+.tib-left,.tib-right{display:flex;align-items:center;gap:1.3rem;}
+.tib-right{margin-left:auto;}
+.tib-item{display:flex;align-items:center;gap:.4rem;font-size:.71rem;color:rgba(255,255,255,.45);}
+.tib-item a{color:rgba(255,255,255,.45);transition:color .18s;}
+.tib-item a:hover{color:#fbbf24;}
+.tib-item i{font-size:.62rem;color:#fbbf24;}
+.tib-tag{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.2);border-radius:20px;padding:.18rem .72rem;font-size:.63rem;font-weight:700;}
+.tib-div{width:1px;height:16px;background:rgba(255,255,255,.1);}
+@media(max-width:768px){.tib-right,.tib-div{display:none;}}
 
-/* ══ NAVBAR ════════════════════════════════════════════ */
+/* ══ MAIN NAVBAR ══ */
 .navbar{
-  background:rgba(255,255,255,.95);
-  backdrop-filter:blur(14px);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:100;
-  box-shadow:0 2px 16px rgba(0,0,0,.06);
-  transition:box-shadow .3s;
+  height:var(--navbar-h);
+  background:rgba(255,255,255,.12);
+  backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px);
+  border-bottom:3px solid rgba(26,86,219,.6);
+  position:fixed;top:var(--topbar-h);left:0;right:0;z-index:190;
+  box-shadow:0 4px 24px rgba(0,0,0,.2);
 }
-.navbar.scrolled{box-shadow:0 4px 28px rgba(0,0,0,.1);}
-.nav-inner{max-width:1280px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:70px;gap:1.5rem;}
+.nav-inner{max-width:1320px;margin:0 auto;padding:0 2.5rem;display:flex;align-items:center;height:100%;gap:1.5rem;}
 
+/* Brand */
 .nav-brand{display:flex;align-items:center;gap:.8rem;flex-shrink:0;}
 .nav-logo{
-  width:44px;height:44px;border-radius:12px;
-  background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+  width:44px;height:44px;border-radius:11px;
+  background:linear-gradient(135deg,var(--primary),#2563eb);
   display:flex;align-items:center;justify-content:center;
-  color:white;font-size:1.2rem;flex-shrink:0;
-  box-shadow:0 4px 14px rgba(26,86,219,.3);
-  animation:logo-glow 3s ease-in-out infinite;
+  color:white;font-size:1.1rem;flex-shrink:0;
+  box-shadow:0 4px 16px rgba(26,86,219,.45);
   transition:transform .2s;
 }
-.nav-logo:hover{transform:rotate(-8deg) scale(1.08);}
-@keyframes logo-glow{0%,100%{box-shadow:0 4px 14px rgba(26,86,219,.3)}50%{box-shadow:0 6px 22px rgba(26,86,219,.55)}}
-.nav-title{font-family:'Clash Display',sans-serif;font-size:.9rem;font-weight:700;line-height:1.25;color:var(--dark);}
-.nav-title span{color:var(--primary);}
+.nav-logo:hover{transform:rotate(-6deg) scale(1.06);}
+.nav-brand-text{font-family:'Syne',sans-serif;font-size:.86rem;font-weight:800;color:white;line-height:1.2;letter-spacing:.3px;}
+.nav-brand-sub{font-size:.6rem;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase;}
 
-/* Animated tool icons */
-.nav-tools{display:flex;align-items:center;gap:.4rem;margin-left:.5rem;}
-.nav-tool{
-  width:30px;height:30px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:.82rem;animation:tool-bounce 2.5s ease-in-out infinite;
-}
-.nav-tool:nth-child(2){animation-delay:.3s;}
-.nav-tool:nth-child(3){animation-delay:.6s;}
-@keyframes tool-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* Animated tools */
+.nav-tools{display:flex;align-items:center;gap:.3rem;margin-left:.3rem;}
+.nav-tool{width:27px;height:27px;border-radius:7px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:.72rem;animation:float 2.8s ease-in-out infinite;}
+.nav-tool:nth-child(2){animation-delay:.35s;} .nav-tool:nth-child(3){animation-delay:.7s;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 
-.nav-links{display:flex;align-items:center;gap:.2rem;margin-left:auto;}
+/* Nav links — style CRDB horizontal */
+.nav-links{display:flex;align-items:center;gap:.05rem;margin-left:auto;}
 .nav-link{
-  padding:.52rem 1rem;border-radius:8px;
-  font-size:.86rem;font-weight:600;color:var(--muted);
-  transition:all .2s;white-space:nowrap;position:relative;
+  display:flex;align-items:center;gap:.4rem;
+  padding:.55rem 1rem;
+  font-size:.83rem;font-weight:600;color:rgba(255,255,255,.65);
+  transition:all .18s;white-space:nowrap;
+  border-bottom:3px solid transparent;
+  margin-bottom:-3px;
 }
-.nav-link::after{
-  content:'';position:absolute;bottom:3px;left:50%;right:50%;
-  height:2px;background:var(--primary);border-radius:2px;
-  transition:all .25s;
+.nav-link i{font-size:.73rem;}
+.nav-link:hover{color:white;background:rgba(255,255,255,.1);}
+.nav-link.active{
+  color:white;font-weight:700;
+  border-bottom-color:#60a5fa;
+  background:rgba(255,255,255,.1);
 }
-.nav-link:hover::after,.nav-link.active::after{left:10px;right:10px;}
-.nav-link:hover,.nav-link.active{color:var(--primary);background:var(--primary-light);}
 
-.nav-actions{display:flex;align-items:center;gap:.55rem;margin-left:1rem;}
+/* Actions */
+.nav-actions{display:flex;align-items:center;gap:.5rem;margin-left:1rem;flex-shrink:0;}
 
-.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.58rem 1.15rem;border-radius:9px;font-family:inherit;font-size:.86rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
-.btn-primary{background:var(--primary);color:white;box-shadow:0 3px 10px rgba(26,86,219,.22);}
-.btn-primary:hover{background:var(--primary-dark);transform:translateY(-2px);box-shadow:0 6px 18px rgba(26,86,219,.32);}
-.btn-outline{background:white;color:var(--primary);border:1.5px solid var(--primary);}
-.btn-outline:hover{background:var(--primary-light);transform:translateY(-1px);}
-.btn-dark{background:var(--dark);color:white;}
-.btn-dark:hover{background:var(--dark2);}
-.btn-sm{padding:.4rem .9rem;font-size:.8rem;}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;}
+.btn-primary{background:var(--primary);color:white;box-shadow:0 2px 8px rgba(26,86,219,.3);}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,86,219,.4);}
+.btn-outline{background:rgba(255,255,255,.1);color:white;border:1.5px solid rgba(255,255,255,.25);}
+.btn-outline:hover{background:rgba(255,255,255,.18);}
+.btn-muted{background:rgba(255,255,255,.07);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);}
+.btn-muted:hover{background:rgba(255,255,255,.12);color:white;}
+.btn-sm{padding:.38rem .85rem;font-size:.78rem;}
 .btn-danger{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;}
 .btn-danger:hover{background:#fecaca;}
 .btn-success{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;}
 .btn-success:hover{background:#bbf7d0;}
 
-/* Notif */
-.notif-btn{
-  position:relative;width:40px;height:40px;border-radius:10px;
-  background:var(--primary-light);display:flex;align-items:center;
-  justify-content:center;color:var(--primary);font-size:.95rem;
-  cursor:pointer;transition:all .2s;
-}
-.notif-btn:hover{background:var(--primary);color:white;transform:scale(1.08);}
-.notif-badge{
-  position:absolute;top:-5px;right:-5px;background:#ef4444;color:white;
-  font-size:.58rem;font-weight:800;min-width:18px;height:18px;
-  border-radius:10px;display:none;align-items:center;justify-content:center;
-  border:2px solid white;animation:pop .3s cubic-bezier(.16,1,.3,1);
-}
+/* Notif bell */
+.notif-btn{position:relative;width:38px;height:38px;border-radius:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.75);font-size:.9rem;cursor:pointer;transition:all .2s;}
+.notif-btn:hover{background:var(--primary);color:white;border-color:var(--primary);}
+.notif-badge{position:absolute;top:-4px;right:-4px;background:#ef4444;color:white;font-size:.56rem;font-weight:800;min-width:17px;height:17px;border-radius:10px;display:none;align-items:center;justify-content:center;border:2px solid rgba(8,15,40,.8);animation:pop .3s cubic-bezier(.16,1,.3,1);}
 .notif-badge.show{display:flex;}
 @keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
 
 /* Mobile toggle */
-.menu-toggle{
-  display:none;width:38px;height:38px;border-radius:9px;
-  border:1.5px solid var(--border);background:white;
-  flex-direction:column;align-items:center;justify-content:center;
-  gap:5px;cursor:pointer;transition:all .2s;margin-left:auto;
-}
-.menu-toggle span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px;transition:all .3s;}
-.mobile-menu{
-  display:none;position:fixed;inset:0;z-index:98;
-  background:white;padding:5.5rem 2rem 2rem;
-  flex-direction:column;gap:.4rem;
-  animation:menu-slide .25s ease;
-}
-@keyframes menu-slide{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.menu-toggle{display:none;width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;margin-left:.5rem;}
+.menu-toggle span{display:block;width:16px;height:2px;background:rgba(255,255,255,.7);border-radius:2px;}
+
+/* Mobile menu */
+.mobile-menu{display:none;position:fixed;top:calc(var(--topbar-h) + var(--navbar-h));left:0;right:0;bottom:0;z-index:180;background:rgba(5,10,28,.97);backdrop-filter:blur(20px);padding:1.5rem;flex-direction:column;gap:.3rem;overflow-y:auto;}
 .mobile-menu.open{display:flex;}
-.mobile-menu .nav-link{font-size:1rem;padding:.9rem 1rem;border-radius:12px;}
-.mobile-close{position:absolute;top:1.2rem;right:1.5rem;width:36px;height:36px;border-radius:9px;background:var(--light);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted);font-size:1rem;}
+.mobile-menu .nav-link{font-size:.95rem;padding:.85rem 1rem;border-radius:10px;color:rgba(255,255,255,.6);border-bottom:none;margin-bottom:0;}
+.mobile-menu .nav-link:hover,.mobile-menu .nav-link.active{background:rgba(26,86,219,.25);color:white;}
 
-@media(max-width:900px){
-  .nav-links,.nav-tools{display:none;}
-  .menu-toggle{display:flex;}
-}
+@media(max-width:960px){.nav-links,.nav-tools{display:none;}.menu-toggle{display:flex;}}
 
-/* ══ MESSAGES ══════════════════════════════════════════ */
-.messages-wrap{max-width:1280px;margin:1rem auto;padding:0 2rem;}
-.alert{
-  padding:.9rem 1.3rem;border-radius:11px;margin-bottom:.6rem;
-  display:flex;align-items:center;gap:.7rem;font-size:.89rem;
-  animation:alert-in .35s cubic-bezier(.16,1,.3,1);
-  position:relative;overflow:hidden;
-}
-.alert::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:4px 0 0 4px;}
-@keyframes alert-in{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:translateX(0)}}
-.alert-success{background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;}
-.alert-success::before{background:#16a34a;}
-.alert-error{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;}
-.alert-error::before{background:#dc2626;}
-.alert-info{background:#eff6ff;border:1px solid #bfdbfe;color:#2563eb;}
-.alert-info::before{background:#2563eb;}
-.alert-warning{background:#fffbeb;border:1px solid #fde68a;color:#d97706;}
-.alert-warning::before{background:#d97706;}
+/* ══ CONTENT OFFSET ══ */
+.content-wrap{padding-top:calc(var(--topbar-h) + var(--navbar-h));}
 
-/* ══ FLOATING WORKER CHIPS ═════════════════════════════ */
-.worker-chips{
-  position:fixed;bottom:24px;right:20px;z-index:50;
-  display:flex;flex-direction:column;gap:.55rem;
-  animation:chips-in .5s cubic-bezier(.16,1,.3,1) 2.2s both;
-}
-@keyframes chips-in{from{opacity:0;transform:translateX(50px)}to{opacity:1;transform:translateX(0)}}
-.w-chip{
-  display:flex;align-items:center;gap:.5rem;
-  background:white;border:1px solid var(--border);
-  border-radius:30px;padding:.38rem .9rem .38rem .38rem;
-  box-shadow:0 4px 16px rgba(0,0,0,.1);font-size:.73rem;
-  font-weight:600;color:var(--text);
-  animation:chip-float 3s ease-in-out infinite;
-  cursor:default;transition:transform .2s;
-}
-.w-chip:hover{transform:scale(1.04);}
-.w-chip:nth-child(2){animation-delay:.5s;}
-.w-chip:nth-child(3){animation-delay:1s;}
-@keyframes chip-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.chip-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;color:white;flex-shrink:0;}
-.chip-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0;animation:dot-blink 1.4s ease-in-out infinite;}
+/* ══ MESSAGES ══ */
+.messages-wrap{max-width:1320px;margin:.8rem auto;padding:0 2.5rem;}
+.alert{padding:.85rem 1.2rem;border-radius:10px;margin-bottom:.6rem;display:flex;align-items:center;gap:.6rem;font-size:.86rem;animation:alert-in .3s ease;border-left:4px solid transparent;}
+@keyframes alert-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.alert-success{background:#f0fdf4;border-color:#16a34a;color:#166534;border-right:1px solid #bbf7d0;border-top:1px solid #bbf7d0;border-bottom:1px solid #bbf7d0;}
+.alert-error{background:#fef2f2;border-color:#dc2626;color:#991b1b;border-right:1px solid #fecaca;border-top:1px solid #fecaca;border-bottom:1px solid #fecaca;}
+.alert-info{background:#eff6ff;border-color:#1a56db;color:#1e40af;border-right:1px solid #bfdbfe;border-top:1px solid #bfdbfe;border-bottom:1px solid #bfdbfe;}
+.alert-warning{background:#fffbeb;border-color:#d97706;color:#92400e;border-right:1px solid #fde68a;border-top:1px solid #fde68a;border-bottom:1px solid #fde68a;}
+
+/* ══ REVEAL ══ */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+/* ══ WORKER CHIPS ══ */
+.worker-chips{position:fixed;bottom:22px;right:18px;z-index:50;display:flex;flex-direction:column;gap:.5rem;animation:chips-in .5s ease 2s both;}
+@keyframes chips-in{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.w-chip{display:flex;align-items:center;gap:.45rem;background:rgba(255,255,255,.92);backdrop-filter:none;border:1px solid rgba(255,255,255,.5);border-radius:30px;padding:.35rem .85rem .35rem .35rem;box-shadow:0 4px 20px rgba(0,0,0,.2);font-size:.71rem;font-weight:600;color:var(--text);animation:chip-float 3.2s ease-in-out infinite;}
+.w-chip:nth-child(2){animation-delay:.5s;} .w-chip:nth-child(3){animation-delay:1s;}
+@keyframes chip-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.chip-av{width:25px;height:25px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:white;flex-shrink:0;}
+.chip-dot{width:6px;height:6px;border-radius:50%;background:#16a34a;animation:dot-blink 1.5s ease-in-out infinite;flex-shrink:0;}
 @keyframes dot-blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-/* ══ SCROLL TOP ════════════════════════════════════════ */
-#scroll-top{
-  position:fixed;bottom:26px;left:24px;z-index:50;
-  width:42px;height:42px;border-radius:12px;
-  background:var(--primary);color:white;border:none;
-  display:flex;align-items:center;justify-content:center;
-  font-size:.88rem;cursor:pointer;
-  box-shadow:0 4px 14px rgba(26,86,219,.35);
-  opacity:0;transform:translateY(14px);
-  transition:all .3s;pointer-events:none;
-}
+/* ══ SCROLL TOP ══ */
+#scroll-top{position:fixed;bottom:24px;left:22px;z-index:50;width:40px;height:40px;border-radius:10px;background:var(--primary);color:white;border:none;display:flex;align-items:center;justify-content:center;font-size:.85rem;cursor:pointer;box-shadow:0 4px 14px rgba(26,86,219,.4);opacity:0;transform:translateY(12px);transition:all .3s;pointer-events:none;}
 #scroll-top.show{opacity:1;transform:translateY(0);pointer-events:auto;}
 #scroll-top:hover{background:var(--primary-dark);transform:translateY(-2px);}
 
-/* ══ REVEAL ANIMATION ══════════════════════════════════ */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
-.reveal.visible{opacity:1;transform:translateY(0);}
-
-/* ══ FOOTER ════════════════════════════════════════════ */
-footer{
-  background:linear-gradient(180deg,#0f172a 0%,#060c17 100%);
-  color:#94a3b8;padding:4rem 2rem 2rem;margin-top:5rem;
-  position:relative;overflow:hidden;
-}
-footer::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--primary),#8b5cf6,#fbbf24,var(--primary));
-  background-size:200%;
-  animation:footer-bar 4s linear infinite;
-}
-@keyframes footer-bar{0%{background-position:0%}100%{background-position:200%}}
-.footer-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;}
-.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;}
-
-.footer-logo{
-  width:48px;height:48px;border-radius:13px;
-  background:linear-gradient(135deg,var(--primary),#3b82f6);
-  display:flex;align-items:center;justify-content:center;
-  color:white;font-size:1.25rem;margin-bottom:1rem;
-  box-shadow:0 4px 18px rgba(26,86,219,.35);
-}
-.footer-name{font-family:'Clash Display',sans-serif;font-size:1rem;font-weight:700;color:white;line-height:1.3;margin-bottom:.6rem;}
-.footer-brand p{font-size:.84rem;line-height:1.8;max-width:270px;}
-.footer-socials{display:flex;gap:.55rem;margin-top:1.2rem;}
-.soc-btn{
-  width:35px;height:35px;border-radius:9px;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);
-  display:flex;align-items:center;justify-content:center;
-  color:#94a3b8;font-size:.82rem;transition:all .2s;
-}
-.soc-btn:hover{background:var(--primary);color:white;transform:translateY(-3px);border-color:var(--primary);}
-
-.footer-col h4{color:white;font-size:.86rem;font-weight:700;margin-bottom:1.1rem;letter-spacing:.3px;}
-.footer-col a{
-  display:flex;align-items:center;gap:.5rem;
-  font-size:.83rem;margin-bottom:.6rem;color:#94a3b8;
-  transition:all .2s;
-}
-.footer-col a:hover{color:white;padding-left:.3rem;}
-.footer-col a i{width:13px;color:var(--primary);font-size:.78rem;}
-
-.footer-bottom{
-  border-top:1px solid rgba(255,255,255,.07);
-  padding-top:1.6rem;
-  display:flex;align-items:center;justify-content:space-between;
-  font-size:.78rem;flex-wrap:wrap;gap:1rem;
-}
-.footer-links{display:flex;gap:1.4rem;}
-.footer-links a{color:#64748b;transition:color .2s;}
-.footer-links a:hover{color:#94a3b8;}
-
-/* ══ MOVING BACKGROUND IMAGES STRIP ══════════════════ */
-.img-strip{
-  overflow:hidden;padding:1rem 0;background:white;
-  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
-}
-.img-strip-track{
-  display:flex;gap:1rem;
-  animation:strip-scroll 30s linear infinite;
-  width:max-content;
-}
+/* ══ IMAGE STRIP ══ */
+.img-strip{overflow:hidden;padding:.7rem 0;background:rgba(255,255,255,.06);backdrop-filter:none;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);}
+.img-strip-track{display:flex;gap:.8rem;animation:strip-scroll 32s linear infinite;width:max-content;}
 .img-strip-track:hover{animation-play-state:paused;}
 @keyframes strip-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.strip-img{
-  width:160px;height:100px;border-radius:12px;overflow:hidden;flex-shrink:0;
-  box-shadow:0 4px 14px rgba(0,0,0,.1);
-  transition:transform .3s;
-}
+.strip-img{width:150px;height:92px;border-radius:10px;overflow:hidden;flex-shrink:0;box-shadow:0 3px 14px rgba(0,0,0,.25);transition:transform .3s;}
 .strip-img:hover{transform:scale(1.05);}
 .strip-img img{width:100%;height:100%;object-fit:cover;}
 
+/* ══ FOOTER ══ */
+footer{background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);color:rgba(255,255,255,.4);padding:3.5rem 2.5rem 2rem;margin-top:4rem;border-top:1px solid rgba(255,255,255,.07);position:relative;overflow:hidden;}
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--primary),#6366f1,#fbbf24,var(--primary));background-size:300%;animation:bar-move 6s linear infinite;}
+@keyframes bar-move{0%{background-position:0%}100%{background-position:300%}}
+.footer-inner{max-width:1320px;margin:0 auto;position:relative;z-index:1;}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem;}
+.footer-logo-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--primary),#2563eb);display:flex;align-items:center;justify-content:center;color:white;font-size:1.1rem;margin-bottom:.9rem;box-shadow:0 4px 16px rgba(26,86,219,.4);}
+.footer-name{font-family:'Syne',sans-serif;font-size:.92rem;font-weight:800;color:white;margin-bottom:.6rem;letter-spacing:.3px;}
+.footer-brand p{font-size:.8rem;line-height:1.85;max-width:255px;}
+.footer-socials{display:flex;gap:.5rem;margin-top:1.1rem;}
+.soc-btn{width:33px;height:33px;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.4);font-size:.76rem;transition:all .2s;}
+.soc-btn:hover{background:var(--primary);color:white;transform:translateY(-2px);border-color:var(--primary);}
+.footer-col h4{color:white;font-size:.8rem;font-weight:700;margin-bottom:1rem;letter-spacing:.5px;text-transform:uppercase;}
+.footer-col a{display:flex;align-items:center;gap:.5rem;font-size:.79rem;margin-bottom:.55rem;color:rgba(255,255,255,.38);transition:all .18s;}
+.footer-col a:hover{color:white;padding-left:.3rem;}
+.footer-col a i{width:13px;color:var(--primary);font-size:.7rem;}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.06);padding-top:1.5rem;display:flex;align-items:center;justify-content:space-between;font-size:.75rem;flex-wrap:wrap;gap:1rem;}
+.footer-links{display:flex;gap:1.4rem;}
+.footer-links a{color:rgba(255,255,255,.28);transition:color .2s;}
+.footer-links a:hover{color:rgba(255,255,255,.55);}
+
 @media(max-width:768px){
-  .footer-grid{grid-template-columns:1fr 1fr;}
   .worker-chips{display:none;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
   .footer-bottom{flex-direction:column;text-align:center;}
 }
-@media(max-width:480px){
-  .footer-grid{grid-template-columns:1fr;}
-}
+@media(max-width:480px){.footer-grid{grid-template-columns:1fr;}}
 </style>
 {% block extra_css %}{% endblock %}
 </head>
 <body>
 
-<!-- PAGE LOADER -->
+<!-- LOADER -->
 <div id="page-loader">
   <div class="loader-icon">🏗️</div>
   <div class="loader-name">INFINITY <span>HOME</span></div>
   <div class="loader-bar"><div class="loader-fill"></div></div>
 </div>
 
-<!-- BARRE INFO -->
-<div class="topbar-info">
-  <div class="topbar-left">
-    <span><i class="fas fa-phone" style="color:#fbbf24;"></i><a href="tel:+25766033033">+257 66 033 033</a></span>
-    <span><i class="fas fa-envelope" style="color:#fbbf24;"></i><a href="mailto:info@infinityhome.bi">info@infinityhome.bi</a></span>
-    <span><i class="fas fa-map-marker-alt" style="color:#fbbf24;"></i> Bd. de l'Uprona, Bujumbura</span>
+<!-- ══ TOP INFO BAR ══ -->
+<div class="top-info-bar">
+  <div class="tib-left">
+    <div class="tib-item"><i class="fas fa-phone"></i><a href="tel:+25766033033">+257 66 033 033</a></div>
+    <div class="tib-div"></div>
+    <div class="tib-item"><i class="fas fa-envelope"></i><a href="/cdn-cgi/l/email-protection#c7aea9a1a887aea9a1aea9aeb3beafa8aaa2e9a5ae"><span class="__cf_email__" data-cfemail="325b5c545d725b5c545b5c5b464b5a5d5f571c505b">[email&#160;protected]</span></a></div>
+    <div class="tib-div"></div>
+    <div class="tib-item"><i class="fas fa-map-marker-alt"></i> Bd. de l'Uprona, Bujumbura</div>
   </div>
-  <div class="topbar-right">
-    <span class="topbar-tag"><i class="fas fa-bolt"></i> Intervention rapide 24h</span>
-    <span><i class="fas fa-star" style="color:#fbbf24;"></i> Techniciens certifies</span>
+  <div class="tib-right">
+    <span class="tib-tag"><i class="fas fa-bolt"></i> Intervention rapide 24h</span>
+    <div class="tib-div"></div>
+    <div class="tib-item"><i class="fas fa-star"></i> Techniciens certifiés</div>
   </div>
 </div>
 
-<!-- NAVBAR -->
+<!-- ══ NAVBAR ══ -->
 <nav class="navbar" id="navbar">
   <div class="nav-inner">
     <a href="{% url 'core:accueil' %}" class="nav-brand">
       <div class="nav-logo"><i class="fas fa-hard-hat"></i></div>
-      <div class="nav-title">INFINITY HOME<br><span>REWIRE & CONSTRUCTION</span></div>
+      <div>
+        <div class="nav-brand-text">INFINITY HOME</div>
+        <div class="nav-brand-sub">Rewire &amp; Construction</div>
+      </div>
     </a>
 
     <div class="nav-tools">
-      <div class="nav-tool" style="background:#fffbeb;">⚡</div>
-      <div class="nav-tool" style="background:#eff6ff;">🔧</div>
-      <div class="nav-tool" style="background:#f0fdf4;">🏗️</div>
+      <div class="nav-tool">⚡</div>
+      <div class="nav-tool">🔧</div>
+      <div class="nav-tool">🏗️</div>
     </div>
 
     <div class="nav-links">
       <a href="{% url 'core:accueil' %}" class="nav-link {% block nav_home %}{% endblock %}"><i class="fas fa-home"></i> Accueil</a>
-      <a href="{% url 'core:services' %}" class="nav-link {% block nav_services %}{% endblock %}"><i class="fas fa-tools"></i> Nos Services</a>
+      <a href="{% url 'core:services' %}" class="nav-link {% block nav_services %}{% endblock %}"><i class="fas fa-tools"></i> Services</a>
       <a href="{% url 'core:surveillance' %}" class="nav-link {% block nav_surveillance %}{% endblock %}"><i class="fas fa-camera"></i> Surveillance</a>
-      <a href="{% url 'core:a_propos' %}" class="nav-link {% block nav_apropos %}{% endblock %}"><i class="fas fa-building"></i> A Propos</a>
-      <a href="{% url 'core:contact' %}" class="nav-link {% block nav_contact %}{% endblock %}"><i class="fas fa-envelope"></i> Nous Contacter</a>
+      <a href="{% url 'core:a_propos' %}" class="nav-link {% block nav_apropos %}{% endblock %}"><i class="fas fa-building"></i> À Propos</a>
+      <a href="{% url 'core:contact' %}" class="nav-link {% block nav_contact %}{% endblock %}"><i class="fas fa-envelope"></i> Contact</a>
+      {% if user.is_authenticated %}
+      <div style="width:1px;height:22px;background:rgba(255,255,255,.15);margin:0 .3rem;"></div>
+      <a href="{% url 'demandes:mes_demandes' %}" class="nav-link {% block nav_demandes %}{% endblock %}"><i class="fas fa-clipboard-list"></i> Mes demandes</a>
+      <a href="{% url 'accounts:profil' %}" class="nav-link {% block nav_profil %}{% endblock %}"><i class="fas fa-user-circle"></i> Mon profil</a>
+      {% endif %}
     </div>
 
     <div class="nav-actions">
       {% if user.is_authenticated %}
         <a href="{% url 'demandes:notifications' %}" class="notif-btn" id="notif-btn">
           <i class="fas fa-bell"></i>
-          <span class="notif-badge" id="notif-badge">0</span>
+          <span class="notif-badge" id="notif-badge"></span>
         </a>
-        <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Nouvelle demande</a>
-        <a href="{% url 'accounts:profil' %}" class="btn btn-outline btn-sm"><i class="fas fa-user"></i> {{ user.first_name|default:user.username }}</a>
-        <a href="{% url 'accounts:deconnexion' %}" class="btn btn-sm" style="color:var(--muted);"><i class="fas fa-sign-out-alt"></i></a>
+        <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary btn-sm">
+          <i class="fas fa-plus"></i> Nouvelle demande
+        </a>
+        <a href="{% url 'accounts:deconnexion' %}" class="btn btn-muted btn-sm" title="Déconnexion">
+          <i class="fas fa-sign-out-alt"></i>
+        </a>
       {% else %}
-        <a href="{% url 'accounts:connexion' %}" class="btn btn-outline btn-sm"><i class="fas fa-sign-in-alt"></i> Connexion</a>
-        <a href="{% url 'accounts:inscription' %}" class="btn btn-primary btn-sm"><i class="fas fa-user-plus"></i> Inscription</a>
+        <a href="{% url 'accounts:connexion' %}" class="btn btn-outline btn-sm">
+          <i class="fas fa-sign-in-alt"></i> Connexion
+        </a>
+        <a href="{% url 'accounts:inscription' %}" class="btn btn-primary btn-sm">
+          <i class="fas fa-user-plus"></i> Inscription
+        </a>
       {% endif %}
+      <button class="menu-toggle" onclick="openMenu()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-
-    <button class="menu-toggle" onclick="openMenu()">
-      <span></span><span></span><span></span>
-    </button>
   </div>
 </nav>
 
-<!-- MOBILE MENU -->
+<!-- Mobile menu -->
 <div class="mobile-menu" id="mobile-menu">
-  <button class="mobile-close" onclick="closeMenu()"><i class="fas fa-times"></i></button>
   <a href="{% url 'core:accueil' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-home"></i> Accueil</a>
   <a href="{% url 'core:services' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-tools"></i> Nos Services</a>
   <a href="{% url 'core:surveillance' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-camera"></i> Surveillance</a>
-  <a href="{% url 'core:a_propos' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-building"></i> A Propos</a>
-  <a href="{% url 'core:contact' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-envelope"></i> Nous Contacter</a>
-  <hr style="border:none;border-top:1px solid var(--border);margin:.5rem 0;">
+  <a href="{% url 'core:a_propos' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-building"></i> À Propos</a>
+  <a href="{% url 'core:contact' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-envelope"></i> Contact</a>
+  <hr style="border:none;border-top:1px solid rgba(255,255,255,.1);margin:.5rem 0;">
   {% if user.is_authenticated %}
-    <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary" onclick="closeMenu()"><i class="fas fa-plus"></i> Nouvelle demande</a>
-    <a href="{% url 'accounts:deconnexion' %}" class="btn btn-outline" onclick="closeMenu()"><i class="fas fa-sign-out-alt"></i> Deconnexion</a>
+    <a href="{% url 'demandes:mes_demandes' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-clipboard-list"></i> Mes demandes</a>
+    <a href="{% url 'demandes:nouvelle_demande' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-plus-circle"></i> Nouvelle demande</a>
+    <a href="{% url 'accounts:profil' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-user-circle"></i> Mon profil</a>
+    <a href="{% url 'accounts:deconnexion' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
   {% else %}
-    <a href="{% url 'accounts:connexion' %}" class="btn btn-outline" onclick="closeMenu()"><i class="fas fa-sign-in-alt"></i> Connexion</a>
-    <a href="{% url 'accounts:inscription' %}" class="btn btn-primary" onclick="closeMenu()"><i class="fas fa-user-plus"></i> Inscription</a>
+    <a href="{% url 'accounts:connexion' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-sign-in-alt"></i> Connexion</a>
+    <a href="{% url 'accounts:inscription' %}" class="nav-link" onclick="closeMenu()"><i class="fas fa-user-plus"></i> Inscription</a>
   {% endif %}
 </div>
 
 <!-- MESSAGES -->
 {% if messages %}
-<div class="messages-wrap">
+<div class="messages-wrap" style="margin-top:calc(var(--topbar-h) + var(--navbar-h) + .8rem);">
   {% for message in messages %}
   <div class="alert alert-{% if message.tags == 'error' %}error{% elif message.tags == 'success' %}success{% elif message.tags == 'warning' %}warning{% else %}info{% endif %}">
     <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}times-circle{% else %}info-circle{% endif %}"></i>
@@ -402,13 +324,14 @@ footer::before{
 </div>
 {% endif %}
 
-<!-- PAGE CONTENT -->
-{% block content %}{% endblock %}
+<!-- CONTENT -->
+<div class="content-wrap">
+  {% block content %}{% endblock %}
+</div>
 
-<!-- BANDE D'IMAGES EN MOUVEMENT -->
+<!-- IMAGE STRIP -->
 <div class="img-strip">
   <div class="img-strip-track">
-    <!-- First set -->
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=320&q=75" alt="Electricien"></div>
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=320&q=75" alt="Plombier"></div>
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=320&q=75" alt="Construction"></div>
@@ -417,7 +340,6 @@ footer::before{
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=320&q=75" alt="Menuisier"></div>
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=320&q=75" alt="Chantier"></div>
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=320&q=75" alt="Electricite"></div>
-    <!-- Duplicate for infinite loop -->
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=320&q=75" alt="Electricien"></div>
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=320&q=75" alt="Plombier"></div>
     <div class="strip-img"><img src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=320&q=75" alt="Construction"></div>
@@ -434,9 +356,9 @@ footer::before{
   <div class="footer-inner">
     <div class="footer-grid">
       <div class="footer-brand">
-        <div class="footer-logo"><i class="fas fa-hard-hat"></i></div>
-        <div class="footer-name">INFINITY HOME<br>REWIRE & CONSTRUCTION</div>
-        <p>Votre partenaire de confiance pour tous vos travaux de construction, renovation et amenagement au Burundi.</p>
+        <div class="footer-logo-icon"><i class="fas fa-hard-hat"></i></div>
+        <div class="footer-name">INFINITY HOME<br>REWIRE &amp; CONSTRUCTION</div>
+        <p>Votre partenaire de confiance pour tous vos travaux de construction, rénovation et aménagement au Burundi.</p>
         <div class="footer-socials">
           <a href="https://www.facebook.com/infinityhomebi" class="soc-btn"><i class="fab fa-facebook-f"></i></a>
           <a href="https://wa.me/25777869915" class="soc-btn"><i class="fab fa-whatsapp"></i></a>
@@ -449,12 +371,12 @@ footer::before{
         <a href="{% url 'core:accueil' %}"><i class="fas fa-home"></i> Accueil</a>
         <a href="{% url 'core:services' %}"><i class="fas fa-tools"></i> Nos Services</a>
         <a href="{% url 'core:surveillance' %}"><i class="fas fa-camera"></i> Surveillance</a>
-        <a href="{% url 'core:a_propos' %}"><i class="fas fa-building"></i> A Propos</a>
+        <a href="{% url 'core:a_propos' %}"><i class="fas fa-building"></i> À Propos</a>
         <a href="{% url 'core:contact' %}"><i class="fas fa-envelope"></i> Contact</a>
       </div>
       <div class="footer-col">
         <h4>Services</h4>
-        <a href="#"><i class="fas fa-bolt"></i> Electricite</a>
+        <a href="#"><i class="fas fa-bolt"></i> Électricité</a>
         <a href="#"><i class="fas fa-wrench"></i> Plomberie</a>
         <a href="#"><i class="fas fa-hard-hat"></i> Construction</a>
         <a href="#"><i class="fas fa-fire"></i> Soudure</a>
@@ -464,15 +386,15 @@ footer::before{
       <div class="footer-col">
         <h4>Contact</h4>
         <a href="tel:+25766033033"><i class="fas fa-phone"></i> +257 66 033 033</a>
-        <a href="mailto:info@infinityhome.bi"><i class="fas fa-envelope"></i> info@infinityhome.bi</a>
+        <a href="/cdn-cgi/l/email-protection#80e9eee6efc0e9eee6e9eee9f4f9e8efede5aee2e9"><i class="fas fa-envelope"></i> <span class="__cf_email__" data-cfemail="3d54535b527d54535b545354494455525058135f54">[email&#160;protected]</span></a>
         <a href="#"><i class="fas fa-map-marker-alt"></i> Bujumbura, Burundi</a>
-        <a href="#"><i class="fas fa-clock"></i> Lun-Sam 7h - 18h</a>
+        <a href="#"><i class="fas fa-clock"></i> Lun–Sam 7h–18h</a>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>&copy; 2025 Infinity Home Rewire and Construction. Tous droits reserves.</span>
+      <span>&copy; 2025 Infinity Home Rewire and Construction. Tous droits réservés.</span>
       <div class="footer-links">
-        <a href="#">Confidentialite</a>
+        <a href="#">Confidentialité</a>
         <a href="#">Conditions</a>
         <a href="{% url 'core:contact' %}">Support</a>
       </div>
@@ -480,66 +402,50 @@ footer::before{
   </div>
 </footer>
 
-<!-- FLOATING WORKER CHIPS -->
 {% if user.is_authenticated %}
 <div class="worker-chips">
-  <div class="w-chip"><div class="chip-av" style="background:linear-gradient(135deg,#f59e0b,#f97316);">⚡</div><span>Electriciens dispo</span><div class="chip-dot"></div></div>
+  <div class="w-chip"><div class="chip-av" style="background:linear-gradient(135deg,#f59e0b,#f97316);">⚡</div><span>Électriciens dispo</span><div class="chip-dot"></div></div>
   <div class="w-chip"><div class="chip-av" style="background:linear-gradient(135deg,#3b82f6,#1a56db);">🔧</div><span>Plombiers dispo</span><div class="chip-dot"></div></div>
-  <div class="w-chip"><div class="chip-av" style="background:linear-gradient(135deg,#10b981,#16a34a);">🏗️</div><span>Ingenieurs dispo</span><div class="chip-dot"></div></div>
+  <div class="w-chip"><div class="chip-av" style="background:linear-gradient(135deg,#10b981,#16a34a);">🏗️</div><span>Ingénieurs dispo</span><div class="chip-dot"></div></div>
 </div>
 {% endif %}
 
-<!-- SCROLL TOP -->
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <i class="fas fa-arrow-up"></i>
 </button>
 
-<script>
-// Loader
-window.addEventListener('load',()=>{
-  setTimeout(()=>{
-    const l=document.getElementById('page-loader');
-    if(l)l.classList.add('hidden');
-  },1700);
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+window.addEventListener('load', () => {
+  setTimeout(() => { document.getElementById('page-loader')?.classList.add('hidden'); }, 1600);
 });
-
-// Navbar scroll
-window.addEventListener('scroll',()=>{
-  document.getElementById('navbar')?.classList.toggle('scrolled',scrollY>30);
-  const s=document.getElementById('scroll-top');
-  if(s)s.classList.toggle('show',scrollY>300);
+window.addEventListener('scroll', () => {
+  document.getElementById('scroll-top')?.classList.toggle('show', scrollY > 300);
 });
-
-// Mobile menu
-function openMenu(){document.getElementById('mobile-menu').classList.add('open');document.body.style.overflow='hidden';}
-function closeMenu(){document.getElementById('mobile-menu').classList.remove('open');document.body.style.overflow='';}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
-
-// Reveal on scroll
-const obs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);}});
-},{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
-
-// Notifications
+function openMenu() { document.getElementById('mobile-menu').classList.add('open'); document.body.style.overflow = 'hidden'; }
+function closeMenu() { document.getElementById('mobile-menu').classList.remove('open'); document.body.style.overflow = ''; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+}, { threshold: .1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 {% if user.is_authenticated %}
-function checkNotifs(){
-  fetch('/demandes/api/notif-count/').then(r=>r.json()).then(d=>{
-    const b=document.getElementById('notif-badge');
-    if(b){if(d.count>0){b.textContent=d.count;b.classList.add('show');}else b.classList.remove('show');}
-  }).catch(()=>{});
+function checkNotifs() {
+  fetch('/demandes/api/notif-count/').then(r => r.json()).then(d => {
+    const b = document.getElementById('notif-badge');
+    if (b) { if (d.count > 0) { b.textContent = d.count; b.classList.add('show'); } else b.classList.remove('show'); }
+  }).catch(() => {});
 }
-checkNotifs();setInterval(checkNotifs,30000);
+checkNotifs(); setInterval(checkNotifs, 30000);
 {% endif %}
 
 // Auto-hide alerts
-setTimeout(()=>{
-  document.querySelectorAll('.alert').forEach(a=>{
-    a.style.transition='opacity .4s,transform .4s';
-    a.style.opacity='0';a.style.transform='translateX(-14px)';
-    setTimeout(()=>a.remove(),400);
+setTimeout(() => {
+  document.querySelectorAll('.alert').forEach(a => {
+    a.style.transition = 'opacity .4s, transform .4s';
+    a.style.opacity = '0'; a.style.transform = 'translateX(-10px)';
+    setTimeout(() => a.remove(), 400);
   });
-},5000);
+}, 5000);
 </script>
 {% block extra_js %}{% endblock %}
 </body>

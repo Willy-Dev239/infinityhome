@@ -1,0 +1,221 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Paiements - Admin{% endblock %}
+{% block nav_paiements %}active{% endblock %}
+{% block topbar_title %}Paiements{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="breadcrumb"><a href="{% url 'dashboard:home' %}">Tableau de bord</a> <i class="fas fa-chevron-right" style="font-size:.55rem;"></i> Paiements</div>
+    <h1>Gestion des paiements</h1>
+  </div>
+  <a href="{% url 'dashboard:instructions_paiement' %}" class="btn btn-ghost">
+    <i class="fas fa-cog"></i> Configurer les instructions
+  </a>
+</div>
+
+<!-- Stats paiements -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(245,158,11,.1);color:var(--accent);"><i class="fas fa-clock"></i></div>
+    <div class="stat-val">{{ stats.en_attente }}</div>
+    <div class="stat-lbl">En attente</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(16,185,129,.1);color:var(--green);"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-val">{{ stats.valides }}</div>
+    <div class="stat-lbl">Validés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--red);"><i class="fas fa-times-circle"></i></div>
+    <div class="stat-val">{{ stats.rejetes }}</div>
+    <div class="stat-lbl">Rejetés</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon" style="background:rgba(26,86,219,.1);color:var(--primary);"><i class="fas fa-wallet"></i></div>
+    <div class="stat-val">{{ stats.total_valide|floatformat:0 }}</div>
+    <div class="stat-lbl">Total validé (BIF)</div>
+  </div>
+</div>
+
+<!-- Filtres -->
+<div class="card" style="margin-bottom:1.5rem;">
+  <form method="get" style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+    <div style="flex:1;min-width:160px;">
+      <label class="form-label">Statut</label>
+      <select name="statut" class="form-ctrl" onchange="this.form.submit()">
+        <option value="">Tous les statuts</option>
+        <option value="en_attente" {% if filtre_statut == 'en_attente' %}selected{% endif %}>En attente</option>
+        <option value="valide"     {% if filtre_statut == 'valide'     %}selected{% endif %}>Validé</option>
+        <option value="rejete"     {% if filtre_statut == 'rejete'     %}selected{% endif %}>Rejeté</option>
+        <option value="annule"     {% if filtre_statut == 'annule'     %}selected{% endif %}>Annulé</option>
+      </select>
+    </div>
+    <div style="flex:1;min-width:160px;">
+      <label class="form-label">Mode de paiement</label>
+      <select name="mode" class="form-ctrl" onchange="this.form.submit()">
+        <option value="">Tous les modes</option>
+        <option value="carte"     {% if filtre_mode == 'carte'     %}selected{% endif %}>Carte Bancaire</option>
+        <option value="livraison" {% if filtre_mode == 'livraison' %}selected{% endif %}>À la Livraison</option>
+        <option value="mobile"    {% if filtre_mode == 'mobile'    %}selected{% endif %}>Mobile Money</option>
+      </select>
+    </div>
+    <div style="flex:2;min-width:200px;">
+      <label class="form-label">Recherche client</label>
+      <input type="text" name="q" value="{{ recherche }}" placeholder="Nom, email..." class="form-ctrl">
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i> Filtrer</button>
+    {% if filtre_statut or filtre_mode or recherche %}
+    <a href="{% url 'dashboard:paiements' %}" class="btn btn-ghost"><i class="fas fa-times"></i> Réinitialiser</a>
+    {% endif %}
+  </form>
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Client</th>
+          <th>Demande</th>
+          <th>Mode</th>
+          <th>Détails</th>
+          <th>Montant</th>
+          <th>Statut</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in paiements %}
+        <tr>
+          <td style="color:var(--accent);font-weight:700;">#{{ p.id }}</td>
+          <td>
+            <div style="font-weight:600;font-size:.86rem;">{{ p.client.get_full_name|default:p.client.username }}</div>
+            <div style="color:var(--muted);font-size:.74rem;">{{ p.client.email }}</div>
+          </td>
+          <td>
+            {% if p.commande %}
+              <a href="{% url 'dashboard:demande_detail' p.commande.pk %}" class="btn btn-ghost btn-sm">
+                #{{ p.commande.id }}
+              </a>
+            {% else %}
+              <span style="color:var(--muted2);">—</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if p.mode_paiement == 'carte' %}
+              <span class="badge badge-blue"><i class="fas fa-credit-card" style="margin-right:.3rem;"></i> Carte</span>
+            {% elif p.mode_paiement == 'livraison' %}
+              <span class="badge badge-gray"><i class="fas fa-home" style="margin-right:.3rem;"></i> Livraison</span>
+            {% elif p.mode_paiement == 'mobile' %}
+              <span class="badge badge-green"><i class="fas fa-mobile-alt" style="margin-right:.3rem;"></i>
+                {% if p.fournisseur_mobile == 'lumicash' %}Lumicash{% else %}Ecocash{% endif %}
+              </span>
+            {% endif %}
+          </td>
+          <td style="font-size:.8rem;color:var(--muted);">
+            {% if p.mode_paiement == 'mobile' %}
+              {{ p.numero_mobile }}
+            {% elif p.mode_paiement == 'carte' %}
+              •••• {{ p.derniers_chiffres_carte }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td style="font-weight:700;color:var(--primary);">{{ p.montant|floatformat:0 }} {{ p.devise }}</td>
+          <td>
+            {% if p.statut == 'en_attente' %}
+              <span class="badge badge-yellow"><i class="fas fa-clock" style="margin-right:.3rem;"></i> En attente</span>
+            {% elif p.statut == 'valide' %}
+              <span class="badge badge-green"><i class="fas fa-check" style="margin-right:.3rem;"></i> Validé</span>
+            {% elif p.statut == 'rejete' %}
+              <span class="badge badge-red"><i class="fas fa-times" style="margin-right:.3rem;"></i> Rejeté</span>
+            {% elif p.statut == 'annule' %}
+              <span class="badge badge-gray">Annulé</span>
+            {% endif %}
+          </td>
+          <td style="color:var(--muted);font-size:.8rem;">{{ p.created_at|date:"d/m/Y H:i" }}</td>
+          <td>
+            <div style="display:flex;gap:.4rem;">
+              <a href="{% url 'dashboard:paiement_detail' p.pk %}" class="btn btn-ghost btn-sm" title="Détail">
+                <i class="fas fa-eye"></i>
+              </a>
+              {% if p.statut == 'en_attente' %}
+              <a href="{% url 'dashboard:paiement_valider' p.pk %}" class="btn btn-success btn-sm" title="Valider"
+                 onclick="return confirm('Valider ce paiement ?')">
+                <i class="fas fa-check"></i>
+              </a>
+              <button class="btn btn-danger btn-sm" title="Rejeter" onclick="ouvrirRejeter({{ p.pk }})">
+                <i class="fas fa-times"></i>
+              </button>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9" style="text-align:center;color:var(--muted);padding:3rem;">
+            <i class="fas fa-wallet" style="font-size:2rem;display:block;margin-bottom:.7rem;opacity:.3;"></i>
+            Aucun paiement trouvé.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if paiements.has_other_pages %}
+  <div style="display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem;">
+    {% if paiements.has_previous %}
+    <a href="?page={{ paiements.previous_page_number }}&statut={{ filtre_statut }}&mode={{ filtre_mode }}&q={{ recherche }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-left"></i></a>
+    {% endif %}
+    {% for num in paiements.paginator.page_range %}
+      {% if paiements.number == num %}
+        <span class="btn btn-primary btn-sm">{{ num }}</span>
+      {% elif num > paiements.number|add:'-3' and num < paiements.number|add:'3' %}
+        <a href="?page={{ num }}&statut={{ filtre_statut }}&mode={{ filtre_mode }}&q={{ recherche }}" class="btn btn-ghost btn-sm">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if paiements.has_next %}
+    <a href="?page={{ paiements.next_page_number }}&statut={{ filtre_statut }}&mode={{ filtre_mode }}&q={{ recherche }}" class="btn btn-ghost btn-sm"><i class="fas fa-chevron-right"></i></a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal Rejeter -->
+<div id="modal-rejeter" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;align-items:center;justify-content:center;">
+  <div style="background:white;border-radius:16px;padding:2rem;width:100%;max-width:440px;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:1rem;">
+      <i class="fas fa-times-circle" style="color:var(--red);"></i> Rejeter le paiement
+    </h3>
+    <p style="color:var(--muted);font-size:.87rem;margin-bottom:1rem;">Indiquez un motif de rejet (visible par le client).</p>
+    <form id="form-rejeter" method="post" action="">
+      {% csrf_token %}
+      <textarea name="note_admin" class="form-ctrl" rows="3" placeholder="Ex: Informations de carte incorrectes, numéro mobile invalide..." style="resize:none;margin-bottom:1rem;"></textarea>
+      <div style="display:flex;gap:.8rem;">
+        <button type="button" class="btn btn-ghost" style="flex:1;" onclick="fermerRejeter()">Annuler</button>
+        <button type="submit" class="btn btn-danger" style="flex:1;"><i class="fas fa-times"></i> Confirmer le rejet</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function ouvrirRejeter(pk) {
+  document.getElementById('form-rejeter').action = `/dashboard/paiements/${pk}/rejeter/`;
+  const modal = document.getElementById('modal-rejeter');
+  modal.style.display = 'flex';
+}
+function fermerRejeter() {
+  document.getElementById('modal-rejeter').style.display = 'none';
+}
+document.getElementById('modal-rejeter').addEventListener('click', function(e) {
+  if (e.target === this) fermerRejeter();
+});
+</script>
+{% endblock %}

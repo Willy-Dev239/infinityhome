@@ -16,63 +16,98 @@
 .step-label{font-size:.72rem;font-weight:600;}
 .step-label-active{color:var(--primary);}
 .step-label-other{color:var(--muted);}
+
+/* ── Paiement ── */
+.pm-mode-card{background:#f8fafc;border:2px solid #e2e8f0;border-radius:14px;padding:1rem 1.2rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:1rem;}
+.pm-mode-card:hover{border-color:var(--primary);background:#eff6ff;}
+.pm-mode-card.selected{border-color:var(--primary);background:#eff6ff;}
+.pm-mode-icon{width:44px;height:44px;border-radius:10px;background:#e0e7ff;display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:1.1rem;flex-shrink:0;transition:all .2s;}
+.pm-mode-card.selected .pm-mode-icon{background:var(--primary);color:white;}
+.pm-radio{width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e1;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.pm-mode-card.selected .pm-radio{border-color:var(--primary);}
+.pm-radio-dot{width:9px;height:9px;border-radius:50%;background:var(--primary);display:none;}
+.pm-mode-card.selected .pm-radio-dot{display:block;}
+.pm-input{width:100%;padding:.75rem 1rem;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.9rem;outline:none;transition:border-color .2s;font-family:inherit;}
+.pm-input:focus{border-color:var(--primary);}
+.pm-btn{padding:.8rem 1.5rem;border-radius:10px;border:none;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit;}
+.pm-btn-primary{background:var(--primary);color:white;}
+.pm-btn-primary:hover:not(:disabled){opacity:.9;transform:translateY(-1px);}
+.pm-btn-primary:disabled{opacity:.4;cursor:not-allowed;}
+.pm-btn-ghost{background:#f1f5f9;color:#64748b;border:1.5px solid #e2e8f0;}
+.pm-btn-ghost:hover{background:#e2e8f0;}
+.pm-provider{flex:1;padding:.9rem;border-radius:12px;border:2px solid #e2e8f0;cursor:pointer;text-align:center;transition:all .2s;background:#f8fafc;}
+.pm-provider:hover{border-color:var(--primary);}
+.pm-provider.selected{border-color:var(--primary);background:#eff6ff;}
+.etape-item{display:flex;gap:.8rem;align-items:flex-start;padding:.9rem 1rem;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;margin-bottom:.6rem;}
+.etape-num{width:26px;height:26px;border-radius:50%;background:var(--primary-light);border:1.5px solid var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--primary);font-weight:700;font-size:.78rem;}
+.pm-statut-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;border-radius:20px;font-size:.8rem;font-weight:700;}
+.pm-statut-en_attente{background:#fffbeb;color:#d97706;}
+.pm-statut-valide{background:#dcfce7;color:#15803d;}
+.pm-statut-rejete{background:#fef2f2;color:#dc2626;}
+
+/* ── Bordereau ── */
+.brd-wrap { background:#f8fafc; border:2px solid #e2e8f0; border-radius:14px; padding:1.4rem; margin-top:1rem; }
+.brd-wrap.submitted { background:#f0fdf4; border-color:#86efac; }
+.brd-title { font-family:'Clash Display',sans-serif; font-weight:700; font-size:.95rem; color:#0f172a; display:flex; align-items:center; gap:.5rem; margin-bottom:1.1rem; }
+.brd-grid { display:grid; grid-template-columns:1fr 1fr; gap:.8rem; margin-bottom:.9rem; }
+.brd-field { display:flex; flex-direction:column; gap:.3rem; }
+.brd-field.full { grid-column:span 2; }
+.brd-label { font-size:.73rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.6px; }
+.brd-label span { color:#ef4444; }
+.brd-input { padding:.65rem .9rem; border:1.5px solid #e2e8f0; border-radius:10px; font-size:.88rem; color:#0f172a; font-family:inherit; transition:border-color .18s, box-shadow .18s; background:white; }
+.brd-input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(26,86,219,.1); }
+.brd-upload-zone { border:2px dashed #cbd5e1; border-radius:12px; padding:1.5rem; text-align:center; cursor:pointer; transition:all .2s; background:white; position:relative; }
+.brd-upload-zone:hover, .brd-upload-zone.drag { border-color:var(--primary); background:#eff6ff; }
+.brd-upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.brd-upload-preview { width:100%; max-height:160px; object-fit:cover; border-radius:8px; margin-top:.7rem; display:none; }
+.brd-submit-btn { width:100%; padding:.85rem; border:none; border-radius:11px; background:linear-gradient(135deg,#1a56db,#3b82f6); color:white; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:.5rem; font-family:inherit; }
+.brd-submit-btn:hover:not(:disabled) { filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 6px 20px rgba(26,86,219,.25); }
+.brd-submit-btn:disabled { opacity:.5; cursor:not-allowed; }
+.brd-success { background:#f0fdf4; border:1.5px solid #86efac; border-radius:12px; padding:1rem 1.2rem; display:flex; align-items:center; gap:.8rem; }
+.brd-info-row { display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid #f1f5f9; font-size:.84rem; }
+.brd-info-row:last-child { border-bottom:none; }
+
 </style>
 {% endblock %}
 
 {% block content %}
 <div style="max-width:800px;margin:3rem auto;padding:0 1.5rem;">
 
+  <!-- En-tête -->
   <div style="display:flex;align-items:center;gap:1rem;margin-bottom:2rem;">
     <a href="{% url 'demandes:mes_demandes' %}" style="color:var(--muted);"><i class="fas fa-arrow-left"></i></a>
     <h1 style="font-family:'Clash Display',sans-serif;font-size:1.5rem;font-weight:700;">Demande #{{ demande.id }}</h1>
     <span class="statut-badge statut-{{ demande.statut }}">{{ demande.get_statut_display }}</span>
   </div>
 
+  <!-- Suivi -->
   <div style="background:white;border-radius:16px;padding:1.8rem;border:1px solid var(--border);box-shadow:var(--shadow);margin-bottom:1.5rem;">
     <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;margin-bottom:1.5rem;">Suivi de l intervention</h3>
     <div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative;">
       <div style="position:absolute;top:16px;left:10%;right:10%;height:2px;background:#e2e8f0;z-index:0;"></div>
-
       <div style="text-align:center;position:relative;z-index:1;flex:1;">
-        {% if demande.statut == 'en_attente' %}
-          <div class="step-circle step-active">1</div><div class="step-label step-label-active">En attente</div>
-        {% elif demande.statut == 'assignee' or demande.statut == 'en_cours' or demande.statut == 'terminee' %}
-          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">En attente</div>
-        {% else %}
-          <div class="step-circle step-todo">1</div><div class="step-label step-label-other">En attente</div>
-        {% endif %}
+        {% if demande.statut == 'en_attente' %}<div class="step-circle step-active">1</div><div class="step-label step-label-active">En attente</div>
+        {% elif demande.statut == 'assignee' or demande.statut == 'en_cours' or demande.statut == 'terminee' %}<div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">En attente</div>
+        {% else %}<div class="step-circle step-todo">1</div><div class="step-label step-label-other">En attente</div>{% endif %}
       </div>
-
       <div style="text-align:center;position:relative;z-index:1;flex:1;">
-        {% if demande.statut == 'assignee' %}
-          <div class="step-circle step-active">2</div><div class="step-label step-label-active">Assignee</div>
-        {% elif demande.statut == 'en_cours' or demande.statut == 'terminee' %}
-          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">Assignee</div>
-        {% else %}
-          <div class="step-circle step-todo">2</div><div class="step-label step-label-other">Assignee</div>
-        {% endif %}
+        {% if demande.statut == 'assignee' %}<div class="step-circle step-active">2</div><div class="step-label step-label-active">Assignee</div>
+        {% elif demande.statut == 'en_cours' or demande.statut == 'terminee' %}<div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">Assignee</div>
+        {% else %}<div class="step-circle step-todo">2</div><div class="step-label step-label-other">Assignee</div>{% endif %}
       </div>
-
       <div style="text-align:center;position:relative;z-index:1;flex:1;">
-        {% if demande.statut == 'en_cours' %}
-          <div class="step-circle step-active">3</div><div class="step-label step-label-active">En cours</div>
-        {% elif demande.statut == 'terminee' %}
-          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">En cours</div>
-        {% else %}
-          <div class="step-circle step-todo">3</div><div class="step-label step-label-other">En cours</div>
-        {% endif %}
+        {% if demande.statut == 'en_cours' %}<div class="step-circle step-active">3</div><div class="step-label step-label-active">En cours</div>
+        {% elif demande.statut == 'terminee' %}<div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-other">En cours</div>
+        {% else %}<div class="step-circle step-todo">3</div><div class="step-label step-label-other">En cours</div>{% endif %}
       </div>
-
       <div style="text-align:center;position:relative;z-index:1;flex:1;">
-        {% if demande.statut == 'terminee' %}
-          <div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-active">Terminee</div>
-        {% else %}
-          <div class="step-circle step-todo">4</div><div class="step-label step-label-other">Terminee</div>
-        {% endif %}
+        {% if demande.statut == 'terminee' %}<div class="step-circle step-done"><i class="fas fa-check"></i></div><div class="step-label step-label-active">Terminee</div>
+        {% else %}<div class="step-circle step-todo">4</div><div class="step-label step-label-other">Terminee</div>{% endif %}
       </div>
     </div>
   </div>
 
+  <!-- Détails + Technicien -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
     <div style="background:white;border-radius:16px;padding:1.5rem;border:1px solid var(--border);">
       <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Details</h3>
@@ -92,9 +127,7 @@
       <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Technicien assigne</h3>
       {% if demande.technicien %}
         <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
-          <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;font-size:1.1rem;">
-            {{ demande.technicien.prenom|slice:":1"|upper }}
-          </div>
+          <div style="width:48px;height:48px;border-radius:12px;background:var(--primary-light);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700;font-size:1.1rem;">{{ demande.technicien.prenom|slice:":1"|upper }}</div>
           <div>
             <div style="font-weight:700;">{{ demande.technicien.prenom }} {{ demande.technicien.nom }}</div>
             <div style="color:var(--muted);font-size:.82rem;">{{ demande.technicien.get_specialite_display }}</div>
@@ -120,5 +153,566 @@
   </div>
   {% endif %}
 
+
+  <!-- ══════════════════════════════════════════
+       NOTIFICATION PAIEMENT ADMIN → CLIENT
+  ══════════════════════════════════════════ -->
+  {% if notif_paiement and not paiement %}
+  <div id="notif-paiement-banner" style="
+    background:linear-gradient(135deg,#fffbeb,#fef3c7);
+    border:2px solid #fcd34d; border-radius:16px;
+    padding:1.3rem 1.5rem; margin-top:1.5rem;
+    display:flex; align-items:flex-start; gap:1rem;
+    box-shadow:0 4px 20px rgba(245,158,11,.12);
+    animation:slideNotif .5s cubic-bezier(.34,1.56,.64,1) both;
+  ">
+    <style>
+      @keyframes slideNotif { from{opacity:0;transform:translateY(-12px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+      @keyframes bellRing { 0%,100%{transform:rotate(0)} 10%{transform:rotate(18deg)} 20%{transform:rotate(-15deg)} 30%{transform:rotate(12deg)} 40%{transform:rotate(-9deg)} 50%{transform:rotate(6deg)} }
+      .notif-bell { animation:bellRing 1s ease .3s both; display:inline-block; }
+      .notif-cta { display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.3rem;border-radius:11px;background:linear-gradient(135deg,#f59e0b,#fb923c);color:white;font-weight:700;font-size:.85rem;border:none;cursor:pointer;transition:all .2s;box-shadow:0 4px 14px rgba(245,158,11,.3); }
+      .notif-cta:hover { filter:brightness(1.08);transform:translateY(-1px); }
+      .notif-dismiss { width:28px;height:28px;border-radius:8px;background:rgba(0,0,0,.06);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#92400e;font-size:.8rem;flex-shrink:0;transition:background .15s; }
+      .notif-dismiss:hover { background:rgba(0,0,0,.12); }
+    </style>
+    <!-- Icône -->
+    <div style="width:46px;height:46px;border-radius:13px;background:#fef9c3;border:2px solid #fcd34d;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;color:#d97706;">
+      <span class="notif-bell">🔔</span>
+    </div>
+    <!-- Contenu -->
+    <div style="flex:1;">
+      <div style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:.95rem;color:#92400e;display:flex;align-items:center;gap:.5rem;margin-bottom:.3rem;">
+        Action requise — Procédez à votre paiement
+        <span style="font-size:.65rem;font-weight:700;background:#f59e0b;color:white;padding:.15rem .55rem;border-radius:20px;">NOUVEAU</span>
+      </div>
+      <p style="font-size:.85rem;color:#78350f;line-height:1.6;margin-bottom:.9rem;">{{ notif_paiement.message }}</p>
+      <div style="display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;">
+        <button class="notif-cta" onclick="ouvrirPaiementDepuisNotif({{ notif_paiement.id }})">
+          <i class="fas fa-credit-card"></i> Procéder au paiement
+        </button>
+        <span style="font-size:.74rem;color:#b45309;"><i class="fas fa-clock"></i> Reçu le {{ notif_paiement.date|date:"d/m/Y à H:i" }}</span>
+      </div>
+    </div>
+    <!-- Dismiss -->
+    <button class="notif-dismiss" onclick="dismissNotif({{ notif_paiement.id }})" title="Marquer comme lue">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+
+  <script>
+  function ouvrirPaiementDepuisNotif(notifId) {
+    marquerNotifLue(notifId);
+    const banner = document.getElementById('notif-paiement-banner');
+    if (banner) { banner.style.transition='all .35s ease'; banner.style.opacity='0'; banner.style.transform='translateY(-8px)'; setTimeout(()=>{ banner.style.display='none'; }, 350); }
+    setTimeout(() => {
+      const pm = document.querySelector('[data-section="paiement"]');
+      if (pm) { pm.scrollIntoView({behavior:'smooth',block:'start'}); pm.style.transition='box-shadow .3s'; pm.style.boxShadow='0 0 0 3px rgba(245,158,11,.4)'; setTimeout(()=>{ pm.style.boxShadow=''; }, 1500); }
+    }, 400);
+  }
+  function dismissNotif(notifId) {
+    marquerNotifLue(notifId);
+    const banner = document.getElementById('notif-paiement-banner');
+    if (banner) { banner.style.transition='all .4s ease'; banner.style.opacity='0'; banner.style.maxHeight=banner.offsetHeight+'px'; setTimeout(()=>{ banner.style.maxHeight='0'; banner.style.padding='0'; banner.style.margin='0'; banner.style.border='none'; banner.style.overflow='hidden'; },150); setTimeout(()=>banner.remove(),500); }
+  }
+  function marquerNotifLue(notifId) {
+    fetch(`/demandes/api/notifications/${notifId}/lue/`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+    }).catch(()=>{});
+  }
+  function getCookie(name) { const v=document.cookie.match('(^|;) ?'+name+'=([^;]*)(;|$)'); return v?v[2]:''; }
+  </script>
+  {% endif %}
+
+  <!-- ══════════════════════════════════════════
+       MODULE DE PAIEMENT
+  ══════════════════════════════════════════ -->
+  <div data-section="paiement" style="background:white;border-radius:16px;padding:1.8rem;border:1px solid var(--border);box-shadow:var(--shadow);margin-top:1.5rem;">
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <h3 style="font-family:'Clash Display',sans-serif;font-weight:700;font-size:1rem;">
+        <i class="fas fa-credit-card" style="color:var(--primary);margin-right:.5rem;"></i> Paiement
+      </h3>
+
+      {% if paiement %}
+        <!-- Paiement déjà enregistré -->
+        <span class="pm-statut-badge pm-statut-{{ paiement.statut }}">
+          {% if paiement.statut == 'en_attente' %}<i class="fas fa-clock"></i> En attente de validation
+          {% elif paiement.statut == 'valide' %}<i class="fas fa-check-circle"></i> Validé
+          {% elif paiement.statut == 'rejete' %}<i class="fas fa-times-circle"></i> Rejeté
+          {% endif %}
+        </span>
+      {% endif %}
+    </div>
+
+    {% if paiement %}
+      <!-- ── Récapitulatif paiement existant ── -->
+      <div style="background:#f8fafc;border-radius:12px;padding:1.2rem 1.4rem;border:1px solid #e2e8f0;margin-bottom:{% if paiement.statut == 'rejete' %}1rem{% else %}0{% endif %};">
+        <div style="display:flex;flex-direction:column;gap:.7rem;font-size:.88rem;">
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--muted);">Mode</span>
+            <strong>
+              {% if paiement.mode_paiement == 'carte' %}<i class="fas fa-credit-card" style="color:var(--primary);"></i> Carte Bancaire
+              {% elif paiement.mode_paiement == 'livraison' %}<i class="fas fa-home" style="color:var(--primary);"></i> À la Livraison
+              {% elif paiement.mode_paiement == 'mobile' %}<i class="fas fa-mobile-alt" style="color:var(--primary);"></i>
+                {% if paiement.fournisseur_mobile == 'lumicash' %}Lumicash{% else %}Ecocash{% endif %}
+              {% endif %}
+            </strong>
+          </div>
+          {% if paiement.montant %}
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--muted);">Montant</span>
+            <strong style="color:var(--primary);">{{ paiement.montant|floatformat:0 }} {{ paiement.devise }}</strong>
+          </div>
+          {% endif %}
+          {% if paiement.numero_mobile %}
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--muted);">Numéro</span>
+            <strong>{{ paiement.numero_mobile }}</strong>
+          </div>
+          {% endif %}
+          <div style="display:flex;justify-content:space-between;">
+            <span style="color:var(--muted);">Enregistré le</span>
+            <span>{{ paiement.created_at|date:"d/m/Y à H:i" }}</span>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ══ BORDEREAU DE PREUVE ══ -->
+      {% if paiement.statut == 'en_attente' or paiement.statut == 'rejete' %}
+
+        {% if paiement.bordereau_soumis %}
+        <!-- Bordereau déjà soumis -->
+        <div class="brd-wrap submitted" style="margin-top:1rem;">
+          <div class="brd-title" style="color:#16a34a;">
+            <i class="fas fa-check-circle" style="color:#16a34a;"></i> Bordereau soumis — en attente de vérification
+          </div>
+          <div style="display:flex;flex-direction:column;gap:.2rem;">
+            {% if paiement.numero_bordereau %}
+            <div class="brd-info-row"><span style="color:#94a3b8;">N° Bordereau</span><strong>{{ paiement.numero_bordereau }}</strong></div>
+            {% endif %}
+            {% if paiement.nom_expediteur %}
+            <div class="brd-info-row"><span style="color:#94a3b8;">Expéditeur</span><strong>{{ paiement.nom_expediteur }}</strong></div>
+            {% endif %}
+            {% if paiement.date_virement %}
+            <div class="brd-info-row"><span style="color:#94a3b8;">Date virement</span><strong>{{ paiement.date_virement|date:"d/m/Y" }}</strong></div>
+            {% endif %}
+            {% if paiement.photo_recu %}
+            <div style="margin-top:.8rem;">
+              <div style="font-size:.72rem;color:#94a3b8;font-weight:700;margin-bottom:.4rem;">PHOTO DU REÇU</div>
+              <img src="{{ paiement.photo_recu.url }}" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;border:1px solid #e2e8f0;">
+            </div>
+            {% endif %}
+            <div style="margin-top:.8rem;font-size:.75rem;color:#16a34a;"><i class="fas fa-clock"></i> Soumis le {{ paiement.date_soumission_bordereau|date:"d/m/Y à H:i" }}</div>
+          </div>
+        </div>
+
+        {% else %}
+        <!-- Formulaire bordereau -->
+        <div class="brd-wrap" id="brd-section">
+          <div class="brd-title">
+            <i class="fas fa-file-invoice" style="color:var(--primary);"></i>
+            Soumettre votre preuve de paiement
+          </div>
+          <p style="font-size:.83rem;color:#64748b;margin-bottom:1.1rem;line-height:1.6;">
+            Envoyez le numéro de bordereau et/ou une photo de votre reçu pour que l'équipe puisse vérifier votre paiement.
+          </p>
+
+          <form id="brd-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="brd-grid">
+
+              <div class="brd-field">
+                <label class="brd-label">N° Bordereau <span>*</span></label>
+                <input type="text" class="brd-input" id="brd-numero" name="numero_bordereau"
+                       placeholder="Ex: BRD-20260311-001" required>
+              </div>
+
+              <div class="brd-field">
+                <label class="brd-label">Nom de l'expéditeur <span>*</span></label>
+                <input type="text" class="brd-input" id="brd-nom" name="nom_expediteur"
+                       placeholder="Ex: Jean Pierre Ndayishimiye" required>
+              </div>
+
+              <div class="brd-field">
+                <label class="brd-label">Date du virement <span>*</span></label>
+                <input type="date" class="brd-input" id="brd-date" name="date_virement"
+                       max="{{ today }}" required>
+              </div>
+
+              <div class="brd-field">
+                <label class="brd-label" style="margin-bottom:.45rem;">Photo du reçu</label>
+                <div class="brd-upload-zone" id="brd-upload-zone">
+                  <input type="file" id="brd-photo" name="photo_recu"
+                         accept="image/*" onchange="previewPhoto(this)">
+                  <i class="fas fa-camera" style="font-size:1.3rem;color:#94a3b8;display:block;margin-bottom:.4rem;"></i>
+                  <div style="font-size:.8rem;color:#64748b;font-weight:600;">Cliquez ou glissez une image</div>
+                  <div style="font-size:.72rem;color:#94a3b8;margin-top:.2rem;">JPG, PNG — max 5 Mo</div>
+                  <img id="brd-preview" class="brd-upload-preview">
+                </div>
+              </div>
+
+            </div>
+
+            <div id="brd-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:.75rem 1rem;color:#dc2626;font-size:.83rem;margin-bottom:.8rem;"></div>
+
+            <button type="button" class="brd-submit-btn" id="brd-btn" onclick="soumettreBordereau()">
+              <i class="fas fa-paper-plane"></i> Envoyer le bordereau
+            </button>
+          </form>
+        </div>
+        {% endif %}
+
+      {% endif %}
+
+      {% if paiement.statut == 'rejete' %}
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:1rem 1.2rem;font-size:.85rem;color:#dc2626;">
+        <i class="fas fa-exclamation-circle"></i>
+        Votre paiement a été rejeté.{% if paiement.note_admin %} Motif : {{ paiement.note_admin }}{% endif %}
+        Veuillez contacter l'équipe InfinityHome.
+      </div>
+      {% endif %}
+
+    {% else %}
+      <!-- ── Formulaire de choix du mode ── -->
+      <div id="pm-step-select">
+        <p style="color:var(--muted);font-size:.85rem;margin-bottom:1rem;">Choisissez comment vous souhaitez régler cette intervention.</p>
+
+        <div style="display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.5rem;">
+
+          <div class="pm-mode-card" onclick="pmSelect('carte')" id="pm-card-carte">
+            <div class="pm-mode-icon"><i class="fas fa-credit-card"></i></div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.9rem;">Carte Bancaire</div>
+              <div style="color:var(--muted);font-size:.8rem;">Visa, Mastercard</div>
+            </div>
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+          </div>
+
+          <div class="pm-mode-card" onclick="pmSelect('livraison')" id="pm-card-livraison">
+            <div class="pm-mode-icon"><i class="fas fa-home"></i></div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.9rem;">À la Livraison</div>
+              <div style="color:var(--muted);font-size:.8rem;">Paiement en espèces au siège</div>
+            </div>
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+          </div>
+
+          <div class="pm-mode-card" onclick="pmSelect('mobile')" id="pm-card-mobile">
+            <div class="pm-mode-icon"><i class="fas fa-mobile-alt"></i></div>
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.9rem;">Mobile Money</div>
+              <div style="color:var(--muted);font-size:.8rem;">Lumicash, Ecocash</div>
+            </div>
+            <div class="pm-radio"><div class="pm-radio-dot"></div></div>
+          </div>
+
+        </div>
+        <button class="pm-btn pm-btn-primary" id="pm-btn-continuer" disabled onclick="pmAfficherInstructions()" style="width:100%;">
+          Continuer <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+
+      <!-- ── Instructions + champs complémentaires ── -->
+      <div id="pm-step-instructions" style="display:none;">
+
+        <!-- Instructions chargées dynamiquement -->
+        <div id="pm-instructions-box" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:1.2rem 1.4rem;margin-bottom:1.2rem;">
+          <div id="pm-instructions-titre" style="font-weight:700;color:var(--primary);margin-bottom:.5rem;"></div>
+          <div id="pm-instructions-desc" style="color:#374151;font-size:.85rem;line-height:1.6;margin-bottom:.8rem;"></div>
+          <div id="pm-instructions-etapes"></div>
+        </div>
+
+        <!-- Champs mobile -->
+        <div id="pm-fields-mobile" style="display:none;margin-bottom:1rem;">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.05em;">Votre opérateur</p>
+          <div style="display:flex;gap:.8rem;margin-bottom:.8rem;">
+            <div class="pm-provider" onclick="pmSetProvider('lumicash')" id="pm-provider-lumicash">
+              <div style="font-weight:800;font-size:.85rem;color:#F59E0B;background:#FFFBEB;width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto .4rem;">LC</div>
+              <div style="font-size:.82rem;font-weight:600;">Lumicash</div>
+            </div>
+            <div class="pm-provider" onclick="pmSetProvider('ecocash')" id="pm-provider-ecocash">
+              <div style="font-weight:800;font-size:.85rem;color:#10B981;background:#ECFDF5;width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto .4rem;">EC</div>
+              <div style="font-size:.82rem;font-weight:600;">Ecocash</div>
+            </div>
+          </div>
+          <input class="pm-input" type="text" id="pm-numero-mobile" placeholder="Numéro de téléphone (ex: 79 123 456)" maxlength="10" oninput="this.value=this.value.replace(/\D/g,'')">
+        </div>
+
+        <!-- Champs carte -->
+        <div id="pm-fields-carte" style="display:none;margin-bottom:1rem;">
+          <p style="font-size:.82rem;color:var(--muted);margin-bottom:.7rem;text-transform:uppercase;letter-spacing:.05em;">Informations de carte</p>
+          <div style="display:flex;flex-direction:column;gap:.6rem;">
+            <input class="pm-input" type="text" id="pm-card-number" placeholder="Numéro de carte" maxlength="19">
+            <input class="pm-input" type="text" id="pm-card-holder" placeholder="Nom du titulaire">
+            <div style="display:flex;gap:.6rem;">
+              <input class="pm-input" type="text" id="pm-card-expiry" placeholder="MM/AA" maxlength="5">
+              <input class="pm-input" type="password" id="pm-card-cvv" placeholder="CVV" maxlength="3">
+            </div>
+          </div>
+        </div>
+
+        <div id="pm-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:.8rem 1rem;color:#dc2626;font-size:.83rem;margin-bottom:.8rem;"></div>
+
+        <div style="display:flex;gap:.8rem;">
+          <button class="pm-btn pm-btn-ghost" onclick="pmRetour()"><i class="fas fa-arrow-left"></i></button>
+          <button class="pm-btn pm-btn-primary" id="pm-btn-confirmer" onclick="pmConfirmer()" style="flex:1;">
+            Confirmer le paiement
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Confirmation finale ── -->
+      <div id="pm-step-confirm" style="display:none;text-align:center;padding:1rem 0;">
+        <div style="width:64px;height:64px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;">
+          <i class="fas fa-check" style="color:#16a34a;font-size:1.4rem;"></i>
+        </div>
+        <h3 style="font-weight:700;margin-bottom:.4rem;">Paiement enregistré !</h3>
+        <p style="color:var(--muted);font-size:.88rem;">L'équipe InfinityHome validera votre paiement sous 24h.</p>
+      </div>
+
+    {% endif %}
+  </div>
+
 </div>
+
+<script>
+  const DEMANDE_ID = {{ demande.id }};
+  const CLIENT_ID  = {{ request.user.id }};
+  let pmMode       = null;
+  let pmProvider   = null;
+
+  function pmSelect(mode) {
+    pmMode = mode;
+    document.querySelectorAll('.pm-mode-card').forEach(c => c.classList.remove('selected'));
+    document.getElementById('pm-card-' + mode).classList.add('selected');
+    document.getElementById('pm-btn-continuer').disabled = false;
+  }
+
+  function pmAfficherInstructions() {
+    document.getElementById('pm-step-select').style.display = 'none';
+    document.getElementById('pm-step-instructions').style.display = 'block';
+
+    // Champs selon mode
+    document.getElementById('pm-fields-mobile').style.display = pmMode === 'mobile' ? 'block' : 'none';
+    document.getElementById('pm-fields-carte').style.display  = pmMode === 'carte'  ? 'block' : 'none';
+
+    // Charger les instructions depuis Django
+    fetch(`/demandes/api/paiements/instructions/${pmMode}/`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data.success) return;
+        const d = data.data;
+        document.getElementById('pm-instructions-titre').innerHTML = '<i class="fas fa-list-ul"></i> ' + d.titre;
+        document.getElementById('pm-instructions-desc').textContent = d.description;
+        const etapesEl = document.getElementById('pm-instructions-etapes');
+        etapesEl.innerHTML = d.etapes.map((e, i) => `
+          <div class="etape-item">
+            <div class="etape-num">${i+1}</div>
+            <p style="color:#374151;font-size:.85rem;line-height:1.55;padding-top:2px;">${e}</p>
+          </div>`).join('');
+      })
+      .catch(() => {
+        document.getElementById('pm-instructions-titre').textContent = 'Instructions';
+        document.getElementById('pm-instructions-desc').textContent = 'Suivez les étapes pour finaliser votre paiement.';
+      });
+  }
+
+  function pmSetProvider(p) {
+    pmProvider = p;
+    document.querySelectorAll('.pm-provider').forEach(el => el.classList.remove('selected'));
+    document.getElementById('pm-provider-' + p).classList.add('selected');
+  }
+
+  function pmRetour() {
+    document.getElementById('pm-step-instructions').style.display = 'none';
+    document.getElementById('pm-step-select').style.display = 'block';
+  }
+
+  async function pmConfirmer() {
+    const errEl = document.getElementById('pm-error');
+    errEl.style.display = 'none';
+
+    // Validation mobile
+    if (pmMode === 'mobile') {
+      if (!pmProvider) { pmShowError('Veuillez choisir un opérateur (Lumicash ou Ecocash).'); return; }
+      const num = document.getElementById('pm-numero-mobile').value;
+      if (num.length < 8) { pmShowError('Numéro de téléphone invalide.'); return; }
+    }
+
+    // Validation carte
+    if (pmMode === 'carte') {
+      const num    = document.getElementById('pm-card-number').value.replace(/\s/g,'');
+      const holder = document.getElementById('pm-card-holder').value;
+      const expiry = document.getElementById('pm-card-expiry').value;
+      const cvv    = document.getElementById('pm-card-cvv').value;
+      if (num.length < 16)    { pmShowError('Numéro de carte invalide.'); return; }
+      if (!holder)             { pmShowError('Veuillez saisir le nom du titulaire.'); return; }
+      if (expiry.length !== 5) { pmShowError('Date d\'expiration invalide.'); return; }
+      if (cvv.length !== 3)    { pmShowError('CVV invalide.'); return; }
+    }
+
+    const btn = document.getElementById('pm-btn-confirmer');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement…';
+
+    const payload = {
+      client_id:    CLIENT_ID,
+      commande_id:  DEMANDE_ID,
+      mode_paiement: pmMode,
+      montant:      0,  // à remplacer par le vrai montant dans ta vue
+      devise:       'BIF',
+    };
+
+    if (pmMode === 'mobile') {
+      payload.fournisseur_mobile = pmProvider;
+      payload.numero_mobile      = document.getElementById('pm-numero-mobile').value;
+    }
+    if (pmMode === 'carte') {
+      const num = document.getElementById('pm-card-number').value.replace(/\s/g,'');
+      payload.derniers_chiffres_carte = num.slice(-4);
+      payload.nom_titulaire_carte     = document.getElementById('pm-card-holder').value;
+    }
+
+    try {
+      const res  = await fetch('/demandes/api/paiements/creer/', {
+        method:  'POST',
+        headers: {'Content-Type':'application/json', 'X-CSRFToken': getCookie('csrftoken')},
+        body:    JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('pm-step-instructions').style.display = 'none';
+        document.getElementById('pm-step-confirm').style.display = 'block';
+        // Recharger après 2s pour afficher le récap
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        pmShowError(data.message || 'Une erreur est survenue.');
+        btn.disabled = false;
+        btn.innerHTML = 'Confirmer le paiement';
+      }
+    } catch {
+      pmShowError('Impossible de contacter le serveur. Veuillez réessayer.');
+      btn.disabled = false;
+      btn.innerHTML = 'Confirmer le paiement';
+    }
+  }
+
+  function pmShowError(msg) {
+    const el = document.getElementById('pm-error');
+    el.textContent = '⚠️ ' + msg;
+    el.style.display = 'block';
+  }
+
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+    return v ? v[2] : '';
+  }
+
+  // Format carte live
+  const cardNumInput = document.getElementById('pm-card-number');
+  if (cardNumInput) {
+    cardNumInput.addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'').slice(0,16);
+      this.value = v.replace(/(.{4})/g,'$1 ').trim();
+    });
+  }
+  const expiryInput = document.getElementById('pm-card-expiry');
+  if (expiryInput) {
+    expiryInput.addEventListener('input', function() {
+      let v = this.value.replace(/\D/g,'').slice(0,4);
+      this.value = v.length >= 3 ? v.slice(0,2)+'/'+v.slice(2) : v;
+    });
+  }
+
+  // ─── Bordereau ───
+  function previewPhoto(input) {
+    const preview = document.getElementById('brd-preview');
+    const zone    = document.getElementById('brd-upload-zone');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+        zone.style.borderColor = 'var(--primary)';
+        zone.style.background  = '#eff6ff';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  const _brdZone = document.getElementById('brd-upload-zone');
+  if (_brdZone) {
+    ['dragenter','dragover'].forEach(ev =>
+      _brdZone.addEventListener(ev, e => { e.preventDefault(); _brdZone.classList.add('drag'); })
+    );
+    ['dragleave','drop'].forEach(ev =>
+      _brdZone.addEventListener(ev, e => { e.preventDefault(); _brdZone.classList.remove('drag'); })
+    );
+    _brdZone.addEventListener('drop', e => {
+      const f = e.dataTransfer.files[0];
+      if (f) { document.getElementById('brd-photo').files = e.dataTransfer.files; previewPhoto(document.getElementById('brd-photo')); }
+    });
+  }
+
+  async function soumettreBordereau() {
+    const errEl = document.getElementById('brd-error');
+    errEl.style.display = 'none';
+
+    const numero = document.getElementById('brd-numero').value.trim();
+    const nom    = document.getElementById('brd-nom').value.trim();
+    const date   = document.getElementById('brd-date').value;
+    const photo  = document.getElementById('brd-photo').files[0];
+
+    if (!numero) { brdError('Le numéro de bordereau est requis.'); return; }
+    if (!nom)    { brdError("Le nom de l'expéditeur est requis."); return; }
+    if (!date)   { brdError('La date du virement est requise.'); return; }
+
+    const btn = document.getElementById('brd-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours…';
+
+    const formData = new FormData();
+    formData.append('paiement_id',      {{ paiement.id }});
+    formData.append('numero_bordereau', numero);
+    formData.append('nom_expediteur',   nom);
+    formData.append('date_virement',    date);
+    if (photo) formData.append('photo_recu', photo);
+    formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+
+    try {
+      const res  = await fetch('/demandes/api/paiements/bordereau/', { method:'POST', body:formData });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById('brd-section').innerHTML = `
+          <div class="brd-success">
+            <div style="width:40px;height:40px;border-radius:50%;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i class="fas fa-check" style="color:#16a34a;font-size:1rem;"></i>
+            </div>
+            <div>
+              <div style="font-weight:700;color:#166534;font-size:.9rem;">Bordereau envoyé avec succès !</div>
+              <div style="font-size:.8rem;color:#16a34a;margin-top:.2rem;">L'équipe InfinityHome va vérifier votre paiement sous 24h.</div>
+            </div>
+          </div>`;
+        setTimeout(() => location.reload(), 2500);
+      } else {
+        brdError(data.message || 'Une erreur est survenue.');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer le bordereau';
+      }
+    } catch {
+      brdError('Impossible de contacter le serveur. Veuillez réessayer.');
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Envoyer le bordereau';
+    }
+  }
+
+  function brdError(msg) {
+    const el = document.getElementById('brd-error');
+    el.textContent = '⚠️ ' + msg;
+    el.style.display = 'block';
+  }
+
+</script>
 {% endblock %}

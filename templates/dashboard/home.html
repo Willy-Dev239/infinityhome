@@ -1,62 +1,377 @@
 {% extends 'dashboard/base_dashboard.html' %}
-{% block title %}Tableau de bord - Admin{% endblock %}
+{% block title %}Tableau de bord - Infinity Home{% endblock %}
 {% block nav_home %}active{% endblock %}
 {% block topbar_title %}Tableau de bord{% endblock %}
+
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&display=swap');
+
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity:0; transform:scale(.95); }
+  to   { opacity:1; transform:scale(1); }
+}
+@keyframes barGrow {
+  from { transform:scaleY(0); }
+  to   { transform:scaleY(1); }
+}
+@keyframes ringPulse {
+  0%   { transform:scale(1);   opacity:.5; }
+  100% { transform:scale(1.9); opacity:0; }
+}
+
+.wb {
+  background: linear-gradient(130deg, #0f172a 0%, #1e3a5f 55%, #1a56db 100%);
+  border-radius: 20px; padding: 2rem 2.3rem;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; overflow: hidden;
+  animation: fadeSlideUp .45s ease both;
+}
+.wb::before,.wb::after {
+  content:''; position:absolute; border-radius:50%;
+  background:rgba(255,255,255,.05);
+}
+.wb::before { width:300px;height:300px; top:-100px; right:-40px; }
+.wb::after  { width:160px;height:160px; bottom:-60px; right:200px; }
+.wb-title { font-family:'Syne',sans-serif; font-size:1.6rem; font-weight:800; color:white; line-height:1.2; }
+.wb-title em { color:#93c5fd; font-style:normal; }
+.wb-sub { color:rgba(255,255,255,.45); font-size:.82rem; margin-top:.35rem; }
+.wb-pills { display:flex; gap:.6rem; margin-top:1rem; }
+.wb-pill { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem 1rem; border-radius:20px; font-size:.78rem; font-weight:600; backdrop-filter:blur(8px); cursor:pointer; text-decoration:none; }
+.wb-stats { display:flex; gap:.8rem; z-index:1; }
+.wb-stat { background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.13); border-radius:14px; padding:1rem 1.4rem; text-align:center; }
+.wb-stat-n { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:white; line-height:1; }
+.wb-stat-l { font-size:.69rem; color:rgba(255,255,255,.4); margin-top:.2rem; }
+
+.kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+.kpi { background:white; border:1px solid #f1f5f9; border-radius:18px; padding:1.4rem 1.5rem; position:relative; overflow:hidden; transition:transform .22s,box-shadow .22s; animation:fadeSlideUp .5s ease both; cursor:default; }
+.kpi:hover { transform:translateY(-4px); box-shadow:0 14px 40px rgba(0,0,0,.07); }
+.kpi::before { content:''; position:absolute; top:0;left:0;right:0; height:3px; border-radius:18px 18px 0 0; }
+.kpi:nth-child(1)::before { background:linear-gradient(90deg,#f59e0b,#fb923c); }
+.kpi:nth-child(2)::before { background:linear-gradient(90deg,#ef4444,#f97316); }
+.kpi:nth-child(3)::before { background:linear-gradient(90deg,#1a56db,#6366f1); }
+.kpi:nth-child(4)::before { background:linear-gradient(90deg,#10b981,#34d399); }
+.kpi-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; }
+.kpi-ico { width:42px;height:42px; border-radius:11px; display:flex;align-items:center;justify-content:center; font-size:.95rem; }
+.kpi-tag { font-size:.68rem;font-weight:700; padding:.2rem .65rem; border-radius:20px; display:flex;align-items:center;gap:.25rem; }
+.kpi-n { font-family:'Syne',sans-serif; font-size:2.5rem; font-weight:800; color:#0f172a; line-height:1; }
+.kpi-l { font-size:.76rem;color:#94a3b8;margin-top:.25rem;font-weight:500; }
+.sparkline { display:flex; align-items:flex-end; gap:3px; height:34px; margin-top:.9rem; }
+.sb { flex:1; border-radius:3px 3px 0 0; transform-origin:bottom; animation:barGrow .5s ease both; }
+
+.main-grid { display:grid; grid-template-columns:1.55fr 1fr; gap:1.3rem; }
+.right-col { display:flex;flex-direction:column;gap:1.3rem; }
+
+.gc { background:white; border:1px solid #f1f5f9; border-radius:18px; padding:1.5rem; animation:scaleIn .45s ease both; }
+.gc-head { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.3rem; }
+.gc-title { font-family:'Syne',sans-serif; font-size:.93rem;font-weight:700; color:#0f172a; display:flex;align-items:center;gap:.5rem; }
+.gc-title i { color:var(--primary); }
+
+.dt { width:100%; border-collapse:collapse; }
+.dt th { font-size:.66rem;font-weight:800;letter-spacing:1.1px;text-transform:uppercase; color:#94a3b8;padding:.75rem 1rem;background:#f8fafc; border-bottom:1.5px solid #f1f5f9; }
+.dt th:first-child { border-radius:10px 0 0 10px; }
+.dt th:last-child  { border-radius:0 10px 10px 0; }
+.dt td { padding:.9rem 1rem;font-size:.83rem;border-bottom:1px solid #f8fafc;color:#334155;vertical-align:middle; }
+.dt tr:last-child td { border-bottom:none; }
+.dt tr { transition:background .15s; }
+.dt tr:hover td { background:#fafbff; }
+
+.pill { display:inline-flex;align-items:center;gap:.35rem; padding:.28rem .75rem;border-radius:20px;font-size:.71rem;font-weight:700; }
+.pd { width:6px;height:6px;border-radius:50%;flex-shrink:0; }
+.pd.live { animation:ringPulse 1.4s ease-out infinite; }
+
+.donut-wrap { display:flex;align-items:center;gap:1.4rem;padding:.3rem 0; }
+.dl { display:flex;flex-direction:column;gap:.6rem;flex:1; }
+.dl-row { display:flex;align-items:center;gap:.55rem;font-size:.81rem; }
+.dl-dot { width:10px;height:10px;border-radius:3px;flex-shrink:0; }
+.dl-val { margin-left:auto;font-weight:700;color:#0f172a;font-family:'Syne',sans-serif; }
+
+.tech-row { display:flex;align-items:center;gap:.85rem; padding:.7rem .5rem;border-radius:11px;transition:background .15s; }
+.tech-row:hover { background:#f8fafc; }
+.tech-av { width:40px;height:40px;border-radius:11px; background:linear-gradient(135deg,#1a56db,#3b82f6); color:white;font-weight:700;font-size:.9rem; display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+.odot { width:9px;height:9px;border-radius:50%; background:#10b981;border:2px solid white;position:relative; }
+.odot::after { content:'';position:absolute;inset:-3px;border-radius:50%; background:#10b981;opacity:0;animation:ringPulse 1.6s ease-out infinite; }
+
+.pm-row { display:flex;align-items:center;justify-content:space-between; padding:.8rem .6rem;border-radius:11px;border:1px solid #f1f5f9; margin-bottom:.5rem;transition:all .18s; }
+.pm-row:hover { background:#faf5ff;border-color:#e9d5ff; }
+.pm-row:last-child { margin-bottom:0; }
+
+.qa-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:.65rem; }
+.qa { display:flex;flex-direction:column;align-items:center;gap:.45rem; padding:.95rem .8rem;border-radius:13px;border:1.5px solid #f1f5f9; background:#fafbff;text-decoration:none;color:#334155; font-size:.77rem;font-weight:600;transition:all .2s;text-align:center; }
+.qa:hover { border-color:var(--primary);background:#eff6ff;color:var(--primary); transform:translateY(-2px);box-shadow:0 6px 20px rgba(26,86,219,.1); }
+.qa i { font-size:1.1rem; }
+
+.kpi:nth-child(1){animation-delay:.04s}
+.kpi:nth-child(2){animation-delay:.09s}
+.kpi:nth-child(3){animation-delay:.14s}
+.kpi:nth-child(4){animation-delay:.19s}
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="page-head">
-  <div>
-    <h1>Tableau de bord</h1>
-    <p style="color:var(--muted);font-size:.88rem;">Bienvenue {{ request.user.username }} — voici l etat de la plateforme</p>
-  </div>
-</div>
+<div style="display:flex;flex-direction:column;gap:1.5rem;">
 
-<div class="stats-grid">
-  <div class="stat-card"><div class="stat-icon" style="background:rgba(245,158,11,.1);color:var(--accent);"><i class="fas fa-clipboard-list"></i></div><div class="stat-val">{{ stats.total_demandes }}</div><div class="stat-lbl">Demandes totales</div></div>
-  <div class="stat-card"><div class="stat-icon" style="background:rgba(239,68,68,.1);color:var(--red);"><i class="fas fa-clock"></i></div><div class="stat-val">{{ stats.en_attente }}</div><div class="stat-lbl">En attente</div></div>
-  <div class="stat-card"><div class="stat-icon" style="background:rgba(26,86,219,.1);color:#60a5fa;"><i class="fas fa-hard-hat"></i></div><div class="stat-val">{{ stats.total_techniciens }}</div><div class="stat-lbl">Techniciens ({{ stats.disponibles }} dispo)</div></div>
-  <div class="stat-card"><div class="stat-icon" style="background:rgba(16,185,129,.1);color:var(--green);"><i class="fas fa-check-circle"></i></div><div class="stat-val">{{ stats.terminees }}</div><div class="stat-lbl">Interventions terminees</div></div>
-</div>
-
-<div style="display:grid;grid-template-columns:1.6fr 1fr;gap:1.5rem;">
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;">
-      <div class="card-title" style="margin:0;">Demandes recentes</div>
-      <a href="{% url 'dashboard:demandes' %}" class="btn btn-ghost btn-sm">Voir tout</a>
-    </div>
-    <table>
-      <thead><tr><th>#</th><th>Client</th><th>Type</th><th>Localite</th><th>Statut</th><th></th></tr></thead>
-      <tbody>
-      {% for d in demandes_recentes %}
-      <tr>
-        <td style="color:var(--accent);font-weight:700;">#{{ d.id }}</td>
-        <td><div style="font-weight:600;">{{ d.client.get_full_name|default:d.client.username }}</div><div style="color:var(--muted);font-size:.75rem;">{{ d.client.email }}</div></td>
-        <td><span class="badge badge-blue">{{ d.get_type_travaux_display }}</span></td>
-        <td style="color:var(--muted2);">{{ d.localite }}</td>
-        <td><span class="badge {% if d.statut == 'en_attente' %}badge-yellow{% elif d.statut == 'terminee' %}badge-green{% elif d.statut == 'annulee' %}badge-red{% else %}badge-blue{% endif %}">{{ d.get_statut_display }}</span></td>
-        <td><a href="{% url 'dashboard:demande_detail' d.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-eye"></i></a></td>
-      </tr>
-      {% empty %}
-      <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:2rem;">Aucune demande</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Techniciens disponibles</div>
-    {% for t in techniciens_dispo %}
-    <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem 0;border-bottom:1px solid var(--border);">
-      <div style="width:36px;height:36px;border-radius:9px;background:rgba(26,86,219,.1);color:#60a5fa;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">{{ t.prenom|slice:":1" }}</div>
-      <div style="flex:1;">
-        <div style="font-weight:600;font-size:.86rem;">{{ t.nom_complet }}</div>
-        <div style="color:var(--muted);font-size:.75rem;">{{ t.get_specialite_display }}</div>
+  <!-- BANNER -->
+  <div class="wb">
+    <div style="z-index:1;">
+      <div class="wb-title">Bonjour, <em>{{ request.user.first_name|default:request.user.username }}</em> 👋</div>
+      <div class="wb-sub"><span id="live-date"></span> · Plateforme Infinity Home</div>
+      <div class="wb-pills">
+        <a href="{% url 'dashboard:demandes' %}?statut=en_attente" class="wb-pill" style="background:rgba(245,158,11,.2);color:#fcd34d;border:1px solid rgba(245,158,11,.3);">
+          <i class="fas fa-clock"></i> {{ stats.en_attente }} en attente
+        </a>
+        <a href="{% url 'dashboard:paiements' %}?statut=en_attente" class="wb-pill" style="background:rgba(139,92,246,.2);color:#c4b5fd;border:1px solid rgba(139,92,246,.3);">
+          <i class="fas fa-wallet"></i> {{ stats.paiements_en_attente|default:"0" }} paiements
+        </a>
       </div>
-      <span class="badge badge-green" style="font-size:.65rem;">Dispo</span>
     </div>
-    {% empty %}
-    <div style="text-align:center;color:var(--muted);padding:1.5rem;font-size:.85rem;">Aucun technicien disponible</div>
-    {% endfor %}
-    <a href="{% url 'dashboard:technicien_add' %}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;"><i class="fas fa-plus"></i> Ajouter un technicien</a>
+    <div class="wb-stats">
+      <div class="wb-stat"><div class="wb-stat-n">{{ stats.total_demandes }}</div><div class="wb-stat-l">Demandes</div></div>
+      <div class="wb-stat"><div class="wb-stat-n">{{ stats.terminees }}</div><div class="wb-stat-l">Terminées</div></div>
+      <div class="wb-stat"><div class="wb-stat-n">{{ stats.disponibles }}</div><div class="wb-stat-l">Techniciens</div></div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:#fffbeb;color:#f59e0b;"><i class="fas fa-clipboard-list"></i></div>
+        <span class="kpi-tag" style="background:#fffbeb;color:#d97706;">Total</span>
+      </div>
+      <div class="kpi-n">{{ stats.total_demandes }}</div>
+      <div class="kpi-l">Demandes totales</div>
+      <div class="sparkline" id="sp1"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:#fef2f2;color:#ef4444;"><i class="fas fa-hourglass-half"></i></div>
+        <span class="kpi-tag" style="background:#fef2f2;color:#dc2626;"><i class="fas fa-exclamation"></i> Urgent</span>
+      </div>
+      <div class="kpi-n">{{ stats.en_attente }}</div>
+      <div class="kpi-l">En attente</div>
+      <div class="sparkline" id="sp2"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:#eff6ff;color:#1a56db;"><i class="fas fa-hard-hat"></i></div>
+        <span class="kpi-tag" style="background:#eff6ff;color:#1a56db;">{{ stats.disponibles }} dispo</span>
+      </div>
+      <div class="kpi-n">{{ stats.total_techniciens }}</div>
+      <div class="kpi-l">Techniciens</div>
+      <div class="sparkline" id="sp3"></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-top">
+        <div class="kpi-ico" style="background:#f0fdf4;color:#10b981;"><i class="fas fa-check-circle"></i></div>
+        <span class="kpi-tag" style="background:#f0fdf4;color:#16a34a;"><i class="fas fa-arrow-up"></i> OK</span>
+      </div>
+      <div class="kpi-n">{{ stats.terminees }}</div>
+      <div class="kpi-l">Terminées</div>
+      <div class="sparkline" id="sp4"></div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- Gauche -->
+    <div style="display:flex;flex-direction:column;gap:1.3rem;">
+
+      <!-- Demandes récentes -->
+      <div class="gc">
+        <div class="gc-head">
+          <div class="gc-title"><i class="fas fa-layer-group"></i> Demandes récentes</div>
+          <a href="{% url 'dashboard:demandes' %}" class="btn btn-ghost btn-sm">Tout voir <i class="fas fa-arrow-right" style="font-size:.68rem;"></i></a>
+        </div>
+        <table class="dt">
+          <thead><tr><th>#</th><th>Client</th><th>Type</th><th>Statut</th><th></th></tr></thead>
+          <tbody>
+          {% for d in demandes_recentes %}
+          <tr>
+            <td><span style="font-family:'Syne',sans-serif;font-weight:700;color:#1a56db;font-size:.8rem;">#{{ d.id }}</span></td>
+            <td>
+              <div style="display:flex;align-items:center;gap:.6rem;">
+                <div style="width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);color:#4338ca;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;flex-shrink:0;">
+                  {{ d.client.username|slice:":1"|upper }}
+                </div>
+                <div>
+                  <div style="font-weight:600;font-size:.83rem;color:#0f172a;">{{ d.client.get_full_name|default:d.client.username }}</div>
+                  <div style="color:#94a3b8;font-size:.71rem;">{{ d.localite }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span style="font-size:.74rem;color:#64748b;font-weight:500;">{{ d.get_type_travaux_display }}</span></td>
+            <td>
+              {% if d.statut == 'en_attente' %}<span class="pill" style="background:#fffbeb;color:#d97706;"><span class="pd" style="background:#f59e0b;"></span>En attente</span>
+              {% elif d.statut == 'assignee' %}<span class="pill" style="background:#eff6ff;color:#2563eb;"><span class="pd" style="background:#3b82f6;"></span>Assignée</span>
+              {% elif d.statut == 'en_cours' %}<span class="pill" style="background:#ecfdf5;color:#059669;"><span class="pd live" style="background:#10b981;"></span>En cours</span>
+              {% elif d.statut == 'terminee' %}<span class="pill" style="background:#f0fdf4;color:#16a34a;"><span class="pd" style="background:#22c55e;"></span>Terminée</span>
+              {% elif d.statut == 'annulee' %}<span class="pill" style="background:#fef2f2;color:#dc2626;"><span class="pd" style="background:#ef4444;"></span>Annulée</span>
+              {% endif %}
+            </td>
+            <td><a href="{% url 'dashboard:demande_detail' d.pk %}" class="btn btn-ghost btn-sm"><i class="fas fa-arrow-right" style="font-size:.7rem;"></i></a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5" style="text-align:center;padding:3rem;color:#94a3b8;">
+            <i class="fas fa-inbox" style="font-size:2rem;display:block;margin-bottom:.5rem;opacity:.2;"></i>Aucune demande
+          </td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Actions rapides — déplacées ici sous les demandes -->
+      <div class="gc">
+        <div class="gc-title" style="margin-bottom:1rem;"><i class="fas fa-bolt"></i> Actions rapides</div>
+        <div class="qa-grid">
+          <a href="{% url 'dashboard:demandes' %}" class="qa"><i class="fas fa-clipboard-list" style="color:#f59e0b;"></i>Demandes</a>
+          <a href="{% url 'dashboard:paiements' %}" class="qa"><i class="fas fa-wallet" style="color:#8b5cf6;"></i>Paiements</a>
+          <a href="{% url 'dashboard:clients' %}" class="qa"><i class="fas fa-users" style="color:#10b981;"></i>Clients</a>
+          <a href="{% url 'dashboard:techniciens' %}" class="qa"><i class="fas fa-hard-hat" style="color:#1a56db;"></i>Techniciens</a>
+          <a href="{% url 'dashboard:statistiques' %}" class="qa"><i class="fas fa-chart-bar" style="color:#f97316;"></i>Statistiques</a>
+          <a href="{% url 'dashboard:instructions_paiement' %}" class="qa"><i class="fas fa-cog" style="color:#64748b;"></i>Instructions</a>
+        </div>
+      </div>
+
+      <!-- Paiements urgents -->
+      {% if stats.paiements_en_attente %}
+      <div class="gc" style="border-left:3px solid #8b5cf6;">
+        <div class="gc-head">
+          <div class="gc-title">
+            <i class="fas fa-wallet" style="color:#8b5cf6;"></i> Paiements à valider
+            <span style="background:#8b5cf6;color:white;font-size:.63rem;padding:.15rem .55rem;border-radius:20px;font-weight:700;">{{ stats.paiements_en_attente }}</span>
+          </div>
+          <a href="{% url 'dashboard:paiements' %}?statut=en_attente" class="btn btn-ghost btn-sm">Gérer →</a>
+        </div>
+        {% for p in paiements_recents %}
+        <div class="pm-row">
+          <div style="display:flex;align-items:center;gap:.8rem;">
+            <div style="width:36px;height:36px;border-radius:10px;background:#f5f3ff;color:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:.85rem;">
+              {% if p.mode_paiement == 'carte' %}<i class="fas fa-credit-card"></i>
+              {% elif p.mode_paiement == 'livraison' %}<i class="fas fa-home"></i>
+              {% else %}<i class="fas fa-mobile-alt"></i>{% endif %}
+            </div>
+            <div>
+              <div style="font-weight:600;font-size:.83rem;color:#0f172a;">{{ p.client.get_full_name|default:p.client.username }}</div>
+              <div style="color:#94a3b8;font-size:.72rem;">{{ p.get_mode_paiement_display }} · {{ p.created_at|date:"d/m à H:i" }}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.7rem;">
+            <span style="font-family:'Syne',sans-serif;font-weight:700;color:#7c3aed;font-size:.88rem;">{{ p.montant|floatformat:0 }} BIF</span>
+            <a href="{% url 'dashboard:paiement_detail' p.pk %}" class="btn btn-sm" style="background:#f5f3ff;color:#7c3aed;border:1px solid #e9d5ff;"><i class="fas fa-eye"></i></a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    <!-- Droite -->
+    <div class="right-col">
+
+      <!-- Donut -->
+      <div class="gc">
+        <div class="gc-head">
+          <div class="gc-title"><i class="fas fa-chart-donut"></i> Répartition statuts</div>
+        </div>
+        <div class="donut-wrap">
+          <svg width="114" height="114" viewBox="0 0 114 114">
+            <circle cx="57" cy="57" r="42" fill="none" stroke="#f1f5f9" stroke-width="14"/>
+            <circle id="dn1" cx="57" cy="57" r="42" fill="none" stroke="#f59e0b" stroke-width="14"
+              stroke-dasharray="0 264" transform="rotate(-90 57 57)" style="transition:stroke-dasharray 1.1s ease;"/>
+            <circle id="dn2" cx="57" cy="57" r="42" fill="none" stroke="#3b82f6" stroke-width="14"
+              stroke-dasharray="0 264" stroke-dashoffset="0" transform="rotate(-90 57 57)" style="transition:stroke-dasharray 1.1s ease;"/>
+            <circle id="dn3" cx="57" cy="57" r="42" fill="none" stroke="#10b981" stroke-width="14"
+              stroke-dasharray="0 264" stroke-dashoffset="0" transform="rotate(-90 57 57)" style="transition:stroke-dasharray 1.1s ease;"/>
+            <circle id="dn4" cx="57" cy="57" r="42" fill="none" stroke="#ef4444" stroke-width="14"
+              stroke-dasharray="0 264" stroke-dashoffset="0" transform="rotate(-90 57 57)" style="transition:stroke-dasharray 1.1s ease;"/>
+            <text x="57" y="53" text-anchor="middle" font-family="Syne,sans-serif" font-size="17" font-weight="800" fill="#0f172a">{{ stats.total_demandes }}</text>
+            <text x="57" y="66" text-anchor="middle" font-family="Plus Jakarta Sans,sans-serif" font-size="7.5" fill="#94a3b8">demandes</text>
+          </svg>
+          <div class="dl">
+            <div class="dl-row"><div class="dl-dot" style="background:#f59e0b;"></div><span style="color:#64748b;">En attente</span><span class="dl-val">{{ stats.en_attente }}</span></div>
+            <div class="dl-row"><div class="dl-dot" style="background:#3b82f6;"></div><span style="color:#64748b;">En cours</span><span class="dl-val">{{ stats.en_cours|default:0 }}</span></div>
+            <div class="dl-row"><div class="dl-dot" style="background:#10b981;"></div><span style="color:#64748b;">Terminées</span><span class="dl-val">{{ stats.terminees }}</span></div>
+            <div class="dl-row"><div class="dl-dot" style="background:#ef4444;"></div><span style="color:#64748b;">Annulées</span><span class="dl-val">{{ stats.annulees|default:0 }}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Techniciens -->
+      <div class="gc">
+        <div class="gc-head">
+          <div class="gc-title"><i class="fas fa-hard-hat"></i> Techniciens dispo</div>
+          <span style="background:#f0fdf4;color:#16a34a;font-size:.71rem;font-weight:700;padding:.25rem .75rem;border-radius:20px;">
+            {{ stats.disponibles }} / {{ stats.total_techniciens }}
+          </span>
+        </div>
+        {% for t in techniciens_dispo %}
+        <div class="tech-row">
+          <div class="tech-av">{{ t.prenom|slice:":1"|upper }}</div>
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:.84rem;color:#0f172a;">{{ t.nom_complet }}</div>
+            <div style="color:#94a3b8;font-size:.73rem;margin-top:.1rem;">{{ t.get_specialite_display }}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <div class="odot"></div>
+            <span style="font-size:.71rem;font-weight:600;color:#10b981;">Disponible</span>
+          </div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:1.5rem;color:#94a3b8;font-size:.83rem;">
+          <i class="fas fa-user-slash" style="display:block;font-size:1.5rem;opacity:.2;margin-bottom:.5rem;"></i>
+          Aucun technicien disponible
+        </div>
+        {% endfor %}
+        <a href="{% url 'dashboard:technicien_add' %}" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;border-radius:11px;">
+          <i class="fas fa-plus"></i> Ajouter un technicien
+        </a>
+      </div>
+
+    </div>
   </div>
 </div>
+
+<script>
+document.getElementById('live-date').textContent = new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+function sparkline(id, color) {
+  const el = document.getElementById(id); if (!el) return;
+  const vals = Array.from({length:7},()=>Math.floor(Math.random()*80)+20);
+  const maxV = Math.max(...vals);
+  vals.forEach((v,i)=>{
+    const b=document.createElement('div');
+    b.className='sb';
+    b.style.cssText=`height:${(v/maxV)*100}%;background:${color};animation-delay:${i*.06}s;opacity:.75;`;
+    el.appendChild(b);
+  });
+}
+sparkline('sp1','#f59e0b');
+sparkline('sp2','#ef4444');
+sparkline('sp3','#3b82f6');
+sparkline('sp4','#10b981');
+
+setTimeout(()=>{
+  const total = Math.max({{ stats.total_demandes|default:1 }},1);
+  const C = 264;
+  const a = Math.round(({{ stats.en_attente|default:0 }}/total)*C);
+  const b = Math.round(({{ stats.en_cours|default:0 }}/total)*C);
+  const c = Math.round(({{ stats.terminees|default:0 }}/total)*C);
+  const d = Math.round(({{ stats.annulees|default:0 }}/total)*C);
+  const set=(id,dash,offset)=>{
+    const el=document.getElementById(id);
+    if(el){el.setAttribute('stroke-dasharray',`${dash} ${C}`);el.setAttribute('stroke-dashoffset',`-${offset}`);}
+  };
+  set('dn1',a,0);
+  set('dn2',b,a);
+  set('dn3',c,a+b);
+  set('dn4',d,a+b+c);
+},350);
+</script>
 {% endblock %}

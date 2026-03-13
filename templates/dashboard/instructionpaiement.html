@@ -1,0 +1,141 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Instructions paiement - Admin{% endblock %}
+{% block nav_paiements %}active{% endblock %}
+{% block topbar_title %}Instructions de paiement{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <div class="breadcrumb">
+      <a href="{% url 'dashboard:home' %}">Tableau de bord</a>
+      <i class="fas fa-chevron-right" style="font-size:.55rem;"></i>
+      <a href="{% url 'dashboard:paiements' %}">Paiements</a>
+      <i class="fas fa-chevron-right" style="font-size:.55rem;"></i>
+      Instructions
+    </div>
+    <h1>Configurer les instructions</h1>
+  </div>
+</div>
+
+<p style="color:var(--muted);font-size:.88rem;margin-bottom:2rem;max-width:600px;">
+  Ces instructions s'affichent côté client lors du choix du mode de paiement. Elles indiquent les étapes à suivre pour finaliser le règlement.
+</p>
+
+<div style="display:flex;flex-direction:column;gap:1.5rem;">
+  {% for mode_id, mode_label, icon in modes %}
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+      <div style="display:flex;align-items:center;gap:.8rem;">
+        <div style="width:40px;height:40px;border-radius:10px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:1rem;">
+          <i class="fas fa-{{ icon }}"></i>
+        </div>
+        <div>
+          <div style="font-family:'Clash Display',sans-serif;font-weight:700;">{{ mode_label }}</div>
+          <div style="font-size:.75rem;color:var(--muted);">Instructions visibles par le client</div>
+        </div>
+      </div>
+      {% for inst in instructions %}
+        {% if inst.mode_paiement == mode_id %}
+          <span class="badge {% if inst.actif %}badge-green{% else %}badge-gray{% endif %}">
+            {% if inst.actif %}<i class="fas fa-eye" style="margin-right:.3rem;"></i> Actif{% else %}<i class="fas fa-eye-slash" style="margin-right:.3rem;"></i> Inactif{% endif %}
+          </span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <form method="post" action="{% url 'dashboard:instructions_sauvegarder' mode_id %}">
+      {% csrf_token %}
+      {% for inst in instructions %}{% if inst.mode_paiement == mode_id %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label class="form-label">Titre</label>
+          <input type="text" name="titre" class="form-ctrl" value="{{ inst.titre }}" placeholder="Ex: Paiement à la livraison — Siège InfinityHome" required>
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:.5rem;">
+          <div style="flex:1;">
+            <label class="form-label">Statut</label>
+            <select name="actif" class="form-ctrl">
+              <option value="1" {% if inst.actif %}selected{% endif %}>Actif</option>
+              <option value="0" {% if not inst.actif %}selected{% endif %}>Inactif</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label class="form-label">Description générale</label>
+        <textarea name="description" class="form-ctrl" rows="2" style="resize:none;" placeholder="Courte description affichée avant les étapes...">{{ inst.description }}</textarea>
+      </div>
+      <div style="margin-bottom:1.2rem;">
+        <label class="form-label">Étapes <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2);">(une étape par ligne)</span></label>
+        <textarea name="etapes" class="form-ctrl" rows="5" style="resize:vertical;" placeholder="Rendez-vous au siège InfinityHome&#10;Présentez votre numéro de commande&#10;Effectuez le paiement en espèces...">{{ inst.etapes_texte }}</textarea>
+      </div>
+      {% else %}{% endif %}{% endfor %}
+
+      <!-- Si aucune instruction configurée pour ce mode -->
+      {% with has_inst=False %}
+      {% for inst in instructions %}{% if inst.mode_paiement == mode_id %}{% with has_inst=True %}{% endwith %}{% endif %}{% endfor %}
+      {% endwith %}
+      {% if not instructions %}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+        <div>
+          <label class="form-label">Titre</label>
+          <input type="text" name="titre" class="form-ctrl" placeholder="Ex: Paiement à la livraison — Siège InfinityHome" required>
+        </div>
+        <div>
+          <label class="form-label">Statut</label>
+          <select name="actif" class="form-ctrl"><option value="1">Actif</option><option value="0">Inactif</option></select>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <label class="form-label">Description générale</label>
+        <textarea name="description" class="form-ctrl" rows="2" style="resize:none;" placeholder="Courte description..."></textarea>
+      </div>
+      <div style="margin-bottom:1.2rem;">
+        <label class="form-label">Étapes <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted2);">(une étape par ligne)</span></label>
+        <textarea name="etapes" class="form-ctrl" rows="5" style="resize:vertical;" placeholder="Étape 1&#10;Étape 2&#10;Étape 3..."></textarea>
+      </div>
+      {% endif %}
+
+      <!-- Aperçu dynamique -->
+      <div id="apercu-{{ mode_id }}" style="background:var(--primary-light);border:1px solid #bfdbfe;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.2rem;display:none;">
+        <div style="font-size:.75rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;">Aperçu client</div>
+        <div id="apercu-etapes-{{ mode_id }}" style="display:flex;flex-direction:column;gap:.4rem;"></div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:.8rem;">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleApercu('{{ mode_id }}', this)">
+          <i class="fas fa-eye"></i> Aperçu
+        </button>
+        <button type="submit" class="btn btn-primary btn-sm">
+          <i class="fas fa-save"></i> Sauvegarder
+        </button>
+      </div>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+function toggleApercu(mode, btn) {
+  const box = document.getElementById('apercu-' + mode);
+  const form = btn.closest('form');
+  const etapesRaw = form.querySelector('[name="etapes"]').value;
+  const etapes = etapesRaw.split('\n').map(e => e.trim()).filter(e => e.length > 0);
+
+  if (box.style.display === 'none' || box.style.display === '') {
+    const container = document.getElementById('apercu-etapes-' + mode);
+    container.innerHTML = etapes.map((e, i) => `
+      <div style="display:flex;gap:.6rem;align-items:flex-start;padding:.6rem .8rem;background:white;border-radius:7px;border:1px solid #e0eeff;">
+        <div style="width:22px;height:22px;border-radius:50%;background:var(--primary-light);border:1.5px solid var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--primary);font-weight:700;font-size:.7rem;">${i+1}</div>
+        <p style="color:#374151;font-size:.82rem;line-height:1.5;padding-top:2px;">${e}</p>
+      </div>
+    `).join('');
+    box.style.display = 'block';
+    btn.innerHTML = '<i class="fas fa-eye-slash"></i> Masquer';
+  } else {
+    box.style.display = 'none';
+    btn.innerHTML = '<i class="fas fa-eye"></i> Aperçu';
+  }
+}
+</script>
+{% endblock %}

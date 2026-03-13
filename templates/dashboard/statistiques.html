@@ -1,0 +1,623 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Statistiques - Infinity Home{% endblock %}
+{% block nav_stats %}active{% endblock %}
+{% block topbar_title %}Statistiques{% endblock %}
+
+{% block extra_css %}
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
+
+@keyframes fadeUp   { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+@keyframes scaleIn  { from{opacity:0;transform:scale(.96)} to{opacity:1;transform:scale(1)} }
+@keyframes countUp  { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes ringPulse{ 0%{transform:scale(1);opacity:.5} 100%{transform:scale(1.9);opacity:0} }
+@keyframes barFill  { from{width:0} to{width:var(--w)} }
+@keyframes dashGrow { from{stroke-dasharray:0 339} }
+
+/* ── Layout ── */
+.stats-wrap { display:flex; flex-direction:column; gap:1.5rem; }
+
+/* ── Page head ── */
+.pg-head {
+  display:flex; align-items:center; justify-content:space-between;
+  animation: fadeUp .4s ease both;
+}
+.pg-title {
+  font-family:'Syne',sans-serif; font-size:1.55rem; font-weight:800; color:#0f172a;
+}
+.pg-sub { color:#94a3b8; font-size:.82rem; margin-top:.2rem; }
+.period-tabs { display:flex; gap:.5rem; }
+.ptab {
+  padding:.45rem 1rem; border-radius:20px; font-size:.78rem; font-weight:600;
+  cursor:pointer; border:1.5px solid #e2e8f0; background:white; color:#64748b;
+  transition:all .18s;
+}
+.ptab.active, .ptab:hover { background:var(--primary); color:white; border-color:var(--primary); }
+
+/* ── Mini KPI strip ── */
+.kpi-strip { display:grid; grid-template-columns:repeat(5,1fr); gap:1rem; }
+.ks {
+  background:white; border:1px solid #f1f5f9; border-radius:16px;
+  padding:1.2rem 1.4rem; position:relative; overflow:hidden;
+  animation:fadeUp .4s ease both; cursor:default;
+  transition:transform .2s,box-shadow .2s;
+}
+.ks:hover { transform:translateY(-3px); box-shadow:0 12px 32px rgba(0,0,0,.07); }
+.ks::before {
+  content:''; position:absolute; top:0;left:0;right:0; height:3px;
+  border-radius:16px 16px 0 0;
+}
+.ks:nth-child(1)::before { background:linear-gradient(90deg,#f59e0b,#fb923c); }
+.ks:nth-child(2)::before { background:linear-gradient(90deg,#10b981,#34d399); }
+.ks:nth-child(3)::before { background:linear-gradient(90deg,#1a56db,#6366f1); }
+.ks:nth-child(4)::before { background:linear-gradient(90deg,#8b5cf6,#a78bfa); }
+.ks:nth-child(5)::before { background:linear-gradient(90deg,#ef4444,#f97316); }
+.ks-ico { width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:.9rem;margin-bottom:.8rem; }
+.ks-n { font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;color:#0f172a;line-height:1;animation:countUp .6s ease both; }
+.ks-l { font-size:.74rem;color:#94a3b8;margin-top:.2rem;font-weight:500; }
+.ks-ev { font-size:.7rem;font-weight:700;display:flex;align-items:center;gap:.25rem;margin-top:.5rem; }
+.ev-up { color:#16a34a; } .ev-dn { color:#dc2626; } .ev-ne { color:#94a3b8; }
+
+/* ── Chart grid ── */
+.chart-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1.3rem; }
+.chart-grid-3 { display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:1.3rem; }
+
+/* ── Chart card ── */
+.cc {
+  background:white; border:1px solid #f1f5f9; border-radius:18px;
+  padding:1.5rem; animation:scaleIn .45s ease both;
+}
+.cc-head { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.3rem; }
+.cc-title { font-family:'Syne',sans-serif;font-size:.92rem;font-weight:700;color:#0f172a;display:flex;align-items:center;gap:.45rem; }
+.cc-title i { color:var(--primary);font-size:.85rem; }
+.cc-sub { font-size:.72rem;color:#94a3b8;margin-top:.15rem; }
+.cc-badge { font-size:.68rem;font-weight:700;padding:.2rem .65rem;border-radius:20px; }
+
+/* ── Gauge ── */
+.gauge-wrap { display:flex;flex-direction:column;align-items:center;padding:.5rem 0; }
+.gauge-svg { overflow:visible; }
+.gauge-val {
+  font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;
+  fill:#0f172a; text-anchor:middle; dominant-baseline:middle;
+}
+.gauge-lbl { font-size:.78rem;fill:#94a3b8;text-anchor:middle; }
+.gauge-arc { transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1); }
+.gauge-grid { display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1.1rem;width:100%; }
+.gg-item { background:#f8fafc;border-radius:10px;padding:.7rem .9rem;display:flex;align-items:center;gap:.6rem; }
+.gg-dot { width:10px;height:10px;border-radius:3px;flex-shrink:0; }
+.gg-n { font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;color:#0f172a; }
+.gg-l { font-size:.7rem;color:#94a3b8; }
+
+/* ── Top techniciens ── */
+.top-row {
+  display:flex;align-items:center;gap:.85rem;
+  padding:.75rem .5rem;border-radius:11px;transition:background .15s;
+}
+.top-row:hover { background:#f8fafc; }
+.top-rank {
+  width:26px;height:26px;border-radius:7px;font-family:'Syne',sans-serif;
+  font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.rank-1 { background:linear-gradient(135deg,#fbbf24,#f59e0b);color:white; }
+.rank-2 { background:linear-gradient(135deg,#94a3b8,#64748b);color:white; }
+.rank-3 { background:linear-gradient(135deg,#f97316,#ea580c);color:white; }
+.rank-n { background:#f1f5f9;color:#64748b; }
+.tech-bar-wrap { flex:1; }
+.tech-bar-bg { height:6px;background:#f1f5f9;border-radius:3px;overflow:hidden;margin-top:.3rem; }
+.tech-bar-fill {
+  height:100%;border-radius:3px;
+  --w:0%;
+  animation:barFill .8s ease both;
+  width:var(--w);
+}
+
+/* ── Heatmap ── */
+.heatmap-wrap { overflow-x:auto; }
+.heatmap-grid {
+  display:grid;
+  grid-template-columns:40px repeat(12,1fr);
+  gap:3px;
+  font-size:.65rem;
+}
+.hm-cell {
+  height:28px;border-radius:5px;
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-weight:700;font-size:.6rem;
+  transition:transform .15s;cursor:default;
+}
+.hm-cell:hover { transform:scale(1.15);z-index:10; }
+.hm-label { display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#94a3b8;font-size:.65rem;font-weight:600; }
+.hm-header { text-align:center;color:#94a3b8;font-weight:700;font-size:.62rem;padding-bottom:4px; }
+
+/* ── Pill ── */
+.pill-sm { display:inline-flex;align-items:center;gap:.3rem;padding:.22rem .65rem;border-radius:20px;font-size:.7rem;font-weight:700; }
+
+/* Delays */
+.ks:nth-child(1){animation-delay:.04s} .ks:nth-child(2){animation-delay:.08s}
+.ks:nth-child(3){animation-delay:.12s} .ks:nth-child(4){animation-delay:.16s}
+.ks:nth-child(5){animation-delay:.20s}
+.cc:nth-child(1){animation-delay:.1s}  .cc:nth-child(2){animation-delay:.15s}
+.cc:nth-child(3){animation-delay:.2s}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="stats-wrap">
+
+  <!-- ══ PAGE HEAD ══ -->
+  <div class="pg-head">
+    <div>
+      <div class="pg-title">📊 Statistiques</div>
+      <div class="pg-sub">Vue d'ensemble de la plateforme Infinity Home</div>
+    </div>
+    <div class="period-tabs">
+      <div class="ptab active">12 mois</div>
+      <div class="ptab">6 mois</div>
+      <div class="ptab">30 jours</div>
+    </div>
+  </div>
+
+  <!-- ══ KPI STRIP ══ -->
+  <div class="kpi-strip">
+    <div class="ks">
+      <div class="ks-ico" style="background:#fffbeb;color:#f59e0b;"><i class="fas fa-clipboard-list"></i></div>
+      <div class="ks-n">{{ total_dem }}</div>
+      <div class="ks-l">Demandes totales</div>
+      <div class="ks-ev {% if evolution >= 0 %}ev-up{% else %}ev-dn{% endif %}">
+        <i class="fas fa-arrow-{% if evolution >= 0 %}up{% else %}down{% endif %}"></i>
+        {{ evolution }}% ce mois
+      </div>
+    </div>
+    <div class="ks">
+      <div class="ks-ico" style="background:#f0fdf4;color:#10b981;"><i class="fas fa-check-double"></i></div>
+      <div class="ks-n">{{ terminees }}</div>
+      <div class="ks-l">Interventions terminées</div>
+      <div class="ks-ev ev-up"><i class="fas fa-percent"></i> {{ taux_completion }}% taux</div>
+    </div>
+    <div class="ks">
+      <div class="ks-ico" style="background:#eff6ff;color:#1a56db;"><i class="fas fa-wallet"></i></div>
+      <div class="ks-n">{{ revenus_mois|floatformat:0 }}</div>
+      <div class="ks-l">Revenus ce mois (BIF)</div>
+      <div class="ks-ev ev-ne"><i class="fas fa-minus"></i> Validés</div>
+    </div>
+    <div class="ks">
+      <div class="ks-ico" style="background:#f5f3ff;color:#8b5cf6;"><i class="fas fa-hourglass-half"></i></div>
+      <div class="ks-n">{{ en_attente }}</div>
+      <div class="ks-l">En attente</div>
+      <div class="ks-ev ev-dn"><i class="fas fa-exclamation"></i> À traiter</div>
+    </div>
+    <div class="ks">
+      <div class="ks-ico" style="background:#fef2f2;color:#ef4444;"><i class="fas fa-times-circle"></i></div>
+      <div class="ks-n">{{ annulees }}</div>
+      <div class="ks-l">Annulées</div>
+      <div class="ks-ev ev-ne"><i class="fas fa-minus"></i> Total</div>
+    </div>
+  </div>
+
+  <!-- ══ ROW 1 : Line chart + Donut taux ══ -->
+  <div class="chart-grid-2">
+
+    <!-- Demandes par mois (Line) -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-chart-line"></i> Demandes par mois</div>
+          <div class="cc-sub">Évolution sur les 12 derniers mois</div>
+        </div>
+        <span class="cc-badge" style="background:#eff6ff;color:#1a56db;">Line chart</span>
+      </div>
+      <canvas id="chartMois" height="90"></canvas>
+    </div>
+
+    <!-- Taux de complétion (Gauge) -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-bullseye"></i> Taux de complétion</div>
+          <div class="cc-sub">Demandes terminées / total</div>
+        </div>
+      </div>
+      <div class="gauge-wrap">
+        <svg class="gauge-svg" width="180" height="110" viewBox="0 0 180 110">
+          <!-- Track -->
+          <path d="M 20 95 A 70 70 0 0 1 160 95" fill="none" stroke="#f1f5f9" stroke-width="14" stroke-linecap="round"/>
+          <!-- Fill -->
+          <path id="gauge-fill" d="M 20 95 A 70 70 0 0 1 160 95" fill="none" stroke="url(#gaugeGrad)" stroke-width="14"
+            stroke-linecap="round" stroke-dasharray="0 220" class="gauge-arc"/>
+          <defs>
+            <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#10b981"/>
+              <stop offset="100%" stop-color="#34d399"/>
+            </linearGradient>
+          </defs>
+          <text class="gauge-val" x="90" y="80" id="gauge-pct">0%</text>
+          <text class="gauge-lbl" x="90" y="100">complétion</text>
+        </svg>
+        <div class="gauge-grid">
+          <div class="gg-item">
+            <div class="gg-dot" style="background:#10b981;"></div>
+            <div><div class="gg-n">{{ terminees }}</div><div class="gg-l">Terminées</div></div>
+          </div>
+          <div class="gg-item">
+            <div class="gg-dot" style="background:#3b82f6;"></div>
+            <div><div class="gg-n">{{ en_cours }}</div><div class="gg-l">En cours</div></div>
+          </div>
+          <div class="gg-item">
+            <div class="gg-dot" style="background:#f59e0b;"></div>
+            <div><div class="gg-n">{{ en_attente }}</div><div class="gg-l">En attente</div></div>
+          </div>
+          <div class="gg-item">
+            <div class="gg-dot" style="background:#ef4444;"></div>
+            <div><div class="gg-n">{{ annulees }}</div><div class="gg-l">Annulées</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══ ROW 2 : Types + Revenus ══ -->
+  <div class="chart-grid-2">
+
+    <!-- Types de travaux (Bar horizontal) -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-tools"></i> Types de travaux</div>
+          <div class="cc-sub">Répartition par catégorie</div>
+        </div>
+        <span class="cc-badge" style="background:#fef3c7;color:#d97706;">Barres</span>
+      </div>
+      <canvas id="chartTypes" height="130"></canvas>
+    </div>
+
+    <!-- Revenus par mois (Bar) -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-coins"></i> Revenus paiements</div>
+          <div class="cc-sub">Paiements validés par mois (BIF)</div>
+        </div>
+        <span class="cc-badge" style="background:#f0fdf4;color:#16a34a;">6 mois</span>
+      </div>
+      <canvas id="chartRevenus" height="130"></canvas>
+    </div>
+
+  </div>
+
+  <!-- ══ ROW 3 : Techniciens + Localités + Délai ══ -->
+  <div class="chart-grid-3">
+
+    <!-- Top techniciens -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-trophy"></i> Top techniciens</div>
+          <div class="cc-sub">Classement par nombre d'interventions</div>
+        </div>
+        <span class="cc-badge" style="background:#fef3c7;color:#d97706;">Top 5</span>
+      </div>
+      {% for t in top_tech %}
+      <div class="top-row">
+        <div class="top-rank {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-n{% endif %}">
+          {% if forloop.counter <= 3 %}<i class="fas fa-medal"></i>{% else %}{{ forloop.counter }}{% endif %}
+        </div>
+        <div class="tech-bar-wrap" style="flex:1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-weight:600;font-size:.83rem;color:#0f172a;">{{ t.technicien__prenom }} {{ t.technicien__nom }}</span>
+            <span style="font-family:'Syne',sans-serif;font-weight:700;font-size:.82rem;color:#1a56db;">{{ t.nb }}</span>
+          </div>
+          <div class="tech-bar-bg">
+            <div class="tech-bar-fill" style="--w:{{ t.nb|floatformat:0 }}%;background:{% if forloop.counter == 1 %}linear-gradient(90deg,#f59e0b,#fb923c){% elif forloop.counter == 2 %}linear-gradient(90deg,#94a3b8,#64748b){% elif forloop.counter == 3 %}linear-gradient(90deg,#f97316,#ea580c){% else %}linear-gradient(90deg,#1a56db,#6366f1){% endif %};"></div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div style="text-align:center;padding:2rem;color:#94a3b8;font-size:.83rem;">Aucun technicien assigné</div>
+      {% endfor %}
+    </div>
+
+    <!-- Localités (Bar) -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-map-marker-alt"></i> Par localité</div>
+          <div class="cc-sub">Top 8 zones</div>
+        </div>
+      </div>
+      <canvas id="chartLoc" height="200"></canvas>
+    </div>
+
+    <!-- Délai moyen -->
+    <div class="cc">
+      <div class="cc-head">
+        <div>
+          <div class="cc-title"><i class="fas fa-stopwatch"></i> Délai moyen</div>
+          <div class="cc-sub">Jours entre demande et intervention</div>
+        </div>
+      </div>
+      <canvas id="chartDelai" height="200"></canvas>
+    </div>
+
+  </div>
+
+  <!-- ══ ROW 4 : Heatmap ══ -->
+  <div class="cc">
+    <div class="cc-head">
+      <div>
+        <div class="cc-title"><i class="fas fa-fire"></i> Carte de chaleur — Activité</div>
+        <div class="cc-sub">Volume de demandes par jour de la semaine et heure de la journée</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;font-size:.72rem;color:#94a3b8;">
+        <div style="display:flex;align-items:center;gap:.25rem;">
+          <div style="width:12px;height:12px;border-radius:3px;background:#f1f5f9;"></div> Faible
+        </div>
+        <div style="display:flex;align-items:center;gap:.25rem;">
+          <div style="width:12px;height:12px;border-radius:3px;background:#93c5fd;"></div> Moyen
+        </div>
+        <div style="display:flex;align-items:center;gap:.25rem;">
+          <div style="width:12px;height:12px;border-radius:3px;background:#1a56db;"></div> Élevé
+        </div>
+      </div>
+    </div>
+    <div class="heatmap-wrap">
+      <div id="heatmap-container"></div>
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const MOIS_LABELS    = {{ mois_labels|safe }};
+const MOIS_DATA      = {{ mois_data|safe }};
+const TYPES_LABELS   = {{ types_labels|safe }};
+const TYPES_DATA     = {{ types_data|safe }};
+const REV_LABELS     = {{ rev_labels|safe }};
+const REV_DATA       = {{ rev_data|safe }};
+const TECH_LABELS    = {{ tech_labels|safe }};
+const TECH_DATA      = {{ tech_data|safe }};
+const TECH_TERM      = {{ tech_terminees|safe }};
+const LOC_LABELS     = {{ loc_labels|safe }};
+const LOC_DATA       = {{ loc_data|safe }};
+const DELAI_LABELS   = {{ delai_labels|safe }};
+const DELAI_DATA     = {{ delai_data|safe }};
+const HEATMAP        = {{ heatmap_data|safe }};
+const TAUX           = {{ taux_completion }};
+
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.color = '#94a3b8';
+
+const gridOpts = {
+  color: '#f1f5f9',
+  drawBorder: false,
+};
+const tickOpts = { color:'#94a3b8', font:{size:11} };
+
+// ── 1. Line chart demandes par mois ──
+new Chart(document.getElementById('chartMois'), {
+  type: 'line',
+  data: {
+    labels: MOIS_LABELS,
+    datasets: [{
+      label: 'Demandes',
+      data: MOIS_DATA,
+      borderColor: '#1a56db',
+      backgroundColor: 'rgba(26,86,219,.08)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#1a56db',
+      pointRadius: 4,
+      pointHoverRadius: 6,
+      fill: true,
+      tension: .4,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{display:false}, tooltip:{
+      backgroundColor:'#0f172a', titleColor:'white', bodyColor:'#94a3b8',
+      padding:10, cornerRadius:10,
+    }},
+    scales:{
+      x:{ grid:gridOpts, ticks:tickOpts },
+      y:{ grid:gridOpts, ticks:{...tickOpts, stepSize:1}, beginAtZero:true }
+    }
+  }
+});
+
+// ── 2. Bar chart types de travaux ──
+const typeColors = [
+  'rgba(26,86,219,.85)','rgba(16,185,129,.85)','rgba(245,158,11,.85)',
+  'rgba(239,68,68,.85)','rgba(139,92,246,.85)','rgba(249,115,22,.85)',
+  'rgba(20,184,166,.85)','rgba(236,72,153,.85)',
+];
+new Chart(document.getElementById('chartTypes'), {
+  type: 'bar',
+  data: {
+    labels: TYPES_LABELS,
+    datasets: [{
+      label: 'Demandes',
+      data: TYPES_DATA,
+      backgroundColor: typeColors,
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true, indexAxis:'y',
+    plugins:{ legend:{display:false}, tooltip:{
+      backgroundColor:'#0f172a', titleColor:'white', bodyColor:'#94a3b8',
+      padding:10, cornerRadius:10,
+    }},
+    scales:{
+      x:{ grid:gridOpts, ticks:tickOpts, beginAtZero:true },
+      y:{ grid:{display:false}, ticks:tickOpts }
+    }
+  }
+});
+
+// ── 3. Bar chart revenus ──
+new Chart(document.getElementById('chartRevenus'), {
+  type: 'bar',
+  data: {
+    labels: REV_LABELS,
+    datasets: [{
+      label: 'Revenus (BIF)',
+      data: REV_DATA,
+      backgroundColor: 'rgba(16,185,129,.85)',
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{display:false}, tooltip:{
+      backgroundColor:'#0f172a', titleColor:'white', bodyColor:'#94a3b8',
+      padding:10, cornerRadius:10,
+      callbacks:{ label: ctx => `${ctx.raw.toLocaleString('fr')} BIF` }
+    }},
+    scales:{
+      x:{ grid:gridOpts, ticks:tickOpts },
+      y:{ grid:gridOpts, ticks:tickOpts, beginAtZero:true }
+    }
+  }
+});
+
+// ── 4. Bar chart localités ──
+new Chart(document.getElementById('chartLoc'), {
+  type: 'bar',
+  data: {
+    labels: LOC_LABELS,
+    datasets: [{
+      label: 'Demandes',
+      data: LOC_DATA,
+      backgroundColor: 'rgba(139,92,246,.8)',
+      borderRadius: 7,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true, indexAxis:'y',
+    plugins:{ legend:{display:false}, tooltip:{
+      backgroundColor:'#0f172a', titleColor:'white', bodyColor:'#94a3b8',
+      padding:10, cornerRadius:10,
+    }},
+    scales:{
+      x:{ grid:gridOpts, ticks:tickOpts, beginAtZero:true },
+      y:{ grid:{display:false}, ticks:{...tickOpts, font:{size:10}} }
+    }
+  }
+});
+
+// ── 5. Line chart délai moyen ──
+new Chart(document.getElementById('chartDelai'), {
+  type: 'line',
+  data: {
+    labels: DELAI_LABELS,
+    datasets: [{
+      label: 'Jours',
+      data: DELAI_DATA,
+      borderColor: '#f59e0b',
+      backgroundColor: 'rgba(245,158,11,.08)',
+      borderWidth: 2.5,
+      pointBackgroundColor: '#f59e0b',
+      pointRadius: 4,
+      fill: true,
+      tension: .4,
+    }]
+  },
+  options: {
+    responsive:true, maintainAspectRatio:true,
+    plugins:{ legend:{display:false}, tooltip:{
+      backgroundColor:'#0f172a', titleColor:'white', bodyColor:'#94a3b8',
+      padding:10, cornerRadius:10,
+      callbacks:{ label: ctx => `${ctx.raw} jours` }
+    }},
+    scales:{
+      x:{ grid:gridOpts, ticks:tickOpts },
+      y:{ grid:gridOpts, ticks:tickOpts, beginAtZero:true }
+    }
+  }
+});
+
+// ── 6. Gauge animation ──
+setTimeout(() => {
+  const taux = TAUX;
+  const maxDash = 220;
+  const fill = (taux / 100) * maxDash;
+  const arc = document.getElementById('gauge-fill');
+  if (arc) arc.setAttribute('stroke-dasharray', `${fill} ${maxDash}`);
+  // Counter animation
+  const el = document.getElementById('gauge-pct');
+  if (el) {
+    let cur = 0;
+    const step = taux / 40;
+    const iv = setInterval(() => {
+      cur = Math.min(cur + step, taux);
+      el.textContent = Math.round(cur) + '%';
+      if (cur >= taux) clearInterval(iv);
+    }, 20);
+  }
+}, 400);
+
+// ── 7. Heatmap ──
+(function buildHeatmap() {
+  const jours = ['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
+  const heures = Array.from({length:12}, (_, i) => `${i*2}h`);
+  const maxV = Math.max(...HEATMAP.map(d => d.v), 1);
+
+  function heatColor(v) {
+    if (v === 0) return '#f1f5f9';
+    const t = v / maxV;
+    if (t < .33) return `rgba(147,197,253,${.4 + t})`;
+    if (t < .66) return `rgba(59,130,246,${.5 + t*.5})`;
+    return `rgba(26,86,219,${.7 + t*.3})`;
+  }
+
+  const container = document.getElementById('heatmap-container');
+  const grid = document.createElement('div');
+  grid.className = 'heatmap-grid';
+
+  // Header row
+  const emptyHeader = document.createElement('div');
+  emptyHeader.className = 'hm-header';
+  grid.appendChild(emptyHeader);
+  heures.forEach(h => {
+    const el = document.createElement('div');
+    el.className = 'hm-header';
+    el.textContent = h;
+    grid.appendChild(el);
+  });
+
+  // Data rows
+  jours.forEach((jour, ji) => {
+    const labelEl = document.createElement('div');
+    labelEl.className = 'hm-label';
+    labelEl.textContent = jour;
+    grid.appendChild(labelEl);
+
+    heures.forEach((_, hi) => {
+      const cell = HEATMAP.find(d => d.x === hi * 2 && d.y === ji) || {v:0};
+      const el = document.createElement('div');
+      el.className = 'hm-cell';
+      el.style.background = heatColor(cell.v);
+      if (cell.v > 0) el.textContent = cell.v;
+      el.title = `${jour} ${hi*2}h–${hi*2+2}h : ${cell.v} demande(s)`;
+      grid.appendChild(el);
+    });
+  });
+
+  container.appendChild(grid);
+})();
+
+// ── Tech bar widths ──
+(function fixTechBars() {
+  const max = Math.max(...TECH_DATA, 1);
+  document.querySelectorAll('.tech-bar-fill').forEach((bar, i) => {
+    const pct = ((TECH_DATA[i] || 0) / max) * 100;
+    bar.style.setProperty('--w', pct + '%');
+  });
+})();
+</script>
+{% endblock %}
