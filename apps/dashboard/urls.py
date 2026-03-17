@@ -30,7 +30,23 @@ path('clients/<int:client_pk>/voir/', views.client_view_readonly, name='client_v
 path('statistiques/', views.statistiques, name='statistiques'),
 
 
+
 path('contact/',                     views.contact_messages,    name='contact_messages'),
 path('contact/<int:pk>/lu/',         views.contact_marquer_lu,  name='contact_marquer_lu'),
 path('contact/<int:pk>/supprimer/',  views.contact_supprimer,   name='contact_supprimer'),
+
+
+
+# Dans apps/dashboard/urls.py — ajouter :
+path('paiements/export/', views.export_paiements_excel, name='paiements_export'),
+
+
+path('paiements/pdf/', views.export_paiements_pdf, name='paiements_pdf'),
+
+
+
+
+
+ path('clients/localites/',          views.clients_par_localite,        name='clients_par_localite'),
+path('techniciens/specialites/',    views.techniciens_par_specialite,  name='techniciens_par_specialite'),
 ]

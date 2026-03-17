@@ -742,3 +742,649 @@ def contact_supprimer(request, pk):
     if request.method == 'POST':
         msg.delete()
     return redirect('dashboard:contact_messages')
+
+
+
+# ── À AJOUTER à la fin de apps/dashboard/views_paiements.py ──
+# pip install openpyxl  (déjà inclus dans Django si pas installé)
+
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from datetime import datetime
+
+
+def hfill(color): return PatternFill("solid", fgColor=color)
+def thin():
+    s = Side(style='thin', color="E2E8F0")
+    return Border(top=s, bottom=s, left=s, right=s)
+def bold(size=10, color="000000"): return Font(bold=True, size=size, color=color, name="Arial")
+def reg(size=10, color="000000"):  return Font(bold=False, size=size, color=color, name="Arial")
+def center(): return Alignment(horizontal="center", vertical="center", wrap_text=True)
+def left():   return Alignment(horizontal="left",   vertical="center", wrap_text=True)
+def right():  return Alignment(horizontal="right",  vertical="center")
+
+
+@login_required
+@user_passes_test(is_admin)
+def export_paiements_excel(request):
+    """
+    GET /dashboard/paiements/export/
+    Génère et télécharge un fichier Excel complet de l'historique des paiements.
+    """
+    # ── Récupérer les paiements ──
+    paiements = Paiement.objects.select_related('client', 'commande').order_by('-created_at')
+
+    wb = Workbook()
+
+    # ═══════════════════════════════════
+    #  FEUILLE 1 — HISTORIQUE
+    # ═══════════════════════════════════
+    ws = wb.active
+    ws.title = "Historique Paiements"
+    ws.sheet_view.showGridLines = False
+
+    # Bandeau titre
+    ws.merge_cells("A1:L2")
+    c = ws["A1"]
+    c.value = "INFINITY HOME REWIRE & CONSTRUCTION — Historique des Paiements"
+    c.font  = bold(14, "FFFFFF")
+    c.fill  = hfill("1E3A8A")
+    c.alignment = center()
+    ws.row_dimensions[1].height = 22
+    ws.row_dimensions[2].height = 12
+
+    # Sous-titre
+    ws.merge_cells("A3:L3")
+    c = ws["A3"]
+    c.value = f"Exporté le : {datetime.now().strftime('%d/%m/%Y à %H:%M')}     |     Total : {paiements.count()} paiement(s)"
+    c.font  = reg(9, "64748B")
+    c.fill  = hfill("DBEAFE")
+    c.alignment = center()
+    ws.row_dimensions[3].height = 15
+    ws.row_dimensions[4].height = 8
+
+    # En-têtes
+    headers    = ["N°", "Date", "Client", "Email", "Demande N°",
+                  "Type travaux", "Mode paiement", "Montant (BIF)",
+                  "Statut", "Validé par", "Date validation", "Note admin"]
+    col_widths = [7, 14, 24, 28, 13, 18, 18, 16, 13, 18, 16, 32]
+
+    ws.row_dimensions[5].height = 20
+    for i, (h, w) in enumerate(zip(headers, col_widths), 1):
+        col = get_column_letter(i)
+        cell = ws[f"{col}5"]
+        cell.value = h
+        cell.font  = bold(10, "FFFFFF")
+        cell.fill  = hfill("2563EB")
+        cell.alignment = center()
+        cell.border = thin()
+        ws.column_dimensions[col].width = w
+
+    # Données réelles
+    MODE_LABELS = {
+        'carte':     'Carte Bancaire',
+        'livraison': 'À la livraison',
+        'mobile':    'Mobile Money',
+    }
+    TYPE_LABELS = {
+        'electricite':  'Électricité',
+        'plomberie':    'Plomberie',
+        'construction': 'Construction',
+        'soudure':      'Soudure',
+        'peinture':     'Peinture',
+        'menuiserie':   'Menuiserie',
+        'surveillance': 'Surveillance',
+        'autre':        'Autre',
+    }
+
+    for row_idx, p in enumerate(paiements, start=6):
+        ws.row_dimensions[row_idx].height = 18
+        bg = "F8FAFC" if row_idx % 2 == 0 else "FFFFFF"
+
+        statut_label = {
+            'valide':     'Validé',
+            'en_attente': 'En attente',
+            'rejete':     'Rejeté',
+        }.get(p.statut, p.statut)
+
+        row = [
+            row_idx - 5,
+            p.created_at.strftime('%d/%m/%Y') if p.created_at else '',
+            p.client.get_full_name() or p.client.username,
+            p.client.email or '',
+            f"DEM-{p.commande_id}" if p.commande_id else '',
+            TYPE_LABELS.get(p.commande.type_travaux, '') if p.commande else '',
+            MODE_LABELS.get(p.mode_paiement, p.mode_paiement),
+            float(p.montant) if p.montant else 0,
+            statut_label,
+            p.valide_par.get_full_name() if p.valide_par else '',
+            p.date_validation.strftime('%d/%m/%Y') if hasattr(p, 'date_validation') and p.date_validation else '',
+            p.note_admin or '',
+        ]
+
+        for col_idx, val in enumerate(row, 1):
+            col  = get_column_letter(col_idx)
+            cell = ws[f"{col}{row_idx}"]
+            cell.value  = val
+            cell.border = thin()
+
+            if col_idx == 9:  # Statut
+                if p.statut == 'valide':
+                    cell.font = bold(9, "065F46"); cell.fill = hfill("D1FAE5")
+                elif p.statut == 'rejete':
+                    cell.font = bold(9, "991B1B"); cell.fill = hfill("FEE2E2")
+                else:
+                    cell.font = bold(9, "92400E"); cell.fill = hfill("FEF3C7")
+                cell.alignment = center()
+            elif col_idx == 8:
+                cell.font = bold(10, "1E3A8A")
+                cell.fill = hfill(bg)
+                cell.alignment = right()
+                cell.number_format = '#,##0'
+            elif col_idx == 1:
+                cell.font = bold(9, "2563EB")
+                cell.fill = hfill(bg)
+                cell.alignment = center()
+            else:
+                cell.font = reg(9)
+                cell.fill = hfill(bg)
+                cell.alignment = left()
+
+    last_row = 5 + paiements.count()
+
+    # Ligne TOTAL
+    total_row = last_row + 1
+    ws.row_dimensions[total_row].height = 22
+    ws.merge_cells(f"A{total_row}:G{total_row}")
+    c = ws[f"A{total_row}"]
+    c.value = "TOTAL PAIEMENTS VALIDÉS"
+    c.font  = bold(10, "FFFFFF")
+    c.fill  = hfill("1E3A8A")
+    c.alignment = Alignment(horizontal="right", vertical="center")
+    c.border = thin()
+
+    c2 = ws[f"H{total_row}"]
+    c2.value = f'=SUMIF(I6:I{last_row},"Validé",H6:H{last_row})'
+    c2.font  = bold(11, "FFFFFF")
+    c2.fill  = hfill("1E3A8A")
+    c2.alignment = right()
+    c2.number_format = '#,##0'
+    c2.border = thin()
+
+    for col in range(9, 13):
+        cell = ws[f"{get_column_letter(col)}{total_row}"]
+        cell.fill = hfill("1E3A8A")
+        cell.border = thin()
+
+    ws.freeze_panes = "A6"
+
+    # ═══════════════════════════════════
+    #  FEUILLE 2 — RÉSUMÉ
+    # ═══════════════════════════════════
+    from django.db.models import Sum as DSum, Count
+    ws2 = wb.create_sheet("Résumé")
+    ws2.sheet_view.showGridLines = False
+
+    ws2.merge_cells("A1:D2")
+    c = ws2["A1"]
+    c.value = "RÉSUMÉ DES PAIEMENTS — Infinity Home"
+    c.font  = bold(13, "FFFFFF")
+    c.fill  = hfill("1E3A8A")
+    c.alignment = center()
+    ws2.row_dimensions[1].height = 22
+
+    total_valide    = paiements.filter(statut='valide').aggregate(t=DSum('montant'))['t'] or 0
+    total_attente   = paiements.filter(statut='en_attente').count()
+    total_rejete    = paiements.filter(statut='rejete').count()
+    total_val_count = paiements.filter(statut='valide').count()
+
+    summary = [
+        ("Total paiements",              paiements.count(),  "DBEAFE", "1E3A8A"),
+        ("Paiements validés",            total_val_count,    "D1FAE5", "065F46"),
+        ("Paiements en attente",         total_attente,      "FEF3C7", "92400E"),
+        ("Paiements rejetés",            total_rejete,       "FEE2E2", "991B1B"),
+        ("Montant total validé (BIF)",   f"{total_valide:,.0f}", "DBEAFE", "1E3A8A"),
+    ]
+
+    for i, (label, val, bg, tc) in enumerate(summary, start=4):
+        ws2.row_dimensions[i].height = 22
+        ws2.merge_cells(f"A{i}:C{i}")
+        c1 = ws2[f"A{i}"]
+        c1.value = label
+        c1.font  = bold(10, "1E293B")
+        c1.fill  = hfill(bg)
+        c1.alignment = left()
+        c1.border = thin()
+
+        ws2.merge_cells(f"D{i}:E{i}")
+        c2 = ws2[f"D{i}"]
+        c2.value = val
+        c2.font  = bold(12, tc)
+        c2.fill  = hfill(bg)
+        c2.alignment = right()
+        c2.border = thin()
+
+    for col, w in zip(["A","B","C","D","E"], [26, 16, 16, 18, 16]):
+        ws2.column_dimensions[col].width = w
+
+    # ── Réponse HTTP ──
+    filename = f"Historique_Paiements_InfinityHome_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    response = HttpResponse(
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    wb.save(response)
+    return response
+
+
+
+# ── À AJOUTER à la fin de apps/dashboard/views_paiements.py ──
+
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.units import mm
+from reportlab.lib.styles import ParagraphStyle
+from reportlab.platypus import (BaseDocTemplate, Frame, PageTemplate,
+                                 Paragraph, Spacer, Table, TableStyle,
+                                 HRFlowable)
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from datetime import datetime
+import io
+
+# ── Couleurs ──
+NAVY   = colors.HexColor("#1E3A8A")
+BLUE   = colors.HexColor("#2563EB")
+LBLUE  = colors.HexColor("#DBEAFE")
+LGRAY  = colors.HexColor("#F8FAFC")
+GRAY   = colors.HexColor("#E2E8F0")
+DGRAY  = colors.HexColor("#64748B")
+TEXT   = colors.HexColor("#0F172A")
+GREEN  = colors.HexColor("#D1FAE5")
+DGREEN = colors.HexColor("#065F46")
+ORANGE = colors.HexColor("#FEF3C7")
+DORANGE= colors.HexColor("#92400E")
+RED    = colors.HexColor("#FEE2E2")
+DRED   = colors.HexColor("#991B1B")
+WHITE  = colors.white
+W, H   = A4
+
+
+def _draw_header_footer(c, doc):
+    """Dessine l'en-tête et le pied de page sur chaque page."""
+    c.saveState()
+
+    # ── HEADER ──
+    c.setFillColor(NAVY)
+    c.rect(0, H - 50*mm, W, 50*mm, fill=1, stroke=0)
+
+    # Cercle logo IH
+    c.setFillColor(BLUE)
+    c.circle(25*mm, H - 25*mm, 14*mm, fill=1, stroke=0)
+    c.setStrokeColor(WHITE)
+    c.setLineWidth(1)
+    c.circle(25*mm, H - 25*mm, 11*mm, fill=0, stroke=1)
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica-Bold", 13)
+    c.drawCentredString(25*mm, H - 28*mm, "IH")
+
+    # Nom entreprise
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica-Bold", 16)
+    c.drawString(44*mm, H - 20*mm, "INFINITY HOME")
+    c.setFont("Helvetica", 9)
+    c.setFillColor(colors.HexColor("#93C5FD"))
+    c.drawString(44*mm, H - 28*mm, "REWIRE & CONSTRUCTION")
+
+    # Séparateur
+    c.setStrokeColor(colors.HexColor("#3B82F6"))
+    c.setLineWidth(0.5)
+    c.line(44*mm, H - 32*mm, W - 15*mm, H - 32*mm)
+
+    # Contacts
+    c.setFont("Helvetica", 7.5)
+    c.setFillColor(colors.HexColor("#BFDBFE"))
+    c.drawString(44*mm, H - 38*mm, "+257 66 033 033")
+    c.drawString(82*mm, H - 38*mm, "|  info@infinityhome.bi")
+    c.drawString(132*mm, H - 38*mm, "|  Bujumbura, Burundi")
+
+    # Titre + date (droite)
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica-Bold", 11)
+    c.drawRightString(W - 15*mm, H - 22*mm, "HISTORIQUE DES PAIEMENTS")
+    c.setFont("Helvetica", 8)
+    c.setFillColor(colors.HexColor("#93C5FD"))
+    c.drawRightString(W - 15*mm, H - 30*mm,
+                      f"Généré le {datetime.now().strftime('%d/%m/%Y à %H:%M')}")
+
+    # ── FOOTER ──
+    c.setFillColor(NAVY)
+    c.rect(0, 0, W, 14*mm, fill=1, stroke=0)
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica", 7.5)
+    c.drawString(15*mm, 8*mm,
+                 "© 2025 Infinity Home Rewire & Construction — Tous droits réservés")
+    c.drawString(15*mm, 4*mm,
+                 "Bujumbura, Burundi  |  +257 66 033 033  |  info@infinityhome.bi")
+    c.setFont("Helvetica-Bold", 8)
+    c.drawRightString(W - 15*mm, 6*mm, f"Page {doc.page}")
+
+    c.restoreState()
+
+
+def _ps(name, size=9, color=TEXT, bold=False, align=TA_LEFT, leading=None):
+    return ParagraphStyle(
+        name,
+        fontName="Helvetica-Bold" if bold else "Helvetica",
+        fontSize=size,
+        textColor=color,
+        alignment=align,
+        leading=leading or size * 1.4,
+    )
+
+
+@login_required
+@user_passes_test(is_admin)
+def export_paiements_pdf(request):
+    """
+    GET /dashboard/paiements/pdf/
+    Génère et télécharge un PDF de l'historique des paiements.
+    """
+    paiements_qs = Paiement.objects.select_related(
+        'client', 'commande', 'valide_par'
+    ).order_by('-created_at')
+
+    TYPE_LABELS = {
+        'electricite': 'Électricité', 'plomberie': 'Plomberie',
+        'construction': 'Construction', 'soudure': 'Soudure',
+        'peinture': 'Peinture', 'menuiserie': 'Menuiserie',
+        'surveillance': 'Surveillance', 'autre': 'Autre',
+    }
+    MODE_LABELS = {
+        'carte': 'Carte Bancaire',
+        'livraison': 'À la livraison',
+        'mobile': 'Mobile Money',
+    }
+    STATUT_LABELS = {
+        'valide': 'Validé',
+        'en_attente': 'En attente',
+        'rejete': 'Rejeté',
+    }
+
+    # KPIs
+    total         = paiements_qs.count()
+    nb_valides    = paiements_qs.filter(statut='valide').count()
+    nb_attente    = paiements_qs.filter(statut='en_attente').count()
+    nb_rejetes    = paiements_qs.filter(statut='rejete').count()
+    from django.db.models import Sum as DSum
+    total_montant = paiements_qs.filter(statut='valide').aggregate(
+        t=DSum('montant'))['t'] or 0
+
+    # ── Buffer mémoire ──
+    buffer = io.BytesIO()
+
+    doc = BaseDocTemplate(
+        buffer, pagesize=A4,
+        topMargin=55*mm, bottomMargin=20*mm,
+        leftMargin=15*mm, rightMargin=15*mm,
+        title="Historique des Paiements — Infinity Home",
+        author="Infinity Home Rewire & Construction",
+        subject="Rapport des paiements",
+        creator="Plateforme Infinity Home",
+    )
+    frame = Frame(
+        doc.leftMargin, doc.bottomMargin,
+        W - doc.leftMargin - doc.rightMargin,
+        H - doc.topMargin - doc.bottomMargin,
+        id='main'
+    )
+    doc.addPageTemplates([
+        PageTemplate(id='main', frames=[frame], onPage=_draw_header_footer)
+    ])
+
+    story = []
+
+    # Titre
+    story.append(Paragraph("Rapport des Paiements",
+                            _ps("t1", 14, NAVY, True)))
+    story.append(Spacer(1, 2*mm))
+    story.append(HRFlowable(width="100%", thickness=2,
+                             color=BLUE, spaceAfter=4*mm))
+
+    # ── KPIs ──
+    kpi_data = [[
+        Paragraph(f'<b>{total}</b><br/><font size="7" color="#64748B">Total</font>',
+                  _ps("k", 18, NAVY, True, TA_CENTER, 22)),
+        Paragraph(f'<b>{nb_valides}</b><br/><font size="7" color="#065F46">Validés</font>',
+                  _ps("k2", 18, DGREEN, True, TA_CENTER, 22)),
+        Paragraph(f'<b>{nb_attente}</b><br/><font size="7" color="#92400E">En attente</font>',
+                  _ps("k3", 18, DORANGE, True, TA_CENTER, 22)),
+        Paragraph(f'<b>{nb_rejetes}</b><br/><font size="7" color="#991B1B">Rejetés</font>',
+                  _ps("k4", 18, DRED, True, TA_CENTER, 22)),
+        Paragraph(f'<b>{int(total_montant):,}</b><br/><font size="7" color="#64748B">BIF validés</font>',
+                  _ps("k5", 13, BLUE, True, TA_CENTER, 18)),
+    ]]
+    kpi_t = Table(kpi_data, colWidths=[32*mm, 32*mm, 32*mm, 32*mm, 42*mm])
+    kpi_t.setStyle(TableStyle([
+        ("BACKGROUND",   (0,0),(0,0), LBLUE),
+        ("BACKGROUND",   (1,0),(1,0), GREEN),
+        ("BACKGROUND",   (2,0),(2,0), ORANGE),
+        ("BACKGROUND",   (3,0),(3,0), RED),
+        ("BACKGROUND",   (4,0),(4,0), LBLUE),
+        ("BOX",          (0,0),(-1,-1), 0.5, GRAY),
+        ("INNERGRID",    (0,0),(-1,-1), 0.5, GRAY),
+        ("ALIGN",        (0,0),(-1,-1), "CENTER"),
+        ("VALIGN",       (0,0),(-1,-1), "MIDDLE"),
+        ("TOPPADDING",   (0,0),(-1,-1), 8),
+        ("BOTTOMPADDING",(0,0),(-1,-1), 8),
+    ]))
+    story.append(kpi_t)
+    story.append(Spacer(1, 6*mm))
+
+    # ── Tableau paiements ──
+    story.append(Paragraph("Détail des paiements",
+                            _ps("t2", 11, NAVY, True)))
+    story.append(Spacer(1, 2*mm))
+
+    # Colonne "Titre demande" plus large
+    col_w = [10*mm, 18*mm, 30*mm, 38*mm, 20*mm, 20*mm, 22*mm, 14*mm]
+
+    def hdr(txt):
+        return Paragraph(f"<b>{txt}</b>",
+                         _ps("h", 7.5, WHITE, True, TA_CENTER))
+
+    rows = [[
+        hdr("N°"), hdr("Date"), hdr("Client"), hdr("Titre demande"),
+        hdr("Type de Construction"), hdr("Mode de paiement"), hdr("Montant"), hdr("Statut")
+    ]]
+
+    statut_bg_map = []
+    for i, p in enumerate(paiements_qs, start=1):
+        st      = p.statut
+        st_lbl  = STATUT_LABELS.get(st, st)
+        montant_val = float(p.montant) if p.montant else 0
+
+        if st == 'valide':   sc, sbg = DGREEN,  GREEN
+        elif st == 'rejete': sc, sbg = DRED,    RED
+        else:                sc, sbg = DORANGE, ORANGE
+        statut_bg_map.append((i, sbg))
+
+        # ── Titre de la demande ──
+        titre_demande = ''
+        if p.commande:
+            titre_demande = p.commande.titre or f"Demande #{p.commande_id}"
+
+        type_txt = TYPE_LABELS.get(
+            p.commande.type_travaux, '') if p.commande else ''
+        mode_txt = MODE_LABELS.get(p.mode_paiement, p.mode_paiement)
+
+        rows.append([
+            Paragraph(str(i),
+                      _ps("d", 8, BLUE, True, TA_CENTER)),
+            Paragraph(p.created_at.strftime('%d/%m/%Y') if p.created_at else '',
+                      _ps("d", 8, DGRAY, False, TA_CENTER)),
+            Paragraph(p.client.get_full_name() or p.client.username,
+                      _ps("d", 8, TEXT, False, TA_LEFT)),
+            Paragraph(titre_demande,
+                      _ps("d", 8, TEXT, False, TA_LEFT)),
+            Paragraph(type_txt,
+                      _ps("d", 8, TEXT, False, TA_LEFT)),
+            Paragraph(mode_txt,
+                      _ps("d", 8, DGRAY, False, TA_LEFT)),
+            Paragraph(f"{montant_val:,.0f} BIF",
+                      _ps("d", 8, NAVY, True, TA_RIGHT)),
+            Paragraph(f"<b>{st_lbl}</b>",
+                      _ps("d", 7.5, sc, True, TA_CENTER)),
+        ])
+
+    # Ligne total
+    rows.append([
+        Paragraph("", _ps("x")),
+        Paragraph("", _ps("x")),
+        Paragraph("", _ps("x")),
+        Paragraph("", _ps("x")),
+        Paragraph("", _ps("x")),
+        Paragraph("<b>TOTAL VALIDÉ</b>",
+                  _ps("tot", 8.5, WHITE, True, TA_RIGHT)),
+        Paragraph(f"<b>{int(total_montant):,} BIF</b>",
+                  _ps("tot", 8.5, WHITE, True, TA_RIGHT)),
+        Paragraph("", _ps("x")),
+    ])
+
+    tbl = Table(rows, colWidths=col_w, repeatRows=1)
+    ts  = [
+        ("BACKGROUND",     (0,0),  (-1,0),  NAVY),
+        ("ROWBACKGROUNDS", (0,1),  (-1,-2), [WHITE, LGRAY]),
+        ("BACKGROUND",     (0,-1), (-1,-1), BLUE),
+        ("LINEBELOW",      (0,0),  (-1,0),  1,   BLUE),
+        ("LINEBELOW",      (0,1),  (-1,-2), 0.3, GRAY),
+        ("LINEABOVE",      (0,-1), (-1,-1), 1.5, NAVY),
+        ("BOX",            (0,0),  (-1,-1), 0.5, GRAY),
+        ("TOPPADDING",     (0,0),  (-1,-1), 5),
+        ("BOTTOMPADDING",  (0,0),  (-1,-1), 5),
+        ("LEFTPADDING",    (0,0),  (-1,-1), 4),
+        ("RIGHTPADDING",   (0,0),  (-1,-1), 4),
+        ("VALIGN",         (0,0),  (-1,-1), "MIDDLE"),
+    ]
+    for row_i, bg in statut_bg_map:
+        ts.append(("BACKGROUND", (7, row_i), (7, row_i), bg))
+    tbl.setStyle(TableStyle(ts))
+    story.append(tbl)
+
+    # Note pied
+    story.append(Spacer(1, 5*mm))
+    story.append(HRFlowable(width="100%", thickness=0.5,
+                             color=GRAY, spaceAfter=2*mm))
+    story.append(Paragraph(
+        "Document généré automatiquement par la plateforme Infinity Home. "
+        "Pour toute question, contactez l'administration.",
+        _ps("note", 7.5, DGRAY, False, TA_CENTER)
+    ))
+
+    doc.build(story)
+    buffer.seek(0)  # ← CORRIGÉ (était 1)
+
+    filename = f"InfinityHome_Paiements_{datetime.now().strftime('%d-%m-%Y')}.pdf"
+    response = HttpResponse(buffer.read(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
+
+
+
+
+
+
+
+
+
+
+from django.contrib.auth.models import User, Group
+from apps.accounts.models import Profil
+from apps.techniciens.models import Technicien, SPECIALITES
+from itertools import groupby
+ 
+ 
+@admin_required
+def clients_par_localite(request):
+    """
+    Affiche les clients regroupés par localité.
+    Utilise à la fois les groupes Django ET le champ localite du Profil.
+    """
+    # Récupère toutes les localités distinctes
+    localites = (
+        Profil.objects
+        .exclude(localite='')
+        .values_list('localite', flat=True)
+        .distinct()
+        .order_by('localite')
+    )
+ 
+    groupes = []
+    for loc in localites:
+        clients = User.objects.filter(
+            is_staff=False,
+            profil__localite=loc
+        ).select_related('profil').order_by('last_name', 'first_name')
+ 
+        if clients.exists():
+            groupes.append({
+                'localite': loc,
+                'clients': clients,
+                'count': clients.count(),
+                # Groupe Django correspondant
+                'groupe_django': Group.objects.filter(
+                    name=f"Localité : {loc}"
+                ).first(),
+            })
+ 
+    # Clients sans localité
+    sans_localite = User.objects.filter(
+        is_staff=False
+    ).filter(
+        profil__localite=''
+    ).select_related('profil')
+ 
+    return render(request, 'dashboard/clients_par_localite.html', {
+        'groupes':        groupes,
+        'sans_localite':  sans_localite,
+        'total_clients':  User.objects.filter(is_staff=False).count(),
+        'total_localites': len(groupes),
+    })
+ 
+ 
+@admin_required
+def techniciens_par_specialite(request):
+    """
+    Affiche les techniciens regroupés par spécialité.
+    """
+    SPEC_DICT = dict(SPECIALITES)
+    groupes = []
+ 
+    for code, label in SPECIALITES:
+        techs = Technicien.objects.filter(
+            specialite=code, actif=True
+        ).order_by('nom')
+ 
+        # Inclure même les spécialités sans techniciens actifs
+        groupes.append({
+            'code':           code,
+            'label':          label,
+            'techniciens':    techs,
+            'count':          techs.count(),
+            'disponibles':    techs.filter(disponibilite='disponible').count(),
+            'groupe_django':  Group.objects.filter(
+                name=f"Spécialité : {label}"
+            ).first(),
+        })
+ 
+    # Trier par nombre de techniciens décroissant
+    groupes.sort(key=lambda x: x['count'], reverse=True)
+ 
+    return render(request, 'dashboard/techniciens_par_specialite.html', {
+        'groupes':           groupes,
+        'total_techniciens': Technicien.objects.filter(actif=True).count(),
+        'total_specialites': len([g for g in groupes if g['count'] > 0]),
+    })
+ 

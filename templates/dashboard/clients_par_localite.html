@@ -1,0 +1,135 @@
+{% extends 'dashboard/base_dashboard.html' %}
+{% block title %}Clients par localité{% endblock %}
+
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;padding:2rem 1.5rem;">
+
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+    <div>
+      <h1 style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:#0f172a;margin-bottom:.2rem;">
+        <i class="fas fa-map-marker-alt" style="color:#2563eb;margin-right:.5rem;"></i>Clients par localité
+      </h1>
+      <p style="color:#64748b;font-size:.85rem;">Clients regroupés selon leur localité de résidence</p>
+    </div>
+    <div style="display:flex;gap:.6rem;align-items:center;">
+      <span style="background:#dbeafe;color:#1d4ed8;font-size:.78rem;font-weight:700;padding:.35rem .9rem;border-radius:20px;">
+        <i class="fas fa-users"></i> {{ total_clients }} clients
+      </span>
+      <span style="background:#f1f5f9;color:#64748b;font-size:.78rem;font-weight:700;padding:.35rem .9rem;border-radius:20px;">
+        <i class="fas fa-map"></i> {{ total_localites }} localités
+      </span>
+      <a href="{% url 'dashboard:clients' %}" class="btn btn-sm" style="background:#f1f5f9;color:#334155;border:1px solid #e2e8f0;border-radius:8px;padding:.4rem .9rem;font-size:.78rem;font-weight:600;text-decoration:none;">
+        <i class="fas fa-list"></i> Vue liste
+      </a>
+    </div>
+  </div>
+
+  <!-- Groupes par localité -->
+  {% for groupe in groupes %}
+  <div style="background:white;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:1.2rem;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04);">
+
+    <!-- En-tête groupe -->
+    <div style="background:linear-gradient(135deg,#1e3a8a,#2563eb);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:.8rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:white;font-size:.95rem;">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:800;color:white;font-size:1rem;">{{ groupe.localite }}</div>
+          {% if groupe.groupe_django %}
+          <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:.1rem;">
+            Groupe Django : {{ groupe.groupe_django.name }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      <span style="background:rgba(255,255,255,.2);color:white;font-size:.8rem;font-weight:700;padding:.35rem .9rem;border-radius:20px;">
+        {{ groupe.count }} client{% if groupe.count > 1 %}s{% endif %}
+      </span>
+    </div>
+
+    <!-- Liste clients -->
+    <div style="padding:.5rem 0;">
+      {% for client in groupe.clients %}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid #f8fafc;transition:background .15s;"
+           onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='white'">
+        <div style="display:flex;align-items:center;gap:.9rem;">
+          <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;flex-shrink:0;">
+            {{ client.username|first|upper }}
+          </div>
+          <div>
+            <div style="font-weight:600;color:#0f172a;font-size:.88rem;">
+              {{ client.get_full_name|default:client.username }}
+            </div>
+            <div style="font-size:.75rem;color:#94a3b8;margin-top:.1rem;">
+              <i class="fas fa-envelope" style="font-size:.6rem;margin-right:.25rem;color:#2563eb;"></i>{{ client.email }}
+              {% if client.profil.telephone %}
+              <span style="margin:0 .3rem;">·</span>
+              <i class="fas fa-phone" style="font-size:.6rem;margin-right:.25rem;color:#10b981;"></i>{{ client.profil.telephone }}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:.5rem;">
+          <span style="font-size:.72rem;color:#64748b;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:.2rem .6rem;">
+            Depuis {{ client.date_joined|date:"m/Y" }}
+          </span>
+          <a href="{% url 'dashboard:client_view_readonly' client.pk %}"
+             style="background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;border-radius:8px;padding:.3rem .7rem;font-size:.75rem;font-weight:600;text-decoration:none;">
+            <i class="fas fa-eye"></i> Voir
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  {% endfor %}
+
+  <!-- Clients sans localité -->
+  {% if sans_localite %}
+  <div style="background:white;border-radius:16px;border:1.5px dashed #e2e8f0;margin-bottom:1.2rem;overflow:hidden;">
+    <div style="background:#f8fafc;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:.8rem;">
+        <div style="width:38px;height:38px;border-radius:10px;background:#e2e8f0;display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:.9rem;">
+          <i class="fas fa-question"></i>
+        </div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;color:#64748b;">Localité non renseignée</div>
+      </div>
+      <span style="background:#f1f5f9;color:#64748b;font-size:.78rem;font-weight:700;padding:.3rem .8rem;border-radius:20px;">
+        {{ sans_localite.count }} client{% if sans_localite.count > 1 %}s{% endif %}
+      </span>
+    </div>
+    <div style="padding:.5rem 0;">
+      {% for client in sans_localite %}
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.5rem;border-bottom:1px solid #f8fafc;">
+        <div style="display:flex;align-items:center;gap:.9rem;">
+          <div style="width:36px;height:36px;border-radius:50%;background:#f1f5f9;color:#94a3b8;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;">
+            {{ client.username|first|upper }}
+          </div>
+          <div>
+            <div style="font-weight:600;color:#475569;font-size:.86rem;">{{ client.get_full_name|default:client.username }}</div>
+            <div style="font-size:.73rem;color:#94a3b8;">{{ client.email }}</div>
+          </div>
+        </div>
+        <a href="{% url 'dashboard:client_view_readonly' client.pk %}"
+           style="background:#f1f5f9;color:#64748b;border:1px solid #e2e8f0;border-radius:8px;padding:.3rem .7rem;font-size:.75rem;font-weight:600;text-decoration:none;">
+          <i class="fas fa-eye"></i> Voir
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not groupes and not sans_localite %}
+  <div style="text-align:center;padding:4rem;background:white;border-radius:20px;border:1.5px dashed #e2e8f0;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📍</div>
+    <h3 style="font-family:'Syne',sans-serif;font-weight:700;color:#0f172a;margin-bottom:.4rem;">Aucun client</h3>
+    <p style="color:#94a3b8;font-size:.85rem;">Les clients apparaîtront ici une fois inscrits.</p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

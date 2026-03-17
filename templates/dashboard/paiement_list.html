@@ -51,6 +51,8 @@
         <option value="annule"     {% if filtre_statut == 'annule'     %}selected{% endif %}>Annulé</option>
       </select>
     </div>
+    <!-- Dans ton template paiements_list.html — ajouter le bouton : -->
+
     <div style="flex:1;min-width:160px;">
       <label class="form-label">Mode de paiement</label>
       <select name="mode" class="form-ctrl" onchange="this.form.submit()">
@@ -68,6 +70,12 @@
     {% if filtre_statut or filtre_mode or recherche %}
     <a href="{% url 'dashboard:paiements' %}" class="btn btn-ghost"><i class="fas fa-times"></i> Réinitialiser</a>
     {% endif %}
+    <a href="{% url 'dashboard:paiements_export' %}" class="btn btn-success">
+  <i class="fas fa-file-excel"></i> Exporter Excel
+</a>
+<a href="{% url 'dashboard:paiements_pdf' %}" class="btn btn-danger btn-sm">
+  <i class="fas fa-file-pdf"></i> Exporter PDF
+</a>
   </form>
 </div>
 
@@ -99,7 +107,7 @@
           <td>
             {% if p.commande %}
               <a href="{% url 'dashboard:demande_detail' p.commande.pk %}" class="btn btn-ghost btn-sm">
-                {{ p.commande.id }}
+                {{ p.commande.titre }}
               </a>
             {% else %}
               <span style="color:var(--muted2);">—</span>
