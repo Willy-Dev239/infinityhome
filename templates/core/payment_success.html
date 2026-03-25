@@ -1,0 +1,576 @@
+{% extends 'core/accueil.html' %}
+{% block title %}Paiement soumis | InfinityHome{% endblock %}
+{% block extra_css %}
+<style>
+
+/* ── SUPPRIME L'ESPACE BLANC AU-DESSUS DU HERO ── */
+.content-wrap { padding-top: 0 !important; }
+
+/* ── HERO ── */
+.pp-hero {
+  background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 50%, #d1fae5 100%);
+  color: #0f172a; padding: 5rem 1.5rem;
+  position: relative; overflow: hidden;
+  border-bottom: 1px solid rgba(37,99,235,.1);
+}
+.pp-hero::before {
+  content:''; position:absolute; top:-100px; right:-100px;
+  width:500px; height:500px;
+  background: radial-gradient(circle, rgba(37,99,235,.08), transparent 70%);
+  pointer-events:none;
+}
+.pp-hero::after {
+  content:''; position:absolute; bottom:-80px; left:-80px;
+  width:400px; height:400px;
+  background: radial-gradient(circle, rgba(16,185,129,.08), transparent 70%);
+  pointer-events:none;
+}
+.pp-hero-inner {
+  max-width:1200px; margin:0 auto;
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:4rem; align-items:center; position:relative; z-index:1;
+}
+.pp-badge {
+  display:inline-flex; align-items:center; gap:.5rem;
+  background:rgba(37,99,235,.1); border:1px solid rgba(37,99,235,.2);
+  color:#1d4ed8; font-size:.8rem; font-weight:700;
+  padding:.4rem 1rem; border-radius:20px;
+  margin-bottom:1.5rem; text-transform:uppercase; letter-spacing:.5px;
+}
+.pp-hero h1 {
+  font-family:'Syne',sans-serif; font-size:2.8rem; font-weight:800;
+  line-height:1.15; margin-bottom:1.2rem; color:#0f172a;
+}
+.pp-hero h1 span { color:#2563eb; }
+.pp-hero > .pp-hero-inner > div > p {
+  font-size:1rem; color:#475569; line-height:1.7; margin-bottom:2rem;
+}
+.pp-hero-actions { display:flex; gap:1rem; flex-wrap:wrap; }
+.pp-hero-stats { display:flex; gap:2.5rem; margin-top:2.5rem; }
+.pp-stat-val { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:#2563eb; }
+.pp-stat-label { font-size:.78rem; color:#64748b; margin-top:.2rem; }
+
+/* ── CARTE RÉCAPITULATIF PAIEMENT ── */
+.pp-recap-card {
+  background: rgba(255,255,255,.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(37,99,235,.2);
+  border-radius: 18px; padding: 1.6rem;
+  box-shadow: 0 4px 20px rgba(37,99,235,.1);
+}
+.pp-recap-card-title {
+  font-family:'Syne',sans-serif; font-size:.9rem; font-weight:800;
+  color:#1e3a8a; margin-bottom:1.2rem;
+  display:flex; align-items:center; gap:.5rem;
+}
+.pp-recap-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:.55rem 0; border-bottom:1px solid rgba(37,99,235,.08);
+  font-size:.84rem;
+}
+.pp-recap-row:last-child { border-bottom:none; }
+.pp-recap-label { color:#64748b; }
+.pp-recap-value { font-weight:700; color:#0f172a; text-align:right; max-width:60%; }
+.pp-recap-value.montant {
+  font-family:'Syne',sans-serif; font-size:1.1rem;
+  color:#2563eb;
+}
+
+/* statut badge inline */
+.badge-statut {
+  display:inline-flex; align-items:center; gap:.35rem;
+  padding:.25rem .75rem; border-radius:20px;
+  font-size:.75rem; font-weight:700;
+}
+.badge-en_attente { background:#fef3c7; color:#d97706; }
+.badge-valide      { background:#dcfce7; color:#16a34a; }
+.badge-rejete      { background:#fee2e2; color:#dc2626; }
+.badge-annule      { background:#f1f5f9; color:#64748b; }
+
+/* ── SECTIONS ── */
+.pp-section { padding:4.5rem 1.5rem; }
+.pp-inner { max-width:1200px; margin:0 auto; }
+.pp-section-head { text-align:center; margin-bottom:3rem; }
+.pp-section-badge {
+  display:inline-block; background:#dbeafe; color:#1d4ed8;
+  font-size:.75rem; font-weight:700; padding:.35rem 1rem;
+  border-radius:20px; text-transform:uppercase; letter-spacing:.5px; margin-bottom:.8rem;
+}
+.pp-section-head h2 {
+  font-family:'Syne',sans-serif; font-size:2.1rem; font-weight:800;
+  color:#0f172a; margin-bottom:.7rem;
+}
+.pp-section-head p { color:#64748b; font-size:.95rem; max-width:540px; margin:0 auto; }
+
+/* ── ÉTAPES ── */
+.pp-steps-bg {
+  background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);
+  border-top:1px solid rgba(37,99,235,.08);
+  border-bottom:1px solid rgba(37,99,235,.08);
+}
+.pp-steps-grid {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:2rem; position:relative;
+}
+.pp-steps-grid::before {
+  content:''; position:absolute; top:27px; left:10%; right:10%;
+  height:2px; background:linear-gradient(90deg,#2563eb,#10b981); z-index:0;
+}
+.pp-step { text-align:center; position:relative; z-index:1; }
+.pp-step-num {
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  color:white; font-family:'Syne',sans-serif;
+  font-size:1.2rem; font-weight:700;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 1.2rem;
+  border:3px solid white;
+  box-shadow:0 4px 16px rgba(37,99,235,.3);
+}
+.pp-step.done .pp-step-num { background:linear-gradient(135deg,#10b981,#059669); }
+.pp-step h4 { font-size:.95rem; font-weight:700; margin-bottom:.5rem; color:#0f172a; }
+.pp-step p  { font-size:.82rem; color:#64748b; line-height:1.6; }
+.pp-step-link {
+  display:inline-flex; align-items:center; gap:5px;
+  margin-top:.7rem; font-size:.8rem; font-weight:600;
+  color:#2563eb; text-decoration:none; transition:gap .2s;
+}
+.pp-step-link:hover { gap:9px; }
+
+/* ── AVANTAGES ── */
+.pp-benefits-grid {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem;
+}
+.pp-benefit-card {
+  background:white; border-radius:20px; padding:1.8rem;
+  border:1px solid #e2e8f0;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+  transition:all .3s; position:relative; overflow:hidden;
+}
+.pp-benefit-card::before {
+  content:''; position:absolute; top:0; left:0; right:0;
+  height:4px; border-radius:20px 20px 0 0;
+}
+.pp-benefit-card:nth-child(1)::before{background:linear-gradient(90deg,#f59e0b,#ef4444);}
+.pp-benefit-card:nth-child(2)::before{background:linear-gradient(90deg,#3b82f6,#8b5cf6);}
+.pp-benefit-card:nth-child(3)::before{background:linear-gradient(90deg,#10b981,#14b8a6);}
+.pp-benefit-card:nth-child(4)::before{background:linear-gradient(90deg,#f97316,#ef4444);}
+.pp-benefit-card:nth-child(5)::before{background:linear-gradient(90deg,#ec4899,#8b5cf6);}
+.pp-benefit-card:nth-child(6)::before{background:linear-gradient(90deg,#6366f1,#3b82f6);}
+.pp-benefit-card:hover { transform:translateY(-5px); box-shadow:0 16px 36px rgba(37,99,235,.1); border-color:#bfdbfe; }
+.pp-benefit-icon {
+  width:52px; height:52px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.4rem; margin-bottom:1rem;
+}
+.pp-benefit-card h3 { font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; color:#0f172a; margin-bottom:.5rem; }
+.pp-benefit-card p  { color:#64748b; font-size:.84rem; line-height:1.6; }
+
+/* ── TÉMOIGNAGES ── */
+.pp-testi-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+.pp-testi {
+  background:#f8fafc; border:1px solid #e2e8f0;
+  border-radius:16px; padding:1.6rem; transition:all .25s;
+}
+.pp-testi:hover { transform:translateY(-4px); box-shadow:0 10px 28px rgba(37,99,235,.1); border-color:#bfdbfe; }
+.pp-stars { color:#f59e0b; font-size:.9rem; margin-bottom:.8rem; letter-spacing:2px; }
+.pp-testi-text { font-size:.85rem; color:#475569; line-height:1.65; font-style:italic; margin-bottom:1.2rem; }
+.pp-testi-author { display:flex; align-items:center; gap:.8rem; }
+.pp-avatar {
+  width:38px; height:38px; border-radius:50%;
+  background:linear-gradient(135deg,#2563eb,#1d4ed8);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Syne',sans-serif; font-size:.82rem; font-weight:800;
+  color:white; flex-shrink:0;
+}
+.pp-author-name { font-size:.86rem; font-weight:700; color:#0f172a; }
+.pp-author-role { font-size:.74rem; color:#64748b; }
+
+/* ── UPSELL ── */
+.pp-upsell-section {
+  background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 50%,#1e3a8a 100%);
+  color:white; padding:4.5rem 1.5rem;
+  position:relative; overflow:hidden;
+}
+.pp-upsell-section::before {
+  content:''; position:absolute; top:-80px; right:-80px;
+  width:350px; height:350px;
+  background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%);
+}
+.pp-upsell-section::after {
+  content:''; position:absolute; bottom:-60px; left:-60px;
+  width:280px; height:280px;
+  background:radial-gradient(circle,rgba(16,185,129,.15),transparent 70%);
+}
+.pp-upsell-section .pp-section-head h2 { color:white; }
+.pp-upsell-section .pp-section-head p  { color:rgba(255,255,255,.7); }
+.pp-upsell-section .pp-section-badge   { background:rgba(255,255,255,.15); color:#fbbf24; border:1px solid rgba(255,255,255,.2); }
+.pp-offers-grid {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:1.5rem; position:relative; z-index:1;
+}
+.pp-offer {
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:18px; padding:2rem; transition:all .25s;
+}
+.pp-offer:hover { background:rgba(255,255,255,.13); border-color:rgba(251,191,36,.5); transform:translateY(-4px); }
+.pp-offer.featured { background:rgba(255,255,255,.15); border-color:rgba(251,191,36,.6); box-shadow:0 8px 32px rgba(0,0,0,.15); }
+.pp-offer-tag { display:inline-block; font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#fbbf24; margin-bottom:.8rem; }
+.pp-offer h3 { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:800; color:white; margin-bottom:.5rem; }
+.pp-offer p { font-size:.83rem; color:rgba(255,255,255,.6); line-height:1.6; margin-bottom:1.2rem; }
+.pp-offer-list { display:flex; flex-direction:column; gap:.5rem; margin-bottom:1.5rem; }
+.pp-offer-item { display:flex; align-items:center; gap:.5rem; font-size:.82rem; color:rgba(255,255,255,.75); }
+.pp-offer-item i { color:#fbbf24; font-size:.7rem; }
+.pp-offer-btn {
+  width:100%; padding:10px; border-radius:9px;
+  font-family:'DM Sans',sans-serif; font-size:.84rem; font-weight:700; cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.25);
+  background:transparent; color:rgba(255,255,255,.8); transition:all .2s;
+}
+.pp-offer.featured .pp-offer-btn { background:#fbbf24; border-color:#fbbf24; color:#0f172a; }
+.pp-offer-btn:hover { background:white; border-color:white; color:#1d4ed8; }
+.pp-offer.featured .pp-offer-btn:hover { background:#fde68a; border-color:#fde68a; }
+
+/* ── CTA FINAL ── */
+.pp-cta {
+  background:white; padding:3.5rem 1.5rem;
+  border-top:1px solid #e2e8f0; text-align:center;
+}
+.pp-cta h2 { font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:#0f172a; margin-bottom:.7rem; }
+.pp-cta p { color:#64748b; font-size:.95rem; margin-bottom:2rem; }
+.pp-cta-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+/* ── REVEAL ── */
+.pp-reveal { opacity:0; transform:translateY(22px); transition:opacity .55s ease,transform .55s ease; }
+.pp-reveal.visible { opacity:1; transform:translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .pp-hero-inner { grid-template-columns:1fr; }
+  .pp-hero h1 { font-size:2rem; }
+  .pp-steps-grid { grid-template-columns:1fr 1fr; }
+  .pp-steps-grid::before { display:none; }
+  .pp-benefits-grid { grid-template-columns:1fr 1fr; }
+  .pp-testi-grid { grid-template-columns:1fr 1fr; }
+  .pp-offers-grid { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:580px){
+  .pp-hero { padding:3rem 1.2rem; }
+  .pp-benefits-grid,.pp-testi-grid,.pp-offers-grid,.pp-steps-grid { grid-template-columns:1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ══ HERO ══ -->
+<section class="pp-hero">
+  <div class="pp-hero-inner">
+
+    <!-- Texte gauche -->
+    <div>
+      <div class="pp-badge"><i class="fas fa-check-circle"></i> Paiement soumis</div>
+      <h1>Merci <span>{{ paiement.client.first_name|default:paiement.client.username }}</span> !<br>Votre compte<br>est <span>actif.</span></h1>
+      <p>
+        Votre paiement de
+        <strong>{{ paiement.montant|floatformat:0 }} {{ paiement.devise }}</strong>
+        via <strong>{{ paiement.get_fournisseur_mobile_display|default:paiement.get_mode_paiement_display }}</strong>
+        a bien été reçu et est en cours de validation par notre équipe.
+      </p>
+      <div class="pp-hero-actions">
+        <a href="{% url 'demandes:mes_demandes' %}" class="btn btn-primary" style="padding:.9rem 2rem;font-size:1rem;">
+          <i class="fas fa-clipboard-list"></i> Voir mes demandes
+        </a>
+        <a href="{% url 'demandes:notifications' %}" class="btn" style="padding:.9rem 2rem;font-size:1rem;background:white;color:#1d4ed8;border:1.5px solid #bfdbfe;">
+          <i class="fas fa-bell"></i> Mes notifications
+        </a>
+      </div>
+      <div class="pp-hero-stats">
+        <div><div class="pp-stat-val">500+</div><div class="pp-stat-label">Projets réalisés</div></div>
+        <div><div class="pp-stat-val">48h</div><div class="pp-stat-label">Intervention max</div></div>
+        <div><div class="pp-stat-val">4.9★</div><div class="pp-stat-label">Satisfaction client</div></div>
+      </div>
+    </div>
+
+    <!-- Récap paiement dynamique -->
+    <div>
+      <div class="pp-recap-card">
+        <div class="pp-recap-card-title">
+          <i class="fas fa-receipt" style="color:#2563eb;"></i> Récapitulatif du paiement
+        </div>
+
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">Référence</span>
+          <span class="pp-recap-value">#PAY-{{ paiement.pk|stringformat:"05d" }}</span>
+        </div>
+
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">Client</span>
+          <span class="pp-recap-value">{{ paiement.client.get_full_name|default:paiement.client.username }}</span>
+        </div>
+
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">Mode</span>
+          <span class="pp-recap-value">
+            {% if paiement.fournisseur_mobile %}
+              <i class="fas fa-mobile-alt"></i>
+              {{ paiement.get_fournisseur_mobile_display }}
+              {% if paiement.numero_mobile %}— {{ paiement.numero_mobile }}{% endif %}
+            {% else %}
+              {{ paiement.get_mode_paiement_display }}
+            {% endif %}
+          </span>
+        </div>
+
+        {% if paiement.numero_bordereau %}
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">N° bordereau</span>
+          <span class="pp-recap-value">{{ paiement.numero_bordereau }}</span>
+        </div>
+        {% endif %}
+
+        {% if paiement.commande %}
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">Demande liée</span>
+          <span class="pp-recap-value">
+            <a href="{% url 'demandes:detail_demande' paiement.commande.pk %}" style="color:#2563eb;">
+              {{ paiement.commande.titre|truncatechars:30 }}
+            </a>
+          </span>
+        </div>
+        {% endif %}
+
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">Date</span>
+          <span class="pp-recap-value">{{ paiement.created_at|date:"d/m/Y à H:i" }}</span>
+        </div>
+
+        <div class="pp-recap-row">
+          <span class="pp-recap-label">Statut</span>
+          <span class="pp-recap-value">
+            <span class="badge-statut badge-{{ paiement.statut }}">
+              {% if paiement.statut == 'en_attente' %}<i class="fas fa-clock"></i> En attente de validation
+              {% elif paiement.statut == 'valide' %}<i class="fas fa-check-circle"></i> Validé
+              {% elif paiement.statut == 'rejete' %}<i class="fas fa-times-circle"></i> Rejeté
+              {% else %}<i class="fas fa-ban"></i> Annulé{% endif %}
+            </span>
+          </span>
+        </div>
+
+        <div class="pp-recap-row" style="margin-top:.4rem;">
+          <span class="pp-recap-label" style="font-weight:700;color:#0f172a;">Total payé</span>
+          <span class="pp-recap-value montant">{{ paiement.montant|floatformat:0 }} {{ paiement.devise }}</span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══ PROCHAINES ÉTAPES ══ -->
+<section class="pp-section pp-steps-bg">
+  <div class="pp-inner">
+    <div class="pp-section-head pp-reveal">
+      <div class="pp-section-badge">Ce qui se passe maintenant</div>
+      <h2>Vos prochaines étapes</h2>
+      <p>Voici exactement ce qui se passe après votre paiement</p>
+    </div>
+    <div class="pp-steps-grid pp-reveal">
+
+      <div class="pp-step done">
+        <div class="pp-step-num"><i class="fas fa-check"></i></div>
+        <h4>Paiement soumis</h4>
+        <p>Votre bordereau a été envoyé et est en attente de vérification par notre équipe.</p>
+      </div>
+
+      <div class="pp-step {% if paiement.statut == 'valide' %}done{% endif %}">
+        <div class="pp-step-num">2</div>
+        <h4>Validation admin</h4>
+        <p>Notre équipe vérifie votre paiement
+          {% if paiement.statut == 'valide' %}
+            — <strong style="color:#16a34a;">déjà validé ✓</strong>
+          {% else %}
+            sous 24h ouvrées.
+          {% endif %}
+        </p>
+        <a href="{% url 'demandes:notifications' %}" class="pp-step-link">Voir notifications <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="pp-step">
+        <div class="pp-step-num">3</div>
+        <h4>Technicien assigné</h4>
+        <p>Une fois validé, le meilleur technicien disponible est assigné à votre demande.</p>
+      </div>
+
+      <div class="pp-step">
+        <div class="pp-step-num">4</div>
+        <h4>Travaux réalisés</h4>
+        <p>Le technicien intervient à votre domicile et vous validez les travaux terminés.</p>
+        <a href="{% url 'demandes:mes_demandes' %}" class="pp-step-link">Mes demandes <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ AVANTAGES ══ -->
+<section class="pp-section" style="background:white;">
+  <div class="pp-inner">
+    <div class="pp-section-head pp-reveal">
+      <div class="pp-section-badge">Vos avantages</div>
+      <h2>Ce que vous avez choisi</h2>
+      <p>En faisant confiance à Infinity Home, vous bénéficiez de ces garanties</p>
+    </div>
+    <div class="pp-benefits-grid pp-reveal">
+      <div class="pp-benefit-card">
+        <div class="pp-benefit-icon" style="background:rgba(245,158,11,.1);color:#f59e0b;">⚡</div>
+        <h3>Intervention rapide 24h</h3>
+        <p>Nos équipes sont mobilisées dans les 24h après validation de votre paiement.</p>
+      </div>
+      <div class="pp-benefit-card">
+        <div class="pp-benefit-icon" style="background:rgba(59,130,246,.1);color:#3b82f6;"><i class="fas fa-certificate" style="font-size:1.3rem;"></i></div>
+        <h3>Techniciens certifiés</h3>
+        <p>Chaque technicien est formé, certifié et évalué par nos clients sur chaque intervention.</p>
+      </div>
+      <div class="pp-benefit-card">
+        <div class="pp-benefit-icon" style="background:rgba(16,185,129,.1);color:#10b981;"><i class="fas fa-file-contract" style="font-size:1.3rem;"></i></div>
+        <h3>Devis transparent</h3>
+        <p>Tout est écrit et validé avant de commencer. Pas de mauvaise surprise sur la facture.</p>
+      </div>
+      <div class="pp-benefit-card">
+        <div class="pp-benefit-icon" style="background:rgba(249,115,22,.1);color:#f97316;"><i class="fas fa-shield-alt" style="font-size:1.3rem;"></i></div>
+        <h3>Travaux garantis</h3>
+        <p>Toutes nos interventions sont garanties. Vous êtes protégés si un problème survient.</p>
+      </div>
+      <div class="pp-benefit-card">
+        <div class="pp-benefit-icon" style="background:rgba(236,72,153,.1);color:#ec4899;"><i class="fas fa-bell" style="font-size:1.3rem;"></i></div>
+        <h3>Suivi en temps réel</h3>
+        <p>Suivez l'avancement de votre dossier depuis votre espace client à tout moment.</p>
+      </div>
+      <div class="pp-benefit-card">
+        <div class="pp-benefit-icon" style="background:rgba(99,102,241,.1);color:#6366f1;"><i class="fas fa-headset" style="font-size:1.3rem;"></i></div>
+        <h3>Support 7j/7</h3>
+        <p>Un interlocuteur dédié suit votre dossier du début à la fin, joignable tous les jours.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ TÉMOIGNAGES ══ -->
+<section class="pp-section" style="background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);border-top:1px solid rgba(37,99,235,.08);border-bottom:1px solid rgba(37,99,235,.08);">
+  <div class="pp-inner">
+    <div class="pp-section-head pp-reveal">
+      <div class="pp-section-badge">Ils nous font confiance</div>
+      <h2>Ce que disent nos clients</h2>
+      <p>Des centaines de clients satisfaits au Burundi</p>
+    </div>
+    <div class="pp-testi-grid pp-reveal">
+      <div class="pp-testi">
+        <div class="pp-stars">★★★★★</div>
+        <p class="pp-testi-text">Mon installation électrique refaite en 2 jours. Équipe très professionnelle, propre et ponctuelle. Je recommande sans hésiter.</p>
+        <div class="pp-testi-author">
+          <div class="pp-avatar">AM</div>
+          <div><div class="pp-author-name">Aimée M.</div><div class="pp-author-role">Bujumbura · Électricité</div></div>
+        </div>
+      </div>
+      <div class="pp-testi">
+        <div class="pp-stars">★★★★★</div>
+        <p class="pp-testi-text">Construction de ma clôture parfaitement gérée. Devis respecté, délai tenu. Un vrai soulagement de travailler avec des pros sérieux.</p>
+        <div class="pp-testi-author">
+          <div class="pp-avatar">JN</div>
+          <div><div class="pp-author-name">Jean-Paul N.</div><div class="pp-author-role">Ngozi · Construction</div></div>
+        </div>
+      </div>
+      <div class="pp-testi">
+        <div class="pp-stars">★★★★★</div>
+        <p class="pp-testi-text">Fuite détectée et réparée en moins de 3h. Le suivi via l'espace client est très pratique. Merci Infinity Home !</p>
+        <div class="pp-testi-author">
+          <div class="pp-avatar">CK</div>
+          <div><div class="pp-author-name">Christine K.</div><div class="pp-author-role">Gitega · Plomberie</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ UPSELL ══ -->
+<section class="pp-upsell-section">
+  <div class="pp-inner">
+    <div class="pp-section-head pp-reveal">
+      <div class="pp-section-badge">Allez plus loin</div>
+      <h2>Profitez-en pour faire plus</h2>
+      <p>D'autres services pour protéger et valoriser votre bien</p>
+    </div>
+    <div class="pp-offers-grid pp-reveal">
+      <div class="pp-offer">
+        <div class="pp-offer-tag">Essentiel</div>
+        <h3>Entretien annuel</h3>
+        <p>Une visite de contrôle complète de vos installations chaque année.</p>
+        <div class="pp-offer-list">
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Vérification électrique</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Contrôle plomberie</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Rapport écrit remis</div>
+        </div>
+        <button class="pp-offer-btn">Découvrir l'offre</button>
+      </div>
+      <div class="pp-offer featured">
+        <div class="pp-offer-tag">⭐ Recommandé</div>
+        <h3>Contrat Premium</h3>
+        <p>Interventions prioritaires illimitées + entretien inclus toute l'année.</p>
+        <div class="pp-offer-list">
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Interventions prioritaires 24h</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Technicien dédié</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Pièces à tarif préférentiel</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Entretien annuel inclus</div>
+        </div>
+        <button class="pp-offer-btn">Activer le Premium</button>
+      </div>
+      <div class="pp-offer">
+        <div class="pp-offer-tag">Home Security</div>
+        <h3>Surveillance 24h/24</h3>
+        <p>Installez un système de caméras et d'alarme pour sécuriser votre domicile.</p>
+        <div class="pp-offer-list">
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Installation caméras HD</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Alarme connectée</div>
+          <div class="pp-offer-item"><i class="fas fa-check"></i> Suivi à distance</div>
+        </div>
+        <button class="pp-offer-btn" onclick="window.location='{% url 'core:surveillance' %}'">Voir Home Security</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA FINAL ══ -->
+<section class="pp-cta">
+  <h2>Besoin d'aide sur votre dossier ?</h2>
+  <p>Notre équipe répond 7j/7 · +257 66 033 033 · Bujumbura, Burundi</p>
+  <div class="pp-cta-btns">
+    <a href="{% url 'demandes:mes_demandes' %}" class="btn btn-primary" style="padding:.9rem 2rem;font-size:1rem;">
+      <i class="fas fa-clipboard-list"></i> Mes demandes
+    </a>
+    <a href="{% url 'core:contact' %}" class="btn" style="padding:.9rem 2rem;font-size:1rem;background:white;color:#1d4ed8;border:1.5px solid #bfdbfe;">
+      <i class="fas fa-envelope"></i> Nous contacter
+    </a>
+    <a href="https://wa.me/25777869915" class="btn" style="padding:.9rem 2rem;font-size:1rem;background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;" target="_blank">
+      <i class="fab fa-whatsapp"></i> WhatsApp
+    </a>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const obs = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 100);
+      obs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.08 });
+document.querySelectorAll('.pp-reveal').forEach(el => obs.observe(el));
+</script>
+{% endblock %}

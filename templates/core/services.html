@@ -1,21 +1,54 @@
 {% extends 'base/base.html' %}
 {% block title %}Nos Services | Infinity Home{% endblock %}
 {% block nav_services %}active{% endblock %}
+
+{% block extra_css %}
+<style>
+.srv-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.2rem;}
+.srv-card{background:white;border:1px solid var(--border);border-radius:16px;padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;transition:border-color .2s,box-shadow .2s;}
+.srv-card:hover{border-color:#93c5fd;box-shadow:0 4px 20px rgba(26,86,219,.08);}
+.srv-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.srv-badge{display:inline-flex;align-items:center;gap:5px;font-size:.7rem;font-weight:700;padding:.2rem .75rem;border-radius:20px;width:fit-content;}
+.srv-desc{color:var(--muted);font-size:.85rem;line-height:1.65;flex:1;}
+@media(max-width:768px){.srv-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:480px){.srv-grid{grid-template-columns:1fr;}}
+</style>
+{% endblock %}
+
 {% block content %}
 <div style="max-width:1100px;margin:3rem auto;padding:0 1.5rem;">
-  <div style="text-align:center;margin-bottom:3rem;">
-    <h1 style="font-family:'Clash Display',sans-serif;font-size:2.2rem;font-weight:700;">Nos Services</h1>
-    <p style="color:var(--muted);font-size:1rem;margin-top:.7rem;">Des professionnels qualifies pour tous vos besoins</p>
+
+  <div style="text-align:center;margin-bottom:2.5rem;">
+    <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;">Nos services</h1>
+    <p style="color:var(--muted);margin-top:.5rem;">Des professionnels qualifiés pour tous vos besoins</p>
   </div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;">
+
+  <div class="srv-grid">
     {% for code,label in specialites %}
-    <div style="background:white;border-radius:20px;padding:2rem;border:1px solid var(--border);box-shadow:var(--shadow);text-align:center;">
-      <div style="font-size:3rem;margin-bottom:1rem;">{% if code == 'electricien' %}⚡{% elif code == 'plombier' %}🔧{% elif code == 'ingenieur' %}🏗️{% elif code == 'soudeur' %}🔩{% elif code == 'peintre' %}🎨{% else %}🪚{% endif %}</div>
-      <h3 style="font-family:'Clash Display',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:.7rem;">{{ label }}</h3>
-      <p style="color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:1.2rem;">{% if code == 'electricien' %}Installation, reparation et mise aux normes electriques.{% elif code == 'plombier' %}Plomberie, sanitaire et canalisations.{% elif code == 'ingenieur' %}Conception et supervision de construction.{% elif code == 'soudeur' %}Soudure et fabrication metallique.{% elif code == 'peintre' %}Peinture interieure et exterieure.{% else %}Menuiserie et charpente bois.{% endif %}</p>
-      <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Faire une demande</a>
+    <div class="srv-card">
+      <div class="srv-icon" style="background:{% if code == 'electricien' %}#E6F1FB{% elif code == 'plombier' %}#E1F5EE{% elif code == 'ingenieur' %}#EEEDFE{% elif code == 'soudeur' %}#FAECE7{% elif code == 'peintre' %}#FBEAF0{% else %}#EAF3DE{% endif %};">
+        {% if code == 'electricien' %}⚡{% elif code == 'plombier' %}🔧{% elif code == 'ingenieur' %}🏗️{% elif code == 'soudeur' %}🔩{% elif code == 'peintre' %}🎨{% else %}🪚{% endif %}
+      </div>
+      <div>
+        <div style="font-weight:700;font-size:.98rem;margin-bottom:.35rem;">{{ label }}</div>
+        <span class="srv-badge" style="background:{% if code == 'electricien' %}#E6F1FB;color:#0C447C{% elif code == 'plombier' %}#E1F5EE;color:#085041{% elif code == 'ingenieur' %}#EEEDFE;color:#3C3489{% elif code == 'soudeur' %}#FAECE7;color:#713B13{% elif code == 'peintre' %}#FBEAF0;color:#72243E{% else %}#EAF3DE;color:#27500A{% endif %};">
+          <i class="fas fa-check-circle" style="font-size:10px;"></i> Disponible
+        </span>
+      </div>
+      <p class="srv-desc">
+        {% if code == 'electricien' %}Installation, réparation et mise aux normes électriques.
+        {% elif code == 'plombier' %}Plomberie, sanitaire et canalisations.
+        {% elif code == 'ingenieur' %}Conception et supervision de construction.
+        {% elif code == 'soudeur' %}Soudure et fabrication métallique.
+        {% elif code == 'peintre' %}Peinture intérieure et extérieure.
+        {% else %}Menuiserie et charpente bois.{% endif %}
+      </p>
+      <a href="{% url 'demandes:nouvelle_demande' %}" class="btn btn-primary btn-sm" style="width:fit-content;">
+        <i class="fas fa-plus"></i> Faire une demande
+      </a>
     </div>
     {% endfor %}
   </div>
+
 </div>
 {% endblock %}

@@ -32,6 +32,56 @@
         <div><span style="color:var(--muted);">Date:</span> <strong>{{ demande.date_creation|date:"d/m/Y H:i" }}</strong></div>
         <div style="grid-column:1/-1;"><span style="color:var(--muted);">Adresse:</span> <strong>{{ demande.adresse }}</strong></div>
       </div>
+
+
+      {% if demande.photo %}
+<div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border);">
+  <div style="color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.8rem;">
+    <i class="fas fa-camera"></i> Photo du problème
+  </div>
+
+  <img src="{{ demande.photo.url }}"
+       onclick="ouvrirLightbox('{{ demande.photo.url }}')"
+       style="width:100%;max-height:320px;object-fit:contain;border-radius:12px;
+              border:1.5px solid var(--border);cursor:zoom-in;background:#f8fafc;padding:.4rem;">
+  <div style="font-size:.72rem;color:var(--muted);text-align:center;margin-top:.4rem;">
+    <i class="fas fa-search-plus"></i> Cliquez pour agrandir
+  </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" onclick="this.style.display='none'"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);
+            z-index:9999;align-items:center;justify-content:center;">
+  <img id="lightbox-img"
+       style="max-width:93vw;max-height:93vh;object-fit:contain;
+              border-radius:12px;box-shadow:0 25px 60px rgba(0,0,0,.5);">
+  <div onclick="document.getElementById('lightbox').style.display='none'"
+       style="position:absolute;top:1.2rem;right:1.5rem;color:white;
+              font-size:1.6rem;cursor:pointer;">
+    <i class="fas fa-times"></i>
+  </div>
+  <a id="lightbox-dl" download
+     style="position:absolute;bottom:1.5rem;right:1.5rem;
+            background:rgba(255,255,255,.15);color:white;padding:.6rem 1.1rem;
+            border-radius:10px;font-size:.82rem;font-weight:600;text-decoration:none;
+            backdrop-filter:blur(4px);">
+    <i class="fas fa-download"></i> Télécharger
+  </a>
+</div>
+
+<script>
+function ouvrirLightbox(src) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-dl').href = src;
+  lb.style.display = 'flex';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('lightbox').style.display = 'none';
+});
+</script>
+{% endif %}
       <div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--border);">
         <div style="color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:.6rem;">Description</div>
         <p style="font-size:.9rem;line-height:1.7;color:var(--muted2);">{{ demande.description }}</p>

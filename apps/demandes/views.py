@@ -10,6 +10,11 @@ from .models import Demande, Notification, Paiement, InstructionPaiement, TYPES_
 from .forms import DemandeForm
 
 
+
+
+
+
+
 # ─────────────────────────────────────────────
 #  Nouvelle demande
 # ─────────────────────────────────────────────
@@ -274,6 +279,26 @@ def soumettre_bordereau(request):
     return JsonResponse({
         'success': True,
         'message': 'Bordereau soumis avec succès.',
+    })
+    
+    
+    
+
+
+ 
+@login_required
+def payment_success(request, paiement_id):
+    """
+    Page affichée après qu'un client a payé.
+    On vérifie que le paiement appartient bien au client connecté.
+    """
+    paiement = get_object_or_404(
+        Paiement,
+        pk=paiement_id,
+        client=request.user          # sécurité : le client ne voit que SES paiements
+    )
+    return render(request, 'core/payment_success.html', {
+        'paiement': paiement,
     })
 
 

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from .forms import InscriptionForm
+from apps.demandes.models import Paiement
 
 def inscription(request):
     next_url = request.GET.get('next', '/')
@@ -14,6 +15,7 @@ def inscription(request):
     else:
         form = InscriptionForm()
     return render(request, 'accounts/inscription.html', {'form': form})
+
 
 def connexion(request):
     next_url = request.GET.get('next', '/')
@@ -30,14 +32,31 @@ def connexion(request):
         if user:
             login(request, user)
             messages.success(request, f'Bienvenue {user.first_name or user.username} !')
+
+            # ── Vérifier si le client a un accès VIP ──
+            if not user.is_staff and not user.is_superuser:
+                paiement_vip = Paiement.objects.filter(
+                    client=user,
+                    statut='valide',
+                    acces_dashboard_vip=True
+                ).first()
+
+                if paiement_vip:
+                    # ← Redirection vers le dashboard VIP
+                    return redirect('demandes:payment_success', paiement_id=paiement_vip.pk)
+
+            # ── Redirection normale ──
             return redirect(next_url)
+
         error = 'Identifiants incorrects.'
     return render(request, 'accounts/connexion.html', {'error': error, 'next': next_url})
+
 
 def deconnexion(request):
     logout(request)
     messages.info(request, 'Vous etes deconnecte.')
     return redirect('core:accueil')
+
 
 def profil(request):
     if not request.user.is_authenticated:

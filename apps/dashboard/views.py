@@ -679,39 +679,111 @@ def paiement_notifier(request, pk):
 @login_required
 @user_passes_test(is_admin)
 def client_view_readonly(request, client_pk):
-    from django.contrib.auth.models import User
-    from apps.demandes.models import Demande, Paiement, Notification
 
-    client = get_object_or_404(User, pk=client_pk, is_staff=False)
-
+    client        = get_object_or_404(User, pk=client_pk, is_staff=False)
     demandes      = Demande.objects.filter(client=client).order_by('-date_creation')
     paiements     = Paiement.objects.filter(client=client).order_by('-created_at')
     notifications = Notification.objects.filter(utilisateur=client).order_by('-date')
 
+    if request.method == 'POST':
+        paiement_id = request.POST.get('paiement_id')
+        action      = request.POST.get('action')
+
+        paiement = get_object_or_404(Paiement, pk=paiement_id, client=client)
+
+        if action == 'donner' and paiement.statut == 'valide':
+            Paiement.objects.filter(pk=paiement.pk).update(acces_dashboard_vip=True)
+            messages.success(
+                request,
+                f"✅ Accès VIP activé pour {client.get_full_name() or client.username} "
+                f"— Paiement #PAY-{paiement.pk:05d}"
+            )
+
+        elif action == 'retirer':
+            Paiement.objects.filter(pk=paiement.pk).update(acces_dashboard_vip=False)
+            messages.warning(
+                request,
+                f"🔒 Accès VIP retiré — Paiement #PAY-{paiement.pk:05d}"
+            )
+
+        else:
+            messages.error(
+                request,
+                "⚠️ Le paiement doit d'abord être validé avant de donner l'accès VIP."
+            )
+
+        # ✅ Reste sur le dashboard admin — section paiements
+        return redirect(f'/dashboard/clients/{client_pk}/voir/#paiements')
+
     return render(request, 'dashboard/client_view_readonly.html', {
-        'client':              client,
-        'demandes':            demandes,
-        'paiements':           paiements,
-        'notifications':       notifications,
-        'nb_demandes':         demandes.count(),
-        'nb_paiements':        paiements.count(),
-        'nb_notifs_non_lues':  notifications.filter(lue=False).count(),
+        'client':             client,
+        'demandes':           demandes,
+        'paiements':          paiements,
+        'notifications':      notifications,
+        'nb_demandes':        demandes.count(),
+        'nb_paiements':       paiements.count(),
+        'nb_notifs_non_lues': notifications.filter(lue=False).count(),
     })
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  NOTE : Si ton modèle Notification n'a pas encore ces champs, voici
-#  les champs à ajouter dans apps/demandes/models.py → classe Notification :
-#
-#    titre   = models.CharField(max_length=255, default='Notification')
-#    type    = models.CharField(max_length=50, default='info')
-#    lien    = models.CharField(max_length=500, null=True, blank=True)
-#    paiement= models.ForeignKey('Paiement', null=True, blank=True,
-#                on_delete=models.SET_NULL, related_name='notifications')
-#
-#  Puis : python manage.py makemigrations && python manage.py migrate
-# ─────────────────────────────────────────────────────────────────────────────
-
-
+ 
+# ============================================================
+#  3. views.py — Vue client : payment_success (dashboard VIP)
+#     Accessible UNIQUEMENT si l'admin a activé acces_dashboard_vip
+# ============================================================
+ 
+@login_required
+def payment_success(request, paiement_id):
+    """
+    Dashboard VIP — accessible uniquement si :
+    - Le paiement appartient au client connecté
+    - Le statut est 'valide'
+    - L'admin a coché acces_dashboard_vip = True
+    """
+    paiement = get_object_or_404(
+        Paiement,
+        pk=paiement_id,
+        client=request.user
+    )
+ 
+    # ── Vérification statut ──
+    if paiement.statut != 'valide':
+        messages.warning(
+            request,
+            "⏳ Votre paiement est en cours de validation. "
+            "Vous aurez accès au dashboard dès confirmation."
+        )
+        return redirect('demandes:mes_demandes')
+ 
+    # ── Vérification accès VIP donné par l'admin ──
+    if not paiement.acces_dashboard_vip:
+        messages.info(
+            request,
+            "🔒 L'accès à ce dashboard sera activé par notre équipe très prochainement."
+        )
+        return redirect('demandes:mes_demandes')
+ 
+    return render(request, 'paiements/payment_success.html', {
+        'paiement': paiement,
+    })
+ 
+ # ============================================================
+#  4. Vue liste des paiements VIP du client
+# ============================================================
+ 
+@login_required
+def mes_paiements_valides(request):
+    """
+    Affiche uniquement les paiements pour lesquels
+    l'admin a accordé l'accès VIP.
+    """
+    paiements = Paiement.objects.filter(
+        client=request.user,
+        statut='valide',
+        acces_dashboard_vip=True          # ← seulement ceux autorisés par l'admin
+    ).select_related('commande').order_by('-date_validation')
+ 
+    return render(request, 'paiements/mes_paiements.html', {
+        'paiements': paiements,
+    })
 
 from apps.core.models import ContactMessage
  
@@ -1201,7 +1273,7 @@ def export_paiements_pdf(request):
     ]]
 
     statut_bg_map = []
-    for i, p in enumerate(paiements_qs, start=1):
+    for i, p in enumerate(paiements_qs, start=1): 
         st      = p.statut
         st_lbl  = STATUT_LABELS.get(st, st)
         montant_val = float(p.montant) if p.montant else 0

@@ -28,18 +28,19 @@ STATUTS = [
     ('annulee',    'Annulee'),
 ]
 
+
 class Demande(models.Model):
-    client       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='demandes')
-    type_travaux = models.CharField(max_length=30, choices=TYPES_TRAVAUX)
-    titre        = models.CharField(max_length=200)
-    description  = models.TextField()
-    localite     = models.CharField(max_length=200)
-    adresse      = models.TextField()
-    urgence      = models.CharField(max_length=20, choices=URGENCES, default='normale')
-    statut       = models.CharField(max_length=20, choices=STATUTS, default='en_attente')
-    technicien   = models.ForeignKey(Technicien, on_delete=models.SET_NULL, null=True, blank=True, related_name='demandes')
-    photo        = models.ImageField(upload_to='demandes/', blank=True, null=True)
-    notes_admin  = models.TextField(blank=True)
+    client           = models.ForeignKey(User, on_delete=models.CASCADE, related_name='demandes')
+    type_travaux     = models.CharField(max_length=30, choices=TYPES_TRAVAUX)
+    titre            = models.CharField(max_length=200)
+    description      = models.TextField()
+    localite         = models.CharField(max_length=200)
+    adresse          = models.TextField()
+    urgence          = models.CharField(max_length=20, choices=URGENCES, default='normale')
+    statut           = models.CharField(max_length=20, choices=STATUTS, default='en_attente')
+    technicien       = models.ForeignKey(Technicien, on_delete=models.SET_NULL, null=True, blank=True, related_name='demandes')
+    photo            = models.ImageField(upload_to='demandes/', blank=True, null=True)
+    notes_admin      = models.TextField(blank=True)
     date_creation    = models.DateTimeField(auto_now_add=True)
     date_modification= models.DateTimeField(auto_now=True)
     date_intervention= models.DateField(null=True, blank=True)
@@ -52,47 +53,27 @@ class Demande(models.Model):
 
     STATUTS = STATUTS
 
-class Notification(models.Model):
-    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    demande     = models.ForeignKey(Demande, on_delete=models.CASCADE, null=True, blank=True)
-    titre       = models.CharField(max_length=200)
-    message     = models.TextField()
-    lue         = models.BooleanField(default=False)
-    date        = models.DateTimeField(auto_now_add=True)
-    titre   = models.CharField(max_length=255, default='Notification')
-    type    = models.CharField(max_length=50, default='info')
-    lien    = models.CharField(max_length=500, null=True, blank=True)
-    paiement= models.ForeignKey('Paiement', null=True, blank=True,
-               on_delete=models.SET_NULL, related_name='notifications')
 
-    class Meta:
-        ordering = ['-date']
-
-    def __str__(self):
-        return f"{self.titre} - {self.utilisateur.username}"
-
-
-
-
+# ── Une seule classe Paiement ──
 class Paiement(models.Model):
 
     MODE_CHOICES = [
-        ('carte', 'Carte Bancaire'),
+        ('carte',     'Carte Bancaire'),
         ('livraison', 'À la Livraison'),
-        ('mobile', 'Mobile Money'),
+        ('mobile',    'Mobile Money'),
     ]
 
     FOURNISSEUR_CHOICES = [
         ('lumicash', 'Lumicash'),
-        ('ecocash', 'Ecocash'),
-        (None, 'N/A'),
+        ('ecocash',  'Ecocash'),
+        (None,       'N/A'),
     ]
 
     STATUT_CHOICES = [
         ('en_attente', 'En attente'),
-        ('valide', 'Validé'),
-        ('rejete', 'Rejeté'),
-        ('annule', 'Annulé'),
+        ('valide',     'Validé'),
+        ('rejete',     'Rejeté'),
+        ('annule',     'Annulé'),
     ]
 
     # Relations
@@ -127,7 +108,6 @@ class Paiement(models.Model):
         null=True, blank=True,
         verbose_name='Numéro mobile'
     )
-    # Pour carte bancaire (jamais stocker le CVV !)
     derniers_chiffres_carte = models.CharField(
         max_length=4,
         null=True, blank=True,
@@ -139,7 +119,7 @@ class Paiement(models.Model):
         verbose_name='Nom du titulaire'
     )
 
-    # ── Preuve de paiement (bordereau) ──
+    # Preuve de paiement
     numero_bordereau = models.CharField(
         max_length=100, null=True, blank=True,
         verbose_name='Numéro de bordereau'
@@ -182,7 +162,7 @@ class Paiement(models.Model):
     )
     note_admin = models.TextField(
         null=True, blank=True,
-        verbose_name='Note de l\'admin'
+        verbose_name="Note de l'admin"
     )
     valide_par = models.ForeignKey(
         'auth.User',
@@ -192,6 +172,12 @@ class Paiement(models.Model):
         verbose_name='Validé par',
     )
     date_validation = models.DateTimeField(null=True, blank=True)
+
+    # Accès dashboard VIP
+    acces_dashboard_vip = models.BooleanField(
+        default=False,
+        verbose_name='Accès dashboard VIP'
+    )
 
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -224,32 +210,46 @@ class Paiement(models.Model):
     def statut_badge_color(self):
         colors = {
             'en_attente': 'orange',
-            'valide': 'green',
-            'rejete': 'red',
-            'annule': 'gray',
+            'valide':     'green',
+            'rejete':     'red',
+            'annule':     'gray',
         }
         return colors.get(self.statut, 'gray')
 
 
+class Notification(models.Model):
+    utilisateur = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    demande     = models.ForeignKey(Demande, on_delete=models.CASCADE, null=True, blank=True)
+    paiement    = models.ForeignKey(Paiement, null=True, blank=True, on_delete=models.SET_NULL, related_name='notifications')
+    titre       = models.CharField(max_length=255, default='Notification')
+    message     = models.TextField()
+    type        = models.CharField(max_length=50, default='info')
+    lien        = models.CharField(max_length=500, null=True, blank=True)
+    lue         = models.BooleanField(default=False)
+    date        = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']
+
+    def __str__(self):
+        return f"{self.titre} - {self.utilisateur.username}"
+
+
 class InstructionPaiement(models.Model):
-    """
-    Instructions configurables par l'admin pour chaque mode de paiement.
-    Exemple: pour 'livraison', l'admin écrit les étapes à suivre.
-    """
     mode_paiement = models.CharField(
         max_length=20,
         choices=Paiement.MODE_CHOICES,
         unique=True,
         verbose_name='Mode de paiement'
     )
-    titre = models.CharField(max_length=200, verbose_name='Titre')
+    titre       = models.CharField(max_length=200, verbose_name='Titre')
     description = models.TextField(verbose_name='Description générale')
-    etapes = models.JSONField(
+    etapes      = models.JSONField(
         default=list,
         verbose_name='Étapes (liste)',
-        help_text='Liste des étapes sous forme de tableau JSON. Ex: ["Étape 1...", "Étape 2..."]'
+        help_text='Liste des étapes sous forme de tableau JSON.'
     )
-    actif = models.BooleanField(default=True, verbose_name='Actif')
+    actif      = models.BooleanField(default=True, verbose_name='Actif')
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:

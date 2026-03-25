@@ -10,6 +10,9 @@ urlpatterns = [
     path('notifications/',    views.notifications,    name='notifications'),
     path('api/notif-count/',  views.notif_count,      name='notif_count'),
     
+    #client deja paye
+    path('paiement/<int:paiement_id>/succes/', views.payment_success, name='payment_success'),
+    
     path('api/paiements/bordereau/', views.soumettre_bordereau, name='soumettre_bordereau'),
     
        # ── Paiements ──
